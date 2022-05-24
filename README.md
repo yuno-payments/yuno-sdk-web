@@ -112,22 +112,22 @@ Then add create a configuration object
 
 ```javascript
 /**
-   * configurations
+ * configurations
+ */
+const config = {
+  /**
+   * calback is called when one time token is created,
+   * merchant should create payment back to back
+   * @param { {oneTimeToken: string, checkoutSession: string}  } data 
    */
-  const config = {
-    /**
-     * calback is called when one time token is created,
-     * merchant should create payment back to back
-     * @param { {oneTimeToken: string, checkoutSession: string}  } data 
-     */
-    async onPay(data) {
-      // merchant should create payment back to back
-      await createPayment(data)
-      // after payment is create the SDK should continue its flow
-      yuno.paymentCreated()
-    },
-    country,
-  }
+  async onPay(data) {
+    // merchant should create payment back to back
+    await createPayment(data)
+    // after payment is create the SDK should continue its flow
+    yuno.paymentCreated()
+  },
+  country,
+}
 ```
 
 Finally mount the **SDK** in a `html` element, you can use any valid css selector (`#`, `.`, `[data-*]`).
