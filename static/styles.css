@@ -26,3 +26,9 @@
 
   color: #FEFEFE;
 }
+
+.list-group {
+  max-width: 50%;
+  margin: auto;
+  margin-top: 100px;
+}
