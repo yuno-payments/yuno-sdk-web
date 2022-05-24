@@ -185,7 +185,8 @@ const config = {
 Finally mount the **SDK** in a `html` element, you can use any valid css selector (`#`, `.`, `[data-*]`).
 
 ```javascript
-yuno.mountStatus({ 
+yuno.mountStatus({
+  checkoutSession: '438413b7-4921-41e4-b8f3-28a5a0141638',
   // element where the SDK will be mount on
   element: '#root',
   config 
