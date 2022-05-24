@@ -1,8 +1,12 @@
 import { getCheckoutSession, createPayment } from "./api.js"
 
-async function initCheckout () {
+async function initCheckoutLite() {
   // get checkout session from merchan back
   const { checkout_session, country } = await getCheckoutSession()
+  // this should be provided by the merchant
+  const TYPE = 'BANCOLOMBIA_TRANSFER'
+  // this should be provided by the merchant
+  const VAULTED_TOKEN = null
 
   // start Yuno SDK
   const yuno = new Yuno()
@@ -11,14 +15,6 @@ async function initCheckout () {
    * configurations
    */
   const config = {
-    /**
-     * callback is called when user selects a payment method
-     * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY', name: string} } data 
-     */
-    onSelected(data) {
-      console.log('onSelected', data)
-    },
-
     /**
      * calback is called when one time token is created,
      * merchant should create payment back to back
@@ -30,29 +26,17 @@ async function initCheckout () {
       // after payment is create the SDK should continue its flow
       yuno.paymentCreated()
     },
-    /**
-     * country can be one of CO, BR, CL, PE, EC, UR, MX
-     */
     country,
   }
 
-  /**
-   * mount checkout in browser DOM
-   */
-  yuno.mountCheckout({ 
+  yuno.mountCheckoutLite({ 
     checkoutSession: checkout_session,
+    type: TYPE,
     // element where the SDK will be mount on
-    element: '#root', 
+    element: '#root',
+    valutedToken: VAULTED_TOKEN,
     config 
-  })
-
-
-  // start payment when user clicks on merchant payment button
-  const PayButton = document.querySelector('#button-pay')
-  
-  PayButton.addEventListener('click', () => {
-    yuno.startPayment()
   })
 }
 
-window.addEventListener('load', initCheckout)
+window.addEventListener('load', initCheckoutLite)
