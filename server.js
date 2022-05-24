@@ -43,8 +43,6 @@ app.get('/status', (req, res) => {
 })
 
 app.post('/checkout/sessions', async (req, res) => {
-  console.log('checkout', `${YUNO_API_URL}/public-api/checkout/sessions`)
-  try {
   const response = await fetch(`${YUNO_API_URL}/public-api/checkout/sessions`, {
     method: 'POST',
     headers: {
@@ -64,11 +62,8 @@ app.post('/checkout/sessions', async (req, res) => {
       }
     })
   }).then(resp => resp.json())
-  
+
   res.send(response)
-  } catch (e) {
-    console.log('e', e)
-  }
 })
 
 app.post('/payments', async (req, res) => {
@@ -79,7 +74,7 @@ app.post('/payments', async (req, res) => {
     method: 'POST',
     headers: {
       'x-account-code': X_ACCOUNT_CODE,
-      'public-api-key': PRIVATE_SECRET_KEY,
+      'public-api-key': PUBLIC_API_KEY,
       'private-secret-key': PRIVATE_SECRET_KEY,
       'x-idempotency-key': v4(),
       'Content-Type': 'application/json',
@@ -119,7 +114,7 @@ app.post('/payments', async (req, res) => {
                       loyalty_tier: 'strin',
                       middle_name: 'string',
                       nationality: 'st',
-                      type: s
+                      type: 's'
                   }
               ],
               pnr: '1P-2UUGJW',
@@ -183,7 +178,7 @@ app.post('/payments', async (req, res) => {
           },
           email: 'pepitoperez@y.uno',
           first_name: 'Pepito',
-          gender: MALE,
+          gender: 'MALE',
           id: '78f22117-b442-4a94-952e-3f2bfa7ca7bc',
           ip_address: '192.168.123.167',
           last_name: 'Perez',
@@ -206,9 +201,9 @@ app.post('/payments', async (req, res) => {
           token: oneTimeToken
       }
     })
-  })
+  }).then(resp => resp.json())
 
-  res.json(response.json())
+  res.json(response)
 })
 
 app.listen(SERVER_PORT, () => {
