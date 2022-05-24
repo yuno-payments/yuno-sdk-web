@@ -1,6 +1,8 @@
+import { publicApiKey } from './api.js'
+
 function initStatus() {
   // start Yuno SDK
-  const yuno = new Yuno()
+  const yuno = new Yuno(publicApiKey)
   /**
    * configurations
    */
@@ -15,9 +17,10 @@ function initStatus() {
   }
 
   yuno.mountStatus({ 
+    checkoutSession: '438413b7-4921-41e4-b8f3-28a5a0141638',
     // element where the SDK will be mount on
     element: '#root',
-    config 
+    config,
   })
 }
 
