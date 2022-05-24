@@ -27,7 +27,7 @@ Instantiate `Yuno` class in your `JS` app
 const yuno = new Yuno()
 ```
 
-Then add create a configuration object
+Then create a configuration object
 
 ```javascript
  /**
@@ -90,8 +90,8 @@ PayButton.addEventListener('click', () => {
 })
 ```
 
-[Checkout demo html](checkout.html)  
-[Checkout demo js](static/checkout.js)
+[Checkout demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout.html)  
+[Checkout demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout.js)
 
 
 ## Use Checkout Lite
@@ -108,7 +108,7 @@ Instantiate `Yuno` class in your `JS` app
 const yuno = new Yuno()
 ```
 
-Then add create a configuration object
+Then create a configuration object
 
 ```javascript
 /**
@@ -148,8 +148,8 @@ yuno.mountCheckoutLite({
 
 After it is mounted, it will start the desired flow
 
-[Checkout lite demo html](checkout-lite.html)  
-[Checkout lite demo js](static/checkout-lite.js)
+[Checkout lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout-lite.html)  
+[Checkout lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout-lite.js)
 
 ## Use Status
 
@@ -165,7 +165,7 @@ Instantiate `Yuno` class in your `JS` app
 const yuno = new Yuno()
 ```
 
-Then add create a configuration object
+Then create a configuration object
 
 ```javascript
 /**
@@ -194,8 +194,8 @@ yuno.mountStatus({
 
 When you use this you should add the `checkout-session` query parameter to your URL with the `checkoutSession` you want to check its status like `?checkout-session=438413b7-4921-41e4-b8f3-28a5a0141638`
 
-[Status demo html](status.html)  
-[Status demo js](static/status.js)
+[Status demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/status.html)  
+[Status demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/status.js)
 
 
 ## Start Demo App
