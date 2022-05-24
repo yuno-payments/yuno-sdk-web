@@ -1,5 +1,12 @@
 # yuno-sdk-web
 
+## Table of Contents
+
+  - [Browser Requirements](#browser-requirements)
+  - [Use Full Checkout](#use-full-checkout)
+  - [Use Checkout Lite](#use-checkout-lite)
+  - [Use Status](#use-status)
+  - [Start Demo App](#start-demo-app)
 ## Browser Requirements
 
 * Any browser that supports [gRPC](https://grpc.io/blog/state-of-grpc-web/)
@@ -105,22 +112,22 @@ Then add create a configuration object
 
 ```javascript
 /**
-   * configurations
+ * configurations
+ */
+const config = {
+  /**
+   * calback is called when one time token is created,
+   * merchant should create payment back to back
+   * @param { {oneTimeToken: string, checkoutSession: string}  } data 
    */
-  const config = {
-    /**
-     * calback is called when one time token is created,
-     * merchant should create payment back to back
-     * @param { {oneTimeToken: string, checkoutSession: string}  } data 
-     */
-    async onPay(data) {
-      // merchant should create payment back to back
-      await createPayment(data)
-      // after payment is create the SDK should continue its flow
-      yuno.paymentCreated()
-    },
-    country,
-  }
+  async onPay(data) {
+    // merchant should create payment back to back
+    await createPayment(data)
+    // after payment is create the SDK should continue its flow
+    yuno.paymentCreated()
+  },
+  country,
+}
 ```
 
 Finally mount the **SDK** in a `html` element, you can use any valid css selector (`#`, `.`, `[data-*]`).
@@ -189,3 +196,24 @@ When you use this you should add the `checkout-session` query parameter to your 
 
 [Status demo html](status.html)  
 [Status demo js](static/status.js)
+
+
+## Start Demo App
+
+```sh
+> git clone https://github.com/yuno-payments/yuno-sdk-web.git
+> cd yuno-sdk-web
+> npm install
+> npm start
+```
+
+You need to create a `.env` file in the root folder with your test keys and server port
+
+```sh
+PORT=8080
+YUNO_X_ACCOUNT_CODE=abc
+YUNO_PUBLIC_API_KEY=abc
+YUNO_PRIVATE_SECRET_KEY=abc
+```
+
+Then got to [http://localhost:YOUR-PORT](http://localhost:YOUR-PORT)
