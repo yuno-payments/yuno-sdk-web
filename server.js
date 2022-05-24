@@ -43,6 +43,8 @@ app.get('/status', (req, res) => {
 })
 
 app.post('/checkout/sessions', async (req, res) => {
+  console.log('checkout', `${YUNO_API_URL}/public-api/checkout/sessions`)
+  try {
   const response = await fetch(`${YUNO_API_URL}/public-api/checkout/sessions`, {
     method: 'POST',
     headers: {
@@ -61,9 +63,12 @@ app.post('/checkout/sessions', async (req, res) => {
           value: 949
       }
     })
-  })
-
-  res.send(response.json())
+  }).then(resp => resp.json())
+  
+  res.send(response)
+  } catch (e) {
+    console.log('e', e)
+  }
 })
 
 app.post('/payments', async (req, res) => {
