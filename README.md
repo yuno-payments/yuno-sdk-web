@@ -1,5 +1,12 @@
 # yuno-sdk-web
 
+## Table of Contents
+
+  - [Browser Requirements](#browser-requirements)
+  - [Use Full Checkout](#use-full-checkout)
+  - [Use Checkout Lite](#use-checkout-lite)
+  - [Use Status](#use-status)
+  - [Start Demo App](#start-demo-app)
 ## Browser Requirements
 
 * Any browser that supports [gRPC](https://grpc.io/blog/state-of-grpc-web/)
@@ -194,10 +201,10 @@ When you use this you should add the `checkout-session` query parameter to your 
 ## Start Demo App
 
 ```sh
-git clone https://github.com/yuno-payments/yuno-sdk-web.git
-cd yuno-sdk-web
-npm install
-npm start
+> git clone https://github.com/yuno-payments/yuno-sdk-web.git
+> cd yuno-sdk-web
+> npm install
+> npm start
 ```
 
 You need to create a `.env` file in the root folder with your test keys and server port
