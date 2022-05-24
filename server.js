@@ -1,8 +1,9 @@
 const express = require('express')
 const path = require('path')
 const fetch = require('node-fetch')
-const res = require('express/lib/response')
 const v4 = require('uuid').v4
+
+require('dotenv').config()
 
 const YUNO_API_URL = 'https://api-dev.y.uno'
 
@@ -10,6 +11,8 @@ const YUNO_API_URL = 'https://api-dev.y.uno'
 const X_ACCOUNT_CODE = process.env.YUNO_X_ACCOUNT_CODE
 const PUBLIC_API_KEY = process.env.YUNO_PUBLIC_API_KEY
 const PRIVATE_SECRET_KEY = process.env.YUNO_PRIVATE_SECRET_KEY
+
+const SERVER_PORT = process.env.PORT
 
 const staticDirectory = path.join(__dirname, 'static')
 
@@ -44,7 +47,7 @@ app.post('/checkout/sessions', async (req, res) => {
     method: 'POST',
     headers: {
       'x-account-code': X_ACCOUNT_CODE,
-      'public-api-key': PRIVATE_SECRET_KEY,
+      'public-api-key': PUBLIC_API_KEY,
       'private-secret-key': PRIVATE_SECRET_KEY,
       'Content-Type': 'application/json',
     },
@@ -201,4 +204,8 @@ app.post('/payments', async (req, res) => {
   })
 
   res.json(response.json())
+})
+
+app.listen(SERVER_PORT, () => {
+  console.log(`server started at port: ${SERVER_PORT}`)
 })
