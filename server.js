@@ -19,7 +19,7 @@ const staticDirectory = path.join(__dirname, 'static')
 const indexPage = path.join(__dirname, 'index.html')
 const checkoutPage = path.join(__dirname, 'checkout.html')
 const checkoutLitePage = path.join(__dirname, 'checkout-lite.html')
-const statusPage = path.join(__dirname, 'checkout.html')
+const statusPage = path.join(__dirname, 'status.html')
 
 const app = express()
 
