@@ -1,6 +1,8 @@
+import { publicApiKey } from './api.js'
+
 function initStatus() {
   // start Yuno SDK
-  const yuno = new Yuno()
+  const yuno = new Yuno(publicApiKey)
   /**
    * configurations
    */

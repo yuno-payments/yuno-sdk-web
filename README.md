@@ -21,10 +21,10 @@ To use full checkout you should include our **SDK** file in your page before clo
 <script src="https://sdk-web.dev.y.uno/static/js/main.min.js"></script>
 ```
 
-Instantiate `Yuno` class in your `JS` app
+Instantiate `Yuno` class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = new Yuno()
+const yuno = new Yuno(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
@@ -102,10 +102,10 @@ To use checkout lite you should include our **SDK** file in your page before clo
 <script src="https://sdk-web.dev.y.uno/static/js/main.min.js"></script>
 ```
 
-Instantiate `Yuno` class in your `JS` app
+Instantiate `Yuno` class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = new Yuno()
+const yuno = new Yuno(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
@@ -159,10 +159,10 @@ To use status you should include our **SDK** file in your page before close your
 <script src="https://sdk-web.dev.y.uno/static/js/main.min.js"></script>
 ```
 
-Instantiate `Yuno` class in your `JS` app
+Instantiate `Yuno` class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = new Yuno()
+const yuno = new Yuno(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
