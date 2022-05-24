@@ -189,3 +189,24 @@ When you use this you should add the `checkout-session` query parameter to your 
 
 [Status demo html](status.html)  
 [Status demo js](static/status.js)
+
+
+## Start Demo App
+
+```sh
+git clone https://github.com/yuno-payments/yuno-sdk-web.git
+cd yuno-sdk-web
+npm install
+npm start
+```
+
+You need to create a `.env` file in the root folder with your test keys and server port
+
+```sh
+PORT=8080
+YUNO_X_ACCOUNT_CODE=abc
+YUNO_PUBLIC_API_KEY=abc
+YUNO_PRIVATE_SECRET_KEY=abc
+```
+
+Then got to [http://localhost:YOUR-PORT](http://localhost:YOUR-PORT)
