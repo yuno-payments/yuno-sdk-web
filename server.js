@@ -43,7 +43,7 @@ app.get('/status', (req, res) => {
 })
 
 app.post('/checkout/sessions', async (req, res) => {
-  const response = await fetch(`${YUNO_API_URL}/public-api/checkout/sessions`, {
+  const response = await fetch(`${YUNO_API_URL}/public-api/v1/checkout/sessions`, {
     method: 'POST',
     headers: {
       'x-account-code': X_ACCOUNT_CODE,
@@ -70,7 +70,7 @@ app.post('/payments', async (req, res) => {
   const checkoutSession = req.body.checkoutSession
   const oneTimeToken = req.body.oneTimeToken
 
-  const response = await fetch(`${YUNO_API_URL}/public-api/payments`, {
+  const response = await fetch(`${YUNO_API_URL}/public-api/v1/payments`, {
     method: 'POST',
     headers: {
       'x-account-code': X_ACCOUNT_CODE,
