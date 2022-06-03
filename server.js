@@ -46,13 +46,13 @@ app.post('/checkout/sessions', async (req, res) => {
   const response = await fetch(`${YUNO_API_URL}/public-api/v1/checkout/sessions`, {
     method: 'POST',
     headers: {
-      'x-account-code': X_ACCOUNT_CODE,
       'public-api-key': PUBLIC_API_KEY,
       'private-secret-key': PRIVATE_SECRET_KEY,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       merchant_order_id: '00001000',
+      account_id: X_ACCOUNT_CODE,
       payment_description: 'Test Wompi 09052022-21',
       country: 'CO',
       customer_id: '78f22117-b442-4a94-952e-3f2bfa7ca7bc',
@@ -73,14 +73,14 @@ app.post('/payments', async (req, res) => {
   const response = await fetch(`${YUNO_API_URL}/public-api/v1/payments`, {
     method: 'POST',
     headers: {
-      'x-account-code': X_ACCOUNT_CODE,
       'public-api-key': PUBLIC_API_KEY,
       'private-secret-key': PRIVATE_SECRET_KEY,
-      'x-idempotency-key': v4(),
+      'X-idempotency-key': v4(),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       description: 'Test SPINPAY 09052022-21',
+      account_id: X_ACCOUNT_CODE,
       merchant_order_id: '0000022',
       country: 'CO',
       additional_data: {
