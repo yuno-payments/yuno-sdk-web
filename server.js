@@ -5,7 +5,7 @@ const v4 = require('uuid').v4
 
 require('dotenv').config()
 
-const YUNO_API_URL = 'https://api-dev.y.uno'
+const YUNO_API_URL = 'https://api-sandbox.y.uno'
 
 // Ask for these keys to sales department 
 const X_ACCOUNT_CODE = process.env.YUNO_X_ACCOUNT_CODE
@@ -51,14 +51,14 @@ app.post('/checkout/sessions', async (req, res) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      merchant_order_id: '00001000',
       account_id: X_ACCOUNT_CODE,
-      payment_description: 'Test Wompi 09052022-21',
-      country: 'CO',
-      customer_id: '78f22117-b442-4a94-952e-3f2bfa7ca7bc',
+      merchant_order_id: "1654536326",
+      payment_description: "Test MP 1654536326",
+      country: "CO",
+      customer_id: "50b44f05-bddb-48cd-b25c-8c7646f6d76f",
       amount: {
-          currency: 'COP',
-          value: 949
+          currency: "COP",
+          value: 65377
       }
     })
   }).then(resp => resp.json())
@@ -179,10 +179,10 @@ app.post('/payments', async (req, res) => {
           email: 'pepitoperez@y.uno',
           first_name: 'Pepito',
           gender: 'MALE',
-          id: '78f22117-b442-4a94-952e-3f2bfa7ca7bc',
+          id: '50b44f05-bddb-48cd-b25c-8c7646f6d76f',
           ip_address: '192.168.123.167',
           last_name: 'Perez',
-          merchant_customer_id: 'example00234',
+          merchant_customer_id: '1654537722',
           nationality: 'CO',
           phone: {
               country_code: '57',
