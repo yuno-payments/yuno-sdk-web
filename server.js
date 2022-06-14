@@ -26,20 +26,24 @@ const app = express()
 app.use(express.json())
 app.use('/static', express.static(staticDirectory))
 
+app.get('/sdk-web/healthy', (req, res) => {
+  res.sendStatus(200)
+})
+
 app.get('/', (req, res) => {
-  res.sendFile(indexPage) 
+  res.sendFile(indexPage)
 })
 
 app.get('/checkout', (req, res) => {
-  res.sendFile(checkoutPage) 
+  res.sendFile(checkoutPage)
 })
 
 app.get('/checkout-lite', (req, res) => {
-  res.sendFile(checkoutLitePage) 
+  res.sendFile(checkoutLitePage)
 })
 
 app.get('/status', (req, res) => {
-  res.sendFile(statusPage) 
+  res.sendFile(statusPage)
 })
 
 app.post('/checkout/sessions', async (req, res) => {
@@ -57,8 +61,8 @@ app.post('/checkout/sessions', async (req, res) => {
       country: "CO",
       customer_id: "50b44f05-bddb-48cd-b25c-8c7646f6d76f",
       amount: {
-          currency: "COP",
-          value: 65377
+        currency: "COP",
+        value: 65377
       }
     })
   }).then(resp => resp.json())
@@ -84,121 +88,121 @@ app.post('/payments', async (req, res) => {
       merchant_order_id: '0000022',
       country: 'CO',
       additional_data: {
-          airline: {
-              legs: [
-                  {
-                      arrival_airport: 'AMS',
-                      base_fare: 200,
-                      base_fare_currency: 'BRL',
-                      carrier_code: 'KL',
-                      departure_airport: 'EZE',
-                      departure_airport_timezone: '-03:00',
-                      departure_datetime: '2014-05-12 13:05:00',
-                      fare_basis_code: 'HL7LNR',
-                      fare_class_code: 'FR',
-                      flight_number: '842',
-                      stopover_code: 's'
-                  }
-              ],
-              passengers: [
-                  {
-                      country: 'st',
-                      date_of_birth: 'stringstri',
-                      document: {
-                          document_number: '1042565431',
-                          document_type: 'CC'
-                      },
-                      first_name: 'string',
-                      last_name: 'string',
-                      loyalty_number: 'string',
-                      loyalty_tier: 'strin',
-                      middle_name: 'string',
-                      nationality: 'st',
-                      type: 's'
-                  }
-              ],
-              pnr: '1P-2UUGJW',
-              ticket: {
-                  ticket_number: '123456',
-                  restricted: false,
-                  total_fare_amount: 80.00,
-                  total_tax_amount: 22.00,
-                  total_fee_amount: 14.00,
-                  issue: null,
-                  e_ticket: false
-              }
-          },
-          order: {
-              fee_amount: 40.5,
-              items: [
-                  {
-                      brand: 'XYZ',
-                      category: 'Clothes',
-                      id: '123AD',
-                      manufacture_part_number: 'XYZ123456',
-                      name: 'Skirt',
-                      quantity: 3,
-                      sku_code: '8765432109',
-                      unit_amount: 20
-                  }
-              ],
-              shipping_amount: 10.35
+        airline: {
+          legs: [
+            {
+              arrival_airport: 'AMS',
+              base_fare: 200,
+              base_fare_currency: 'BRL',
+              carrier_code: 'KL',
+              departure_airport: 'EZE',
+              departure_airport_timezone: '-03:00',
+              departure_datetime: '2014-05-12 13:05:00',
+              fare_basis_code: 'HL7LNR',
+              fare_class_code: 'FR',
+              flight_number: '842',
+              stopover_code: 's'
+            }
+          ],
+          passengers: [
+            {
+              country: 'st',
+              date_of_birth: 'stringstri',
+              document: {
+                document_number: '1042565431',
+                document_type: 'CC'
+              },
+              first_name: 'string',
+              last_name: 'string',
+              loyalty_number: 'string',
+              loyalty_tier: 'strin',
+              middle_name: 'string',
+              nationality: 'st',
+              type: 's'
+            }
+          ],
+          pnr: '1P-2UUGJW',
+          ticket: {
+            ticket_number: '123456',
+            restricted: false,
+            total_fare_amount: 80.00,
+            total_tax_amount: 22.00,
+            total_fee_amount: 14.00,
+            issue: null,
+            e_ticket: false
           }
+        },
+        order: {
+          fee_amount: 40.5,
+          items: [
+            {
+              brand: 'XYZ',
+              category: 'Clothes',
+              id: '123AD',
+              manufacture_part_number: 'XYZ123456',
+              name: 'Skirt',
+              quantity: 3,
+              sku_code: '8765432109',
+              unit_amount: 20
+            }
+          ],
+          shipping_amount: 10.35
+        }
       },
       amount: {
-          currency: 'COP',
-          value: 68376
+        currency: 'COP',
+        value: 68376
       },
       checkout: {
-          session: checkoutSession
+        session: checkoutSession
       },
       customer_payer: {
-          billing_address: {
-              address_line_1: 'Calle 1 # 1 - 1',
-              address_line_2: 'Apartamento 1, Torre I',
-              city: 'Bogota',
-              country: 'CO',
-              state: 'Cundinamarca',
-              zip_code: '111111'
-          },
-          browser_info: {
-              accept_header: 'string',
-              color_depth: 'string',
-              javascript_enabled: 'string',
-              language: 'string',
-              screen_height: 'string',
-              screen_width: 'string',
-              user_agent: 'string'
-          },
-          date_of_birth: '1990-02-28',
-          device_fingerprint: 'hi88287gbd8d7d782ge....',
-          document: {
-              document_type: 'CC',
-              document_number: '1042565431'
-          },
-          email: 'pepitoperez@y.uno',
-          first_name: 'Pepito',
-          gender: 'MALE',
-          id: '50b44f05-bddb-48cd-b25c-8c7646f6d76f',
-          ip_address: '192.168.123.167',
-          last_name: 'Perez',
-          merchant_customer_id: '1654537722',
-          nationality: 'CO',
-          phone: {
-              country_code: '57',
-              number: '3001111111'
-          },
-          shipping_address: {
-            address_line_1: 'Calle 1 # 1 - 1',
-            address_line_2: 'Apartamento 1, Torre I',
-            city: 'Bogota',
-            country: 'CO',
-            state: 'Cundinamarca',
-            zip_code: '111111'
-          }
+        billing_address: {
+          address_line_1: 'Calle 1 # 1 - 1',
+          address_line_2: 'Apartamento 1, Torre I',
+          city: 'Bogota',
+          country: 'CO',
+          state: 'Cundinamarca',
+          zip_code: '111111'
+        },
+        browser_info: {
+          accept_header: 'string',
+          color_depth: 'string',
+          javascript_enabled: 'string',
+          language: 'string',
+          screen_height: 'string',
+          screen_width: 'string',
+          user_agent: 'string'
+        },
+        date_of_birth: '1990-02-28',
+        device_fingerprint: 'hi88287gbd8d7d782ge....',
+        document: {
+          document_type: 'CC',
+          document_number: '1042565431'
+        },
+        email: 'pepitoperez@y.uno',
+        first_name: 'Pepito',
+        gender: 'MALE',
+        id: '50b44f05-bddb-48cd-b25c-8c7646f6d76f',
+        ip_address: '192.168.123.167',
+        last_name: 'Perez',
+        merchant_customer_id: '1654537722',
+        nationality: 'CO',
+        phone: {
+          country_code: '57',
+          number: '3001111111'
+        },
+        shipping_address: {
+          address_line_1: 'Calle 1 # 1 - 1',
+          address_line_2: 'Apartamento 1, Torre I',
+          city: 'Bogota',
+          country: 'CO',
+          state: 'Cundinamarca',
+          zip_code: '111111'
+        }
       },
       payment_method: {
-          token: oneTimeToken
+        token: oneTimeToken
       }
     })
   }).then(resp => resp.json())
