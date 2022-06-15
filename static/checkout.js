@@ -1,8 +1,11 @@
-import { getCheckoutSession, createPayment, publicApiKey } from "./api.js"
+import { getCheckoutSession, createPayment, getPublicApiKey } from "./api.js"
 
 async function initCheckout () {
   // get checkout session from merchan back
   const { checkout_session, country } = await getCheckoutSession()
+
+  // get api key
+  const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
   const yuno = new Yuno(publicApiKey)
