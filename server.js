@@ -26,10 +26,6 @@ const app = express()
 app.use(express.json())
 app.use('/static', express.static(staticDirectory))
 
-app.get('/sdk-web/healthy', (req, res) => {
-  res.sendStatus(200)
-})
-
 app.get('/', (req, res) => {
   res.sendFile(indexPage)
 })
@@ -208,6 +204,14 @@ app.post('/payments', async (req, res) => {
   }).then(resp => resp.json())
 
   res.json(response)
+})
+
+app.get('/sdk-web/healthy', (req, res) => {
+  res.sendStatus(200)
+})
+
+app.get('/public-api-key', (req, res) => {
+  res.json({ publicApiKey: PUBLIC_API_KEY })
 })
 
 app.listen(SERVER_PORT, () => {

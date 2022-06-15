@@ -1,4 +1,4 @@
-import { getCheckoutSession, createPayment, publicApiKey } from "./api.js"
+import { getCheckoutSession, createPayment, getPublicApiKey } from "./api.js"
 
 async function initCheckoutLite() {
   // get checkout session from merchan back
@@ -7,6 +7,9 @@ async function initCheckoutLite() {
   const TYPE = 'BANCOLOMBIA_TRANSFER'
   // this should be provided by the merchant
   const VAULTED_TOKEN = null
+
+  // get api key
+  const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
   const yuno = new Yuno(publicApiKey)

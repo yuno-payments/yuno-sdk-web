@@ -1,5 +1,11 @@
-// Ask for these key to sales department PUBLIC_API_KEY
-export const publicApiKey = 'PUBLIC_API_KEY'
+// Ask for this key to sales department: PUBLIC_API_KEY
+export async function getPublicApiKey() {
+  return fetch('/public-api-key', {
+    method: 'GET'
+  })
+  .then(resp => resp.json())
+  .then(resp => resp.publicApiKey)
+}
 
 export async function getCheckoutSession() {
   return fetch('/checkout/sessions', {
