@@ -2,7 +2,7 @@ import { getCheckoutSession, createPayment, getPublicApiKey } from "./api.js"
 
 async function initCheckout () {
   // get checkout session from merchan back
-  const { checkout_session: checkoutSession, country } = await getCheckoutSession()
+  const { checkout_session: checkoutSession, country: countryCode } = await getCheckoutSession()
 
   // get api key
   const publicApiKey = await getPublicApiKey()
@@ -19,7 +19,7 @@ async function initCheckout () {
     /**
      * country can be one of CO, BR, CL, PE, EC, UR, MX
      */
-     countryCode: country,
+     countryCode,
      /**
       * language can be one of es, en, pt
       */
@@ -39,7 +39,7 @@ async function initCheckout () {
     },
     /**
      * callback is called when user selects a payment method
-     * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY', name: string} } data 
+     * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO', name: string} } data 
      */
     yunoPaymentMethodSelected(data) {
       console.log('onPaymentMethodSelected', data)
