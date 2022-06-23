@@ -172,35 +172,28 @@ Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 const yuno = Yuno.initialize(PUBLIC_API_KEY)
 ```
 
-Then create a configuration object
-
-```javascript
-/**
- * configurations
- */
-const config = {
-  /**
-   * 
-   * @param {{ status: 'CREATED' | 'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED'}} data 
-   */
-  onStatus(data) {
-    console.log('onStatus', data)
-  },
-}
-```
-
 Finally mount the **SDK** in a `html` element, you can use any valid css selector (`#`, `.`, `[data-*]`).
 
 ```javascript
-yuno.mountStatus({
-  checkoutSession: '438413b7-4921-41e4-b8f3-28a5a0141638',
-  // element where the SDK will be mount on
-  element: '#root',
-  config 
+yuno.mountStatusPayment({
+  checkoutSession: 'b5c3ee12-cbf6-4097-83c3-a723e9c235ad',
+  /**
+   * country can be one of CO, BR, CL, PE, EC, UR, MX
+   */
+  countryCode: 'CO',
+  /**
+  * language can be one of es, en, pt
+  */
+  language: 'es',
+  /**
+   * 
+   * @param {*} data 
+   */
+  yunoPaymentResult(data) {
+    console.log('yunoPaymentResult', data)
+  }
 })
 ```
-
-When you use this you should add the `checkout-session` query parameter to your URL with the `checkoutSession` you want to check its status like `?checkout-session=438413b7-4921-41e4-b8f3-28a5a0141638`
 
 [Status demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/status.html)  
 [Status demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/status.js)
@@ -222,6 +215,8 @@ PORT=8080
 YUNO_X_ACCOUNT_CODE=abc
 YUNO_PUBLIC_API_KEY=abc
 YUNO_PRIVATE_SECRET_KEY=abc
+YUNO_API_URL=yuno-environment-url
+YUNO_CUSTOMER_ID=abc
 ```
 
 Then got to [http://localhost:YOUR-PORT](http://localhost:YOUR-PORT)
