@@ -1,30 +1,31 @@
 import { getPublicApiKey } from './api.js'
 
-function initStatus() {
+async function initStatus() {
   // get api key
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = new Yuno(publicApiKey)
+  const yuno = Yuno.initialize(publicApiKey)
   /**
-   * configurations
+   * Mount status in the DOM
    */
-  const config = {
+  yuno.mountStatusPayment({
+    checkoutSession: 'b5c3ee12-cbf6-4097-83c3-a723e9c235ad',
+    /**
+     * country can be one of CO, BR, CL, PE, EC, UR, MX
+     */
+    countryCode: 'CO',
+    /**
+    * language can be one of es, en, pt
+    */
+    language: 'es',
     /**
      * 
-     * @param {{ status: 'CREATED' | 'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED'}} data 
+     * @param {*} data 
      */
-    onStatus(data) {
-      console.log('onStatus', data)
-    },
-    country: 'CO'
-  }
-
-  yuno.mountStatus({ 
-    checkoutSession: '00d45705-5322-4edc-8c1b-6038acbabe07',
-    // element where the SDK will be mount on
-    element: '#root',
-    config,
+    yunoPaymentResult(data) {
+      console.log('yunoPaymentResult', data)
+    }
   })
 }
 
