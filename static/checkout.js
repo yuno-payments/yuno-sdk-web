@@ -2,52 +2,54 @@ import { getCheckoutSession, createPayment, getPublicApiKey } from "./api.js"
 
 async function initCheckout () {
   // get checkout session from merchan back
-  const { checkout_session, country } = await getCheckoutSession()
+  const { checkout_session: checkoutSession, country } = await getCheckoutSession()
 
   // get api key
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = new Yuno(publicApiKey)
-
+  const yuno = Yuno.initialize(publicApiKey)
   /**
-   * configurations
+   * checkout configuration
    */
-  const config = {
+  yuno.startCheckout({ 
+    checkoutSession,
+    // element where the SDK will be mount on
+    elementSelector: '#root', 
+    /**
+     * country can be one of CO, BR, CL, PE, EC, UR, MX
+     */
+     countryCode: country,
+     /**
+      * language can be one of es, en, pt
+      */
+     language: 'es',
+     /**
+     * calback is called when one time token is created,
+     * merchant should create payment back to back
+     * @param { oneTimeToken: string } data 
+     */
+     async yunoCreatePayment(oneTimeToken) {
+      await createPayment({ oneTimeToken, checkoutSession })
+
+      /**
+       * call only if the SDK needs to continue the payment flow
+       */
+      yuno.continuePayment()
+    },
     /**
      * callback is called when user selects a payment method
      * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY', name: string} } data 
      */
-    onSelected(data) {
-      console.log('onSelected', data)
-    },
-
-    /**
-     * calback is called when one time token is created,
-     * merchant should create payment back to back
-     * @param { {oneTimeToken: string, checkoutSession: string}  } data 
-     */
-    async onPay(data) {
-      // merchant should create payment back to back
-      await createPayment(data)
-      // after payment is create the SDK should continue its flow
-      yuno.paymentCreated()
-    },
-    /**
-     * country can be one of CO, BR, CL, PE, EC, UR, MX
-     */
-    country,
-  }
+    yunoPaymentMethodSelected(data) {
+      console.log('onPaymentMethodSelected', data)
+    }
+  })
 
   /**
    * mount checkout in browser DOM
    */
-  yuno.mountCheckout({ 
-    checkoutSession: checkout_session,
-    // element where the SDK will be mount on
-    element: '#root', 
-    config 
-  })
+  yuno.mountCheckout()
 
 
   // start payment when user clicks on merchant payment button

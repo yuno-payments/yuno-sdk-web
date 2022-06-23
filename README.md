@@ -18,46 +18,51 @@
 To use full checkout you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.dev.y.uno/static/js/main.min.js"></script>
+<script src="https://sdk-web.dev.y.uno/0.1.1/static/js/main.min.js"></script>
 ```
 
-Instantiate `Yuno` class in your `JS` app with a valid **PUBLIC_API_KEY**
+Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = new Yuno(PUBLIC_API_KEY)
+const yuno = Yuno.initialize(PUBLIC_API_KEY)
 ```
 
-Then create a configuration object
+Then start checkout with configuration
 
 ```javascript
- /**
- * configurations
- */
-const config = {
+yuno.startCheckout({ 
+  checkoutSession,
+  // element where the SDK will be mount on
+  elementSelector: '#root', 
+  /**
+   * country can be one of CO, BR, CL, PE, EC, UR, MX
+   */
+    countryCode: country,
+    /**
+    * language can be one of es, en, pt
+    */
+    language: 'es',
+    /**
+   * calback is called when one time token is created,
+   * merchant should create payment back to back
+   * @param { oneTimeToken: string } data 
+   */
+    async yunoCreatePayment(oneTimeToken) {
+    await createPayment({ oneTimeToken, checkoutSession })
+
+    /**
+     * call only if the SDK needs to continue the payment flow
+     */
+    yuno.continuePayment()
+  },
   /**
    * callback is called when user selects a payment method
    * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY', name: string} } data 
    */
-  onSelected(data) {
-    console.log('onSelected', data)
-  },
-
-  /**
-   * calback is called when one time token is created,
-   * merchant should create payment back to back
-   * @param { {oneTimeToken: string, checkoutSession: string}  } data 
-   */
-  async onPay(data) {
-    // merchant should create payment back to back
-    await createPayment(data)
-    // after payment is create the SDK should continue its flow
-    yuno.paymentCreated()
-  },
-  /**
-   * country can be one of CO, BR, CL, PE, EC, UR, MX
-   */
-  country,
-}
+  yunoPaymentMethodSelected(data) {
+    console.log('onPaymentMethodSelected', data)
+  }
+})
 ```
 
 Finally mount the **SDK** in a `html` element, you can use any valid css selector (`#`, `.`, `[data-*]`).
@@ -66,13 +71,7 @@ Finally mount the **SDK** in a `html` element, you can use any valid css selecto
 /**
  * mount checkout in browser DOM
  */
-yuno.mountCheckout({ 
-  // you need a valid checkout session
-  checkoutSession,
-  // element where the SDK will be mount on
-  element: '#root', 
-  config 
-})
+yuno.mountCheckout()
 ```
 
 Remember you need to call 
