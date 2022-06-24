@@ -78,6 +78,8 @@ app.post('/payments', async (req, res) => {
   const oneTimeToken = req.body.oneTimeToken
   const country = req.query.country || 'CO'
   const currency = country === "CO" ? "COP" : "BRL"
+  const documentNumber = country === "CO" ? "1032765432" : "351.040.753-97"
+  const documentType = country === "CO" ? "CC" : "CPF"
 
   const response = await fetch(`${YUNO_API_URL}/public-api/v1/payments`, {
     method: 'POST',
@@ -114,8 +116,8 @@ app.post('/payments', async (req, res) => {
               country: 'st',
               date_of_birth: 'stringstri',
               document: {
-                document_number: '1032765432',
-                document_type: 'CC',
+                document_number: documentNumber,
+                document_type: documentType,
               },
               first_name: 'string',
               last_name: 'string',
@@ -182,8 +184,8 @@ app.post('/payments', async (req, res) => {
         date_of_birth: '1990-02-28',
         device_fingerprint: 'hi88287gbd8d7d782ge....',
         document: {
-          document_type: 'CC',
-          document_number: '1032765432',
+          document_type: documentType,
+          document_number: documentNumber,
         },
         email: 'pepitoperez@y.uno',
         first_name: 'Pepito',
