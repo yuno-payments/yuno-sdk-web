@@ -1,6 +1,6 @@
 // Ask for this key to sales department: PUBLIC_API_KEY
 export async function getPublicApiKey() {
-  return fetch('/public-api-key', {
+  return fetch(`/public-api-key${window.location.search}`, {
     method: 'GET'
   })
   .then(resp => resp.json())
@@ -8,14 +8,14 @@ export async function getPublicApiKey() {
 }
 
 export async function getCheckoutSession() {
-  return fetch('/checkout/sessions', {
+  return fetch(`/checkout/sessions${window.location.search}`, {
     method: 'POST'
   })
   .then(resp => resp.json())
 }
 
 export async function createPayment(data) {
-  return fetch('/payments', {
+  return fetch(`/payments${window.location.search}`, {
     method: 'POST',
     body: JSON.stringify(data),
     headers: {
