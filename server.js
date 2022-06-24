@@ -44,6 +44,9 @@ app.get('/status', (req, res) => {
 })
 
 app.post('/checkout/sessions', async (req, res) => {
+  const country = req.query.country || 'CO'
+  const currency = country === "CO" ? "COP" : "BRL"
+
   const response = await fetch(
     `${YUNO_API_URL}/public-api/v1/checkout/sessions`,
     {
@@ -57,10 +60,10 @@ app.post('/checkout/sessions', async (req, res) => {
         account_id: YUNO_X_ACCOUNT_CODE,
         merchant_order_id: '1655401222',
         payment_description: 'Test MP 1654536326',
-        country: 'CO',
+        country,
         customer_id: YUNO_CUSTOMER_ID,
         amount: {
-          currency: 'COP',
+          currency,
           value: 2000,
         },
       }),
@@ -73,6 +76,8 @@ app.post('/checkout/sessions', async (req, res) => {
 app.post('/payments', async (req, res) => {
   const checkoutSession = req.body.checkoutSession
   const oneTimeToken = req.body.oneTimeToken
+  const country = req.query.country || 'CO'
+  const currency = country === "CO" ? "COP" : "BRL"
 
   const response = await fetch(`${YUNO_API_URL}/public-api/v1/payments`, {
     method: 'POST',
@@ -86,7 +91,7 @@ app.post('/payments', async (req, res) => {
       description: 'Test Addi',
       account_id: YUNO_X_ACCOUNT_CODE,
       merchant_order_id: '0000022',
-      country: 'CO',
+      country,
       additional_data: {
         airline: {
           legs: [
@@ -150,7 +155,7 @@ app.post('/payments', async (req, res) => {
         },
       },
       amount: {
-        currency: 'COP',
+        currency,
         value: 2000,
       },
       checkout: {
@@ -161,7 +166,7 @@ app.post('/payments', async (req, res) => {
           address_line_1: 'Calle 34 # 56 - 78',
           address_line_2: 'Apartamento 502, Torre I',
           city: 'Bogota',
-          country: 'CO',
+          country,
           state: 'Cundinamarca',
           zip_code: '111111',
         },
@@ -187,7 +192,7 @@ app.post('/payments', async (req, res) => {
         ip_address: '192.168.123.167',
         last_name: 'Perez',
         merchant_customer_id: 'example00234',
-        nationality: 'CO',
+        nationality: country,
         phone: {
           country_code: '57',
           number: '3132450765',
@@ -196,7 +201,7 @@ app.post('/payments', async (req, res) => {
           address_line_1: 'Calle 34 # 56 - 78',
           address_line_2: 'Apartamento 502, Torre I',
           city: 'Bogota',
-          country: 'CO',
+          country,
           state: 'Cundinamarca',
           zip_code: '111111',
         },
