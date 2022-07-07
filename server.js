@@ -21,6 +21,7 @@ const indexPage = path.join(__dirname, 'index.html')
 const checkoutPage = path.join(__dirname, 'checkout.html')
 const checkoutLitePage = path.join(__dirname, 'checkout-lite.html')
 const statusPage = path.join(__dirname, 'status.html')
+const statusLitePage = path.join(__dirname, 'status-lite.html')
 
 const app = express()
 
@@ -41,6 +42,10 @@ app.get('/checkout-lite', (req, res) => {
 
 app.get('/status', (req, res) => {
   res.sendFile(statusPage)
+})
+
+app.get('/status-lite', (req, res) => {
+  res.sendFile(statusLitePage)
 })
 
 app.post('/checkout/sessions', async (req, res) => {

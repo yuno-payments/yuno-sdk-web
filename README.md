@@ -198,6 +198,32 @@ yuno.mountStatusPayment({
 [Status demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/status.html)  
 [Status demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/status.js)
 
+## Use Status Lite
+
+To use status lite you should include our **SDK** file in your page before close your `<body>` tag
+
+```html
+<script src="https://sdk-web.dev.y.uno/1.0.0/static/js/main.min.js"></script>
+```
+
+Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
+
+```javascript
+const yuno = Yuno.initialize(PUBLIC_API_KEY)
+```
+
+Finally call the **SDK** `yunoPaymentResult` method.
+
+```javascript
+/**
+ * Call method that returns status
+ * 
+ * @return {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'}
+ */
+const status = await yuno.yunoPaymentResult(checkoutSession)
+```
+[Status Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/status-lite.html)  
+[Status Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/status-lite.js)
 
 ## Start Demo App
 
