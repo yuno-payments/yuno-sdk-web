@@ -18,7 +18,7 @@
 To use full checkout you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.dev.y.uno/0.1.1/static/js/main.min.js"></script>
+<script src="https://sdk-web.dev.y.uno/1.0.0/static/js/main.min.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -98,7 +98,7 @@ PayButton.addEventListener('click', () => {
 To use checkout lite you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.dev.y.uno/0.1.1/static/js/main.min.js"></script>
+<script src="https://sdk-web.dev.y.uno/1.0.0/static/js/main.min.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -163,7 +163,7 @@ After it is mounted, it will start the desired flow
 To use status you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.dev.y.uno/0.1.1/static/js/main.min.js"></script>
+<script src="https://sdk-web.dev.y.uno/1.0.0/static/js/main.min.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -176,7 +176,7 @@ Finally mount the **SDK** in a `html` element, you can use any valid css selecto
 
 ```javascript
 yuno.mountStatusPayment({
-  checkoutSession: 'b5c3ee12-cbf6-4097-83c3-a723e9c235ad',
+  checkoutSession: '438413b7-4921-41e4-b8f3-28a5a0141638',
   /**
    * country can be one of CO, BR, CL, PE, EC, UR, MX
    */
@@ -187,7 +187,7 @@ yuno.mountStatusPayment({
   language: 'es',
   /**
    * 
-   * @param {*} data 
+   * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
    */
   yunoPaymentResult(data) {
     console.log('yunoPaymentResult', data)

@@ -48,7 +48,7 @@ app.post('/checkout/sessions', async (req, res) => {
   const currency = country === "CO" ? "COP" : "BRL"
 
   const response = await fetch(
-    `${YUNO_API_URL}/public-api/v1/checkout/sessions`,
+    `${YUNO_API_URL}/v1/checkout/sessions`,
     {
       method: 'POST',
       headers: {
@@ -81,7 +81,7 @@ app.post('/payments', async (req, res) => {
   const documentNumber = country === "CO" ? "1032765432" : "351.040.753-97"
   const documentType = country === "CO" ? "CC" : "CPF"
 
-  const response = await fetch(`${YUNO_API_URL}/public-api/v1/payments`, {
+  const response = await fetch(`${YUNO_API_URL}/v1/payments`, {
     method: 'POST',
     headers: {
       'public-api-key': YUNO_PUBLIC_API_KEY,

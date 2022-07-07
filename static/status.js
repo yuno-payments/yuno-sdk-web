@@ -10,7 +10,7 @@ async function initStatus() {
    * Mount status in the DOM
    */
   yuno.mountStatusPayment({
-    checkoutSession: 'b5c3ee12-cbf6-4097-83c3-a723e9c235ad',
+    checkoutSession: '438413b7-4921-41e4-b8f3-28a5a0141638',
     /**
      * country can be one of CO, BR, CL, PE, EC, UR, MX
      */
@@ -21,7 +21,7 @@ async function initStatus() {
     language: 'es',
     /**
      * 
-     * @param {*} data 
+     * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
      */
     yunoPaymentResult(data) {
       console.log('yunoPaymentResult', data)
