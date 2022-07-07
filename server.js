@@ -21,6 +21,7 @@ const indexPage = path.join(__dirname, 'index.html')
 const checkoutPage = path.join(__dirname, 'checkout.html')
 const checkoutLitePage = path.join(__dirname, 'checkout-lite.html')
 const statusPage = path.join(__dirname, 'status.html')
+const statusLitePage = path.join(__dirname, 'status-lite.html')
 
 const app = express()
 
@@ -43,12 +44,16 @@ app.get('/status', (req, res) => {
   res.sendFile(statusPage)
 })
 
+app.get('/status-lite', (req, res) => {
+  res.sendFile(statusLitePage)
+})
+
 app.post('/checkout/sessions', async (req, res) => {
   const country = req.query.country || 'CO'
   const currency = country === "CO" ? "COP" : "BRL"
 
   const response = await fetch(
-    `${YUNO_API_URL}/public-api/v1/checkout/sessions`,
+    `${YUNO_API_URL}/v1/checkout/sessions`,
     {
       method: 'POST',
       headers: {
@@ -81,7 +86,7 @@ app.post('/payments', async (req, res) => {
   const documentNumber = country === "CO" ? "1032765432" : "351.040.753-97"
   const documentType = country === "CO" ? "CC" : "CPF"
 
-  const response = await fetch(`${YUNO_API_URL}/public-api/v1/payments`, {
+  const response = await fetch(`${YUNO_API_URL}/v1/payments`, {
     method: 'POST',
     headers: {
       'public-api-key': YUNO_PUBLIC_API_KEY,
