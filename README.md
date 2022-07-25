@@ -18,7 +18,7 @@
 To use full checkout you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.dev.y.uno/1.0.0/static/js/main.min.js"></script>
+<script src="https://sdk-web.dev.y.uno/v1/static/js/main.min.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -98,7 +98,7 @@ PayButton.addEventListener('click', () => {
 To use checkout lite you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.dev.y.uno/1.0.0/static/js/main.min.js"></script>
+<script src="https://sdk-web.dev.y.uno/v1/static/js/main.min.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -163,7 +163,7 @@ After it is mounted, it will start the desired flow
 To use status you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.dev.y.uno/1.0.0/static/js/main.min.js"></script>
+<script src="https://sdk-web.dev.y.uno/v1/static/js/main.min.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -203,7 +203,7 @@ yuno.mountStatusPayment({
 To use status lite you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.dev.y.uno/1.0.0/static/js/main.min.js"></script>
+<script src="https://sdk-web.dev.y.uno/v1/static/js/main.min.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
