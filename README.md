@@ -143,7 +143,7 @@ Finally mount the **SDK** in a `html` element, you can use any valid css selecto
 ```javascript
 yuno.mountCheckoutLite({
   /**
-   * can be one of 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO
+   * can be one of 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO | CARD
    */
   paymentMethodType: PAYMENT_METHOD_TYPE,
   /**
@@ -245,4 +245,7 @@ YUNO_API_URL=yuno-environment-url
 YUNO_CUSTOMER_ID=abc
 ```
 
-Then got to [http://localhost:YOUR-PORT](http://localhost:YOUR-PORT)
+Then got to [http://localhost:YOUR-PORT](http://localhost:YOUR-PORT)  
+
+To change the country you can add a query parameter named `country` with one of `CO, BR, CL, PE, EC, UR, MX`  
+[http://localhost:YOUR-PORT?country=CO](http://localhost:YOUR-PORT?country=CO)

@@ -2,8 +2,10 @@ const express = require('express')
 const path = require('path')
 const fetch = require('node-fetch')
 const v4 = require('uuid').v4
+const { getCountryData } = require('./utils')
 
 require('dotenv').config()
+
 
 const YUNO_API_URL = process.env.YUNO_API_URL
 
@@ -50,7 +52,7 @@ app.get('/status-lite', (req, res) => {
 
 app.post('/checkout/sessions', async (req, res) => {
   const country = req.query.country || 'CO'
-  const currency = country === "CO" ? "COP" : "BRL"
+  const { currency } = getCountryData(country)
 
   const response = await fetch(
     `${YUNO_API_URL}/v1/checkout/sessions`,
@@ -82,9 +84,7 @@ app.post('/payments', async (req, res) => {
   const checkoutSession = req.body.checkoutSession
   const oneTimeToken = req.body.oneTimeToken
   const country = req.query.country || 'CO'
-  const currency = country === "CO" ? "COP" : "BRL"
-  const documentNumber = country === "CO" ? "1032765432" : "351.040.753-97"
-  const documentType = country === "CO" ? "CC" : "CPF"
+  const { currency, documentNumber, documentType, amount } = getCountryData(country)
 
   const response = await fetch(`${YUNO_API_URL}/v1/payments`, {
     method: 'POST',
@@ -163,7 +163,7 @@ app.post('/payments', async (req, res) => {
       },
       amount: {
         currency,
-        value: 2000,
+        value: amount,
       },
       checkout: {
         session: checkoutSession,

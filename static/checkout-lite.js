@@ -3,8 +3,11 @@ import { getCheckoutSession, createPayment, getPublicApiKey } from "./api.js"
 async function initCheckoutLite() {
   // get checkout session from merchan back
   const { checkout_session: checkoutSession, country: countryCode } = await getCheckoutSession()
-  // this should be provided by the merchant
-  const PAYMENT_METHOD_TYPE = 'BANCOLOMBIA_TRANSFER'
+  /**
+   * this should be provided by the merchant
+   * can be one of 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO | CARD
+   */
+  const PAYMENT_METHOD_TYPE = 'CARD'
   // this should be provided by the merchant
   const VAULTED_TOKEN = null
 
