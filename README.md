@@ -244,7 +244,14 @@ YUNO_API_URL=yuno-environment-url
 YUNO_CUSTOMER_ID=abc
 ```
 
-Then got to [http://localhost:YOUR-PORT](http://localhost:YOUR-PORT)  
+[YUNO_X_ACCOUNT_CODE](https://dashboard.y.uno/developers)  
+[YUNO_PUBLIC_API_KEY](https://docs.y.uno/reference/authentication)  
+[YUNO_PRIVATE_SECRET_KEY](https://docs.y.uno/reference/authentication)  
+[YUNO_API_URL](https://docs.y.uno/reference/introduction)   
+[YUNO_CUSTOMER_ID](https://docs.y.uno/reference/create-a-customer)  
+
+
+Then go to [http://localhost:YOUR-PORT](http://localhost:YOUR-PORT)  
 
 To change the country you can add a query parameter named `country` with one of `CO, BR, CL, PE, EC, UR, MX`  
 [http://localhost:YOUR-PORT?country=CO](http://localhost:YOUR-PORT?country=CO)
