@@ -15,7 +15,7 @@ const YUNO_PUBLIC_API_KEY = process.env.YUNO_PUBLIC_API_KEY
 const YUNO_PRIVATE_SECRET_KEY = process.env.YUNO_PRIVATE_SECRET_KEY
 const YUNO_CUSTOMER_ID = process.env.YUNO_CUSTOMER_ID
 
-const SERVER_PORT = process.env.PORT
+const SERVER_PORT = process.env.PORT || 8080
 
 const staticDirectory = path.join(__dirname, 'static')
 
