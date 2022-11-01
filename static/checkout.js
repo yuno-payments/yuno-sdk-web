@@ -45,6 +45,13 @@ async function initCheckout () {
       console.log('onPaymentMethodSelected', data)
     },
     /**
+     * 
+     * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
+     */
+    yunoPaymentResult(data) {
+      console.log('yunoPaymentResult', data)
+    },
+    /**
      * @param { error: 'CANCELED_BY_USER' | any }
      */
     yunoError: (error) => {

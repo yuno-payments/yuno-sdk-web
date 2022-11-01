@@ -36,17 +36,17 @@ yuno.startCheckout({
   /**
    * country can be one of CO, BR, CL, PE, EC, UR, MX
    */
-    countryCode: country,
-    /**
-    * language can be one of es, en, pt
-    */
-    language: 'es',
-    /**
+  countryCode: country,
+  /**
+  * language can be one of es, en, pt
+  */
+  language: 'es',
+  /**
    * calback is called when one time token is created,
    * merchant should create payment back to back
    * @param { oneTimeToken: string } data 
    */
-    async yunoCreatePayment(oneTimeToken) {
+  async yunoCreatePayment(oneTimeToken) {
     await createPayment({ oneTimeToken, checkoutSession })
 
     /**
@@ -60,6 +60,13 @@ yuno.startCheckout({
    */
   yunoPaymentMethodSelected(data) {
     console.log('onPaymentMethodSelected', data)
+  },
+  /**
+   * 
+   * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
+   */
+  yunoPaymentResult(data) {
+    console.log('yunoPaymentResult', data)
   },
   /**
    * @param { error: 'CANCELED_BY_USER' | any }
@@ -128,10 +135,10 @@ yuno.startCheckout({
   */
   language: 'es',
   /**
- * calback is called when one time token is created,
- * merchant should create payment back to back
- * @param { oneTimeToken: string } data 
- */
+   * calback is called when one time token is created,
+   * merchant should create payment back to back
+   * @param { oneTimeToken: string } data 
+   */
   async yunoCreatePayment(oneTimeToken) {
     await createPayment({ oneTimeToken, checkoutSession })
 
@@ -139,6 +146,13 @@ yuno.startCheckout({
      * call only if the SDK needs to continue the payment flow
      */
     yuno.continuePayment()
+  },
+  /**
+   * 
+   * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
+   */
+  yunoPaymentResult(data) {
+    console.log('yunoPaymentResult', data)
   },
   /**
    * @param { error: 'CANCELED_BY_USER' | any }
