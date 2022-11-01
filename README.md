@@ -60,7 +60,7 @@ yuno.startCheckout({
    */
   yunoPaymentMethodSelected(data) {
     console.log('onPaymentMethodSelected', data)
-  }
+  },
   /**
    * @param { error: 'CANCELED_BY_USER' | any }
    */
