@@ -26,23 +26,29 @@ async function initCheckoutLite() {
     /**
      * country can be one of CO, BR, CL, PE, EC, UR, MX
      */
-     countryCode,
-     /**
+    countryCode,
+    /**
       * language can be one of es, en, pt
       */
-     language: 'es',
-     /**
+    language: 'es',
+    /**
      * calback is called when one time token is created,
      * merchant should create payment back to back
      * @param { oneTimeToken: string } data 
      */
-     async yunoCreatePayment(oneTimeToken) {
+    async yunoCreatePayment(oneTimeToken) {
       await createPayment({ oneTimeToken, checkoutSession })
 
       /**
        * call only if the SDK needs to continue the payment flow
        */
       yuno.continuePayment()
+    },
+    /**
+     * @param { error: 'CANCELED_BY_USER' | any }
+     */
+    yunoError: (error) => {
+      console.log('There was an error', error)
     },
   })
 

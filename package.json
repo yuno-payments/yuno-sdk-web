@@ -1,6 +1,6 @@
 {
   "name": "yuno-sdk-web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Demo app to show how to use Yuno's web SDK",
   "main": "index.js",
   "scripts": {

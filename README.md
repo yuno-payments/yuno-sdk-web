@@ -29,7 +29,7 @@ const yuno = Yuno.initialize(PUBLIC_API_KEY)
 Then start checkout with configuration
 
 ```javascript
-yuno.startCheckout({ 
+yuno.startCheckout({
   checkoutSession,
   // element where the SDK will be mount on
   elementSelector: '#root', 
@@ -61,6 +61,12 @@ yuno.startCheckout({
   yunoPaymentMethodSelected(data) {
     console.log('onPaymentMethodSelected', data)
   }
+  /**
+   * @param { error: 'CANCELED_BY_USER' | any }
+   */
+  yunoError: (error) => {
+    console.log('There was an error', error)
+  },
 })
 ```
 
@@ -133,6 +139,12 @@ yuno.startCheckout({
      * call only if the SDK needs to continue the payment flow
      */
     yuno.continuePayment()
+  },
+  /**
+   * @param { error: 'CANCELED_BY_USER' | any }
+   */
+  yunoError: (error) => {
+    console.log('There was an error', error)
   },
 })
 ```
