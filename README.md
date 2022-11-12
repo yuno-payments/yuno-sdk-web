@@ -6,6 +6,7 @@
   - [Use Full Checkout](#use-full-checkout)
   - [Use Checkout Lite](#use-checkout-lite)
   - [Use Status](#use-status)
+  - [Use Enrollment Lite](#use-enrollment-lite)
   - [Start Demo App](#start-demo-app)
 ## Browser Requirements
 
@@ -249,6 +250,41 @@ const status = await yuno.yunoPaymentResult(checkoutSession)
 ```
 [Status Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/status-lite.html)  
 [Status Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/status-lite.js)
+
+## Use Enrollment Lite
+
+To use enrollment lite you should include our **SDK** file in your page before close your `<body>` tag
+
+```html
+<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+```
+
+Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
+
+```javascript
+const yuno = Yuno.initialize(PUBLIC_API_KEY)
+```
+
+Finally call the **SDK** `mountEnrollmentLite` method.
+
+```javascript
+yuno.mountEnrollmentLite({
+  customerSession,
+  /**
+   * language can be one of es, en, pt
+   */
+  language: "en",
+  /**
+   * @param { error: 'CANCELED_BY_USER' | any }
+   */
+  yunoError: () => {
+    console.log('There was an error', error)
+  },
+});
+```
+[Enrollment Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/enrollment-lite.html)  
+[Enrollment Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/enrollment-lite.js)
+
 
 ## Start Demo App
 
