@@ -24,6 +24,7 @@ const checkoutPage = path.join(__dirname, 'checkout.html')
 const checkoutLitePage = path.join(__dirname, 'checkout-lite.html')
 const statusPage = path.join(__dirname, 'status.html')
 const statusLitePage = path.join(__dirname, 'status-lite.html')
+const enrollmentLitePage = path.join(__dirname, 'enrollment-lite.html')
 
 const app = express()
 
@@ -48,6 +49,10 @@ app.get('/status', (req, res) => {
 
 app.get('/status-lite', (req, res) => {
   res.sendFile(statusLitePage)
+})
+
+app.get('/enrollment-lite', (req, res) => {
+  res.sendFile(enrollmentLitePage)
 })
 
 app.post('/checkout/sessions', async (req, res) => {
@@ -222,6 +227,56 @@ app.post('/payments', async (req, res) => {
 
   res.json(response)
 })
+
+app.post('/customers/sessions', async (req, res) => {
+  const country = req.query.country || 'CO'
+
+  const response = await fetch(
+    `${YUNO_API_URL}/v1/customers/sessions`,
+    {
+      method: 'POST',
+      headers: {
+        'public-api-key': YUNO_PUBLIC_API_KEY,
+        'private-secret-key': YUNO_PRIVATE_SECRET_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "account_id": YUNO_X_ACCOUNT_CODE,
+        country,
+        "customer_id": YUNO_CUSTOMER_ID
+      })
+    }
+  ).then((resp) => resp.json())
+
+  res.send(response)
+})
+
+app.post('/customers/sessions/:customerSession/payment-methods', async (req, res) => {
+  const customerSession = req.params.customerSession
+  const paymentMethodType = req.query.paymentMethodType || 'NEQUI'
+  const country = req.query.country || 'CO'
+
+  const response = await fetch(
+    `${YUNO_API_URL}/v1/customers/sessions/${customerSession}/payment-methods`,
+    {
+      method: "POST",
+      headers: {
+        'public-api-key': YUNO_PUBLIC_API_KEY,
+        'private-secret-key': YUNO_PRIVATE_SECRET_KEY,
+        "X-idempotency-key": v4(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        "payment_method_type": paymentMethodType,
+        country,
+        "account_id": YUNO_X_ACCOUNT_CODE
+      }),
+    }
+  )
+
+  res.send(response)
+})
+
 
 app.get('/sdk-web/healthy', (req, res) => {
   res.sendStatus(200)

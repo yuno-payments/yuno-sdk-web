@@ -24,3 +24,20 @@ export async function createPayment(data) {
   })
   .then(resp => resp.json())
 }
+
+export async function getCustomerSession() {
+  return fetch(`/customers/sessions${window.location.search}`, {
+    method: 'POST'
+  })
+  .then(resp => resp.json())
+}
+
+export async function createEnrollment(customerSession) {
+  return fetch(`/customers/sessions/${customerSession}/payment-methods${window.location.search}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  })
+  .then(resp => resp.json())
+}
