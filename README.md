@@ -8,6 +8,7 @@
   - [Use Status](#use-status)
   - [Use Enrollment Lite](#use-enrollment-lite)
   - [Start Demo App](#start-demo-app)
+  - [CSS Styles](#css-styles)
 ## Browser Requirements
 
 * We don't support IE 
@@ -317,3 +318,24 @@ Then go to [http://localhost:YOUR-PORT](http://localhost:YOUR-PORT)
 
 To change the country you can add a query parameter named `country` with one of `CO, BR, CL, PE, EC, UR, MX`  
 [http://localhost:YOUR-PORT?country=CO](http://localhost:YOUR-PORT?country=CO)
+
+## CSS Styles
+
+All elements have classes prefixed with `yuno-*` so you can overwrite their styles using those classes.  
+
+By default the font that we use is `Inter` so if you want this font you should add the following link tag into your html
+
+```html
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto&display=swap"
+  rel="stylesheet"
+/>
+```
+[Using Inter font](https://github.com/yuno-payments/yuno-sdk-web/blob/main/index.html#L12) 
+
+or you can apply your own font using CSS 
+```css
+[class*=yuno] {
+  font-family: YOUR_FONT;
+}
+```
