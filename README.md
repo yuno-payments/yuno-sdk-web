@@ -327,14 +327,14 @@ By default the font that we use is `Inter` so if you want this font you should a
 
 ```html
 <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto&display=swap"
-    rel="stylesheet"
-  />
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto&display=swap"
+  rel="stylesheet"
+/>
 ```
 
 or you can apply your own font using CSS 
 ```css
 [class*=yuno] {
-    font-family: YOUR_FONT;
+  font-family: YOUR_FONT;
 }
 ```
