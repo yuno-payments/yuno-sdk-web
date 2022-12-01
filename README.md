@@ -276,6 +276,10 @@ yuno.mountEnrollmentLite({
    */
   language: "en",
   /**
+   * country can be one of CO, BR, CL, PE, EC, UR, MX
+   */
+    countryCode: 'CO',
+  /**
    * @param { error: 'CANCELED_BY_USER' | any }
    */
   yunoError: () => {
