@@ -2,7 +2,7 @@ import { getCustomerSession, createEnrollment, getPublicApiKey } from './api.js'
 
 async function initEnrollmentLite() {
   // get customer session from merchan back
-  const { customer_session: customerSession } = await getCustomerSession()
+  const { customer_session: customerSession, country: countryCode } = await getCustomerSession()
 
   // create enrollment
   await createEnrollment(customerSession)
@@ -19,6 +19,10 @@ async function initEnrollmentLite() {
      * language can be one of es, en, pt
      */
     language: "en",
+    /**
+     * country can be one of CO, BR, CL, PE, EC, UR, MX
+     */
+     countryCode,
     /**
      * @param { error: 'CANCELED_BY_USER' | any }
      */
