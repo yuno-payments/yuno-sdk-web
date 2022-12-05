@@ -22,7 +22,23 @@ async function initEnrollmentLite() {
     /**
      * country can be one of CO, BR, CL, PE, EC, UR, MX
      */
-     countryCode,
+    countryCode,
+    /**
+     * Where the forms a shown
+     * default { type: 'modal' }
+     */
+    renderMode: {
+      /**
+       * type can be one of `modal` or `element`
+       * default modal
+       */
+      type: 'modal',
+      /**
+       * element where the form will be rendered
+       * only needed if type is element
+       */
+      elementSelector: '#form-element',
+    },
     /**
      * @param { error: 'CANCELED_BY_USER' | any }
      */
