@@ -25,6 +25,22 @@ async function initCheckout () {
       */
     language: 'es',
     /**
+     * Where the forms a shown
+     * default { type: 'modal' }
+     */
+    renderMode: {
+      /**
+       * type can be one of `modal` or `element`
+       * default modal
+       */
+      type: 'modal',
+      /**
+       * element where the form will be rendered
+       * only needed if type is element
+       */
+      elementSelector: '#form-element',
+    },
+    /**
      * calback is called when one time token is created,
      * merchant should create payment back to back
      * @param { oneTimeToken: string } data 
