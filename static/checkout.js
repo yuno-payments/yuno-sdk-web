@@ -41,6 +41,47 @@ async function initCheckout () {
       elementSelector: '#form-element',
     },
     /**
+     *  API card
+     */
+    card: {
+      /**
+       * mode render card can be step or extends
+       * default extends
+       */
+      type: "extends",
+      /**
+       * you can edit card form styles
+       * only you should write css then it will be injected into the iframe
+       * example 
+       * `@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+       *  .Yuno-front-side-card__name-label { 
+       *    color: red !important;
+       *    font-family: 'Luckiest Guy' !important;
+       *   }`
+       */
+      styles: '',
+      /**
+       *  Hide or show the Yuno loading/spinner page
+       *  default is true
+       */
+      showLoading: true,
+      /**
+       * 
+       * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
+       */
+      onLoading: (args) => {
+        console.log(args);
+      }
+    },
+    /**
+     * Use external SDKs buttons like PayPal, Paga con Rappi
+     */
+    externalPaymentButtons: {
+      paypal: {
+        elementSelector: '#paypal',
+      }
+    },
+    /**
      * calback is called when one time token is created,
      * merchant should create payment back to back
      * @param { oneTimeToken: string } data 
