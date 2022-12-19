@@ -21,9 +21,21 @@ async function initCheckout () {
      */
     countryCode,
     /**
-      * language can be one of es, en, pt
-      */
+     * language can be one of es, en, pt
+     */
     language: 'es',
+    /**
+     *  Hide or show the Yuno loading/spinner page
+     *  default is true
+     */
+    showLoading: true,
+    /**
+     * 
+     * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
+     */
+    onLoading: (args) => {
+      console.log(args);
+    },
     /**
      * Where the forms a shown
      * default { type: 'modal' }
@@ -60,18 +72,6 @@ async function initCheckout () {
        *   }`
        */
       styles: '',
-      /**
-       *  Hide or show the Yuno loading/spinner page
-       *  default is true
-       */
-      showLoading: true,
-      /**
-       * 
-       * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
-       */
-      onLoading: (args) => {
-        console.log(args);
-      }
     },
     /**
      * Use external SDKs buttons like PayPal, Paga con Rappi
