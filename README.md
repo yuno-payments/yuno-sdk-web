@@ -33,57 +33,64 @@ Then start checkout with configuration
 ```javascript
 yuno.startCheckout({
   checkoutSession,
-  // element where the SDK will be mount on
+  /**
+   * Element where the SDK will be mount on 
+   */ 
   elementSelector: '#root', 
   /**
    * country can be one of CO, BR, CL, PE, EC, UR, MX
    */
   countryCode: country,
   /**
-  * language can be one of es, en, pt
+  * Language can be one of es, en, pt
+  * Default is browser language
   */
   language: 'es',
   /**
-   *  Hide or show the Yuno loading/spinner page
-   *  default is true
+   * Hide or show the Yuno loading/spinner page
+   * Default is true
+   * @optional
    */
   showLoading: true,
   /**
-   * 
+   * Required if you'd like to be informed if there is a server call
    * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
+   * @optional
    */
   onLoading: (args) => {
     console.log(args);
   }
   /**
-   * Where the forms a shown
-   * default { type: 'modal' }
+   * Where the forms will be shown
+   * Default { type: 'modal' }
+   * @optional
    */
   renderMode: {
     /**
-     * type can be one of `modal` or `element`
-     * default modal
+     * Type can be one of `modal` or `element`
+     * Default modal
      */
     type: 'modal',
     /**
-     * element where the form will be rendered
-     * only needed if type is element
+     * Element where the form will be rendered
+     * Only needed if type is element
      */
     elementSelector: '#form-element',
   },
   /**
    *  API card
+   *  @optional
    */
   card: {
     /**
-     * mode render card can be step or extends
-     * default extends
+     * Mode render card can be step or extends
+     * Default extends
      */
     type: "extends",
     /**
-     * you can edit card form styles
-     * only you should write css then it will be injected into the iframe
-     * example 
+     * You can edit card form styles
+     * Only you should write css, then it will be injected into the iframe
+     * Example 
      * `@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
      *  .Yuno-front-side-card__name-label { 
      *    color: red !important;
@@ -91,44 +98,104 @@ yuno.startCheckout({
      *   }`
      */
     styles: '',
+    /** 
+     * Show checkbox for save/enroll card 
+     * Default is false
+     */
+    cardSaveEnable: false,
+    /**
+     * Custom texts in Card forms buttons
+     * Example:
+     * 
+     *  texts: {
+     *    cardForm?: {
+     *      enrollmentSubmitButton?: string;
+     *       paymentSubmitButton?: string;
+     *     }
+     *     cardStepper?: {
+     *       numberCardStep?: {
+     *         nextButton?: string;
+     *       },
+     *       cardHolderNameStep?: {
+     *         prevButton?: string;
+     *         nextButton?: string;
+     *       },
+     *       expirationDateStep?: {
+     *         prevButton?: string;
+     *         nextButton?: string;
+     *       },
+     *       cvvStep?: {
+     *         prevButton?: string;
+     *         nextButton?: string;
+     *       }
+     *     }
+     *  }
+     */
+    texts: {}
   },
   /**
+   * Custom texts in payment forms buttons 
+   * Example:
+   * 
+   *  texts: {
+   *    customerForm?: {
+   *       submitButton?: string;
+   *     }
+   *     paymentOtp?: {
+   *       sendOtpButton?: string;
+   *     }
+   *   }
+   * @optional
+   */
+  texts: {}
+  /**
    * Use external SDKs buttons like PayPal, Paga con Rappi
+   * @optional
    */
   externalPaymentButtons: {
     paypal: {
       elementSelector: '#paypal',
-    }
+    },
+    pagaConRappi: {
+      elementSelector: '#paga-con-rappi',
+    },
   },
   /**
-   * calback is called when one time token is created,
-   * merchant should create payment back to back
+   * Callback, is called when the One Time Token is created,
+   * Merchant should create payment back to back
    * @param { oneTimeToken: string } data 
    */
   async yunoCreatePayment(oneTimeToken) {
-    await createPayment({ oneTimeToken, checkoutSession })
-
     /**
-     * call only if the SDK needs to continue the payment flow
+     * Merchant's function to call its backend to create 
+     * the payment into Yuno
+     */
+    await createPayment({ oneTimeToken, checkoutSession })
+    /**
+     * Call only if the SDK needs to continue the payment flow
      */
     yuno.continuePayment()
   },
   /**
-   * callback is called when user selects a payment method
+   * Callback is called when user selects a payment method
    * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY', name: string} } data 
+   * @optional
    */
   yunoPaymentMethodSelected(data) {
     console.log('onPaymentMethodSelected', data)
   },
   /**
-   * 
+   * After the payment is done, this function will be called with the payment status 
    * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
+   * @optional
    */
   yunoPaymentResult(data) {
     console.log('yunoPaymentResult', data)
   },
   /**
+   * If this is called the SDK should be mounted again
    * @param { error: 'CANCELED_BY_USER' | any }
+   * @optional
    */
   yunoError: (error) => {
     console.log('There was an error', error)
@@ -140,19 +207,41 @@ Finally mount the **SDK** in a `html` element, you can use any valid css selecto
 
 ```javascript
 /**
- * mount checkout in browser DOM
+ * Mount checkout in browser DOM
  */
 yuno.mountCheckout()
+```
+
+IF you need to select a payment method by default, mount it using
+
+```javascript
+/**
+ * Mount checkout in browser DOM with a payment method selected by default
+ * @optional
+ */
+yuno.mountCheckout({
+  /**
+   * Optional, only needed if you would like this method type selected by default
+   * Can be one of 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO
+   */
+  paymentMethodType: PAYMENT_METHOD_TYPE,
+  /**
+   * Optional
+   * Vaulted token related to payment method type
+   */
+  vaultedToken: VAULTED_TOKEN,
+})
 ```
 
 Remember you need to call 
 ```javascript
 yuno.startPayment()
 ```
-to start the payment flow after the user has selected a payment method.
+to start the payment flow after the user has selected a payment method.  
 
+Example:
 ```javascript
-// start payment when user clicks on merchant payment button
+// Start payment when user clicks on merchant payment button
 const PayButton = document.querySelector('#button-pay')
 
 PayButton.addEventListener('click', () => {
@@ -183,54 +272,169 @@ Then create a configuration object
 ```javascript
 yuno.startCheckout({ 
   checkoutSession,
-  // element where the SDK will be mount on
+  /**
+   * Element where the SDK will be mount on 
+   */ 
   elementSelector: '#root', 
   /**
    * country can be one of CO, BR, CL, PE, EC, UR, MX
    */
-  countryCode,
+  countryCode: country,
   /**
-  * language can be one of es, en, pt
+  * Language can be one of es, en, pt
+  * Default is browser language
   */
   language: 'es',
   /**
-   * Where the forms a shown
-   * default { type: 'modal' }
+   * Hide or show the Yuno loading/spinner page
+   * Default is true
+   * @optional
+   */
+  showLoading: true,
+  /**
+   * Required if you'd like to be informed if there is a server call
+   * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
+   * @optional
+   */
+  onLoading: (args) => {
+    console.log(args);
+  }
+  /**
+   * Where the forms will be shown
+   * Default { type: 'modal' }
+   * @optional
    */
   renderMode: {
     /**
-     * type can be one of `modal` or `element`
-     * default modal
+     * Type can be one of `modal` or `element`
+     * Default modal
      */
     type: 'modal',
     /**
-     * element where the form will be rendered
-     * only needed if type is element
+     * Element where the form will be rendered
+     * Only needed if type is element
      */
     elementSelector: '#form-element',
   },
   /**
-   * calback is called when one time token is created,
-   * merchant should create payment back to back
+   *  API card
+   *  @optional
+   */
+  card: {
+    /**
+     * Mode render card can be step or extends
+     * Default extends
+     */
+    type: "extends",
+    /**
+     * You can edit card form styles
+     * Only you should write css, then it will be injected into the iframe
+     * Example 
+     * `@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+     *  .Yuno-front-side-card__name-label { 
+     *    color: red !important;
+     *    font-family: 'Luckiest Guy' !important;
+     *   }`
+     */
+    styles: '',
+    /** 
+     * Show checkbox for save/enroll card 
+     * Default is false
+     */
+    cardSaveEnable: false,
+    /**
+     * Custom texts in Card forms buttons
+     * Example:
+     * 
+     *  texts: {
+     *    cardForm?: {
+     *      enrollmentSubmitButton?: string;
+     *       paymentSubmitButton?: string;
+     *     }
+     *     cardStepper?: {
+     *       numberCardStep?: {
+     *         nextButton?: string;
+     *       },
+     *       cardHolderNameStep?: {
+     *         prevButton?: string;
+     *         nextButton?: string;
+     *       },
+     *       expirationDateStep?: {
+     *         prevButton?: string;
+     *         nextButton?: string;
+     *       },
+     *       cvvStep?: {
+     *         prevButton?: string;
+     *         nextButton?: string;
+     *       }
+     *     }
+     *  }
+     */
+    texts: {}
+  },
+  /**
+   * Custom texts in payment forms buttons 
+   * Example:
+   * 
+   *  texts: {
+   *    customerForm?: {
+   *       submitButton?: string;
+   *     }
+   *     paymentOtp?: {
+   *       sendOtpButton?: string;
+   *     }
+   *   }
+   * @optional
+   */
+  texts: {}
+  /**
+   * Use external SDKs buttons like PayPal, Paga con Rappi
+   * @optional
+   */
+  externalPaymentButtons: {
+    paypal: {
+      elementSelector: '#paypal',
+    },
+    pagaConRappi: {
+      elementSelector: '#paga-con-rappi',
+    },
+  },
+  /**
+   * Callback, is called when the One Time Token is created,
+   * Merchant should create payment back to back
    * @param { oneTimeToken: string } data 
    */
   async yunoCreatePayment(oneTimeToken) {
-    await createPayment({ oneTimeToken, checkoutSession })
-
     /**
-     * call only if the SDK needs to continue the payment flow
+     * Merchant's function to call its backend to create 
+     * the payment into Yuno
+     */
+    await createPayment({ oneTimeToken, checkoutSession })
+    /**
+     * Call only if the SDK needs to continue the payment flow
      */
     yuno.continuePayment()
   },
   /**
-   * 
+   * Callback is called when user selects a payment method
+   * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY', name: string} } data 
+   * @optional
+   */
+  yunoPaymentMethodSelected(data) {
+    console.log('onPaymentMethodSelected', data)
+  },
+  /**
+   * After the payment is done, this function will be called with the payment status 
    * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
+   * @optional
    */
   yunoPaymentResult(data) {
     console.log('yunoPaymentResult', data)
   },
   /**
+   * If this is called the SDK should be mounted again
    * @param { error: 'CANCELED_BY_USER' | any }
+   * @optional
    */
   yunoError: (error) => {
     console.log('There was an error', error)
@@ -247,9 +451,11 @@ yuno.mountCheckoutLite({
    */
   paymentMethodType: PAYMENT_METHOD_TYPE,
   /**
-   * Vaulted token related to payment method type
+   * Vaulted token related to payment method type.
+   * Only if you already have it
+   * @optional 
    */
-  valutedToken: VAULTED_TOKEN,
+  vaultedToken: VAULTED_TOKEN,
 })
 ```
 
@@ -278,15 +484,14 @@ Finally mount the **SDK** in a `html` element, you can use any valid css selecto
 yuno.mountStatusPayment({
   checkoutSession: '438413b7-4921-41e4-b8f3-28a5a0141638',
   /**
-   * country can be one of CO, BR, CL, PE, EC, UR, MX
+   * Country can be one of CO, BR, CL, PE, EC, UR, MX
    */
   countryCode: 'CO',
   /**
-  * language can be one of es, en, pt
+  * Language can be one of es, en, pt
   */
   language: 'es',
   /**
-   * 
    * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
    */
   yunoPaymentResult(data) {
@@ -316,7 +521,7 @@ Finally call the **SDK** `yunoPaymentResult` method.
 
 ```javascript
 /**
- * Call method that returns status
+ * Call method that returns status, this won't render anything
  * 
  * @return {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'}
  */
@@ -345,33 +550,115 @@ Finally call the **SDK** `mountEnrollmentLite` method.
 yuno.mountEnrollmentLite({
   customerSession,
   /**
-   * language can be one of es, en, pt
-   */
-  language: "en",
-  /**
    * country can be one of CO, BR, CL, PE, EC, UR, MX
    */
-  countryCode: 'CO',
+  countryCode: country,
   /**
-   * Where the forms a shown
-   * default { type: 'modal' }
+  * Language can be one of es, en, pt
+  * Default is browser language
+  */
+  language: 'es',
+  /**
+   * Hide or show the Yuno loading/spinner page
+   * Default is true
+   * @optional
+   */
+  showLoading: true,
+  /**
+   * Required if you'd like to be informed if there is a server call
+   * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
+   * @optional
+   */
+  onLoading: (args) => {
+    console.log(args);
+  }
+  /**
+   * Where the forms will be shown
+   * Default { type: 'modal' }
+   * @optional
    */
   renderMode: {
     /**
-     * type can be one of `modal` or `element`
-     * default modal
+     * Type can be one of `modal` or `element`
+     * Default modal
      */
     type: 'modal',
     /**
-     * element where the form will be rendered
-     * only needed if type is element
+     * Element where the form will be rendered
+     * Only needed if type is element
      */
     elementSelector: '#form-element',
   },
   /**
-   * @param { error: 'CANCELED_BY_USER' | any }
+   *  API card
+   *  @optional
    */
-  yunoError: () => {
+  card: {
+    /**
+     * Mode render card can be step or extends
+     * Default extends
+     */
+    type: "extends",
+    /**
+     * You can edit card form styles
+     * Only you should write css, then it will be injected into the iframe
+     * Example 
+     * `@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+     *  .Yuno-front-side-card__name-label { 
+     *    color: red !important;
+     *    font-family: 'Luckiest Guy' !important;
+     *   }`
+     */
+    styles: '',
+    /** 
+     * Show checkbox for save/enroll card 
+     * Default is false
+     */
+    cardSaveEnable: false,
+    /**
+     * Custom texts in Card forms buttons
+     * Example:
+     * 
+     *  texts: {
+     *    cardForm?: {
+     *      enrollmentSubmitButton?: string;
+     *       paymentSubmitButton?: string;
+     *     }
+     *     cardStepper?: {
+     *       numberCardStep?: {
+     *         nextButton?: string;
+     *       },
+     *       cardHolderNameStep?: {
+     *         prevButton?: string;
+     *         nextButton?: string;
+     *       },
+     *       expirationDateStep?: {
+     *         prevButton?: string;
+     *         nextButton?: string;
+     *       },
+     *       cvvStep?: {
+     *         prevButton?: string;
+     *         nextButton?: string;
+     *       }
+     *     }
+     *  }
+     */
+    texts: {}
+  },
+  /**
+   * After the payment is done, this function will be called with the payment status 
+   * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
+   * @optional
+   */
+  yunoPaymentResult(data) {
+    console.log('yunoPaymentResult', data)
+  },
+  /**
+   * If this is called the SDK should be mounted again
+   * @param { error: 'CANCELED_BY_USER' | any }
+   * @optional
+   */
+  yunoError: (error) => {
     console.log('There was an error', error)
   },
 });
