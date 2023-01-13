@@ -182,15 +182,6 @@ app.post('/payments', async (req, res) => {
           state: 'Cundinamarca',
           zip_code: '111111',
         },
-        browser_info: {
-          accept_header: 'string',
-          color_depth: 'string',
-          javascript_enabled: 'string',
-          language: 'string',
-          screen_height: 'string',
-          screen_width: 'string',
-          user_agent: 'string',
-        },
         date_of_birth: '1990-02-28',
         device_fingerprint: 'hi88287gbd8d7d782ge....',
         document: {
