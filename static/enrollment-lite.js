@@ -54,8 +54,28 @@ async function initEnrollmentLite() {
     /**
      * @param { error: 'CANCELED_BY_USER' | any }
      */
-    yunoError: () => {
+    yunoError: (error) => {
       console.log('There was an error', error)
+    },
+    /**
+     * Call back is called with the following object
+     * @param {{ 
+     *  status: 'CREATED'
+     *    | 'EXPIRED',
+     *    | 'REJECTED',
+     *    | 'READY_TO_ENROLL',
+     *    | 'ENROLL_IN_PROCESS',
+     *    | 'UNENROLL_IN_PROCESS',
+     *    | 'ENROLLED',
+     *    | 'DECLINED',
+     *    | 'CANCELED',
+     *    | 'ERROR',
+     *    | 'UNENROLLED', 
+     *  vaultedToken: string,
+     * }}
+     */
+    yunoEnrollmentStatus: ({ status, vaultedToken}) => {
+      console.log('status', { status, vaultedToken})
     },
   });
 }
