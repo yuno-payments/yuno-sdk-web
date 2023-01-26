@@ -646,12 +646,24 @@ yuno.mountEnrollmentLite({
     texts: {}
   },
   /**
-   * After the payment is done, this function will be called with the payment status 
-   * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
-   * @optional
+   * Call back is called with the following object
+   * @param {{ 
+   *  status: 'CREATED'
+   *    | 'EXPIRED',
+   *    | 'REJECTED',
+   *    | 'READY_TO_ENROLL',
+   *    | 'ENROLL_IN_PROCESS',
+   *    | 'UNENROLL_IN_PROCESS',
+   *    | 'ENROLLED',
+   *    | 'DECLINED',
+   *    | 'CANCELED',
+   *    | 'ERROR',
+   *    | 'UNENROLLED', 
+   *  vaultedToken: string,
+   * }}
    */
-  yunoPaymentResult(data) {
-    console.log('yunoPaymentResult', data)
+  yunoEnrollmentStatus: ({ status, vaultedToken}) => {
+    console.log('status', { status, vaultedToken})
   },
   /**
    * If this is called the SDK should be mounted again
