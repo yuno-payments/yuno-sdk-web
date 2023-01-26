@@ -1,22 +1,14 @@
-import { getCustomerSession, createEnrollment, getPublicApiKey } from './api.js'
+import { getPublicApiKey } from "./api.js"
 
-async function initEnrollmentLite() {
-  // get customer session from merchan back
-  //const { customer_session: customerSession, country: countryCode } = await getCustomerSession()
-  const customerSession = "e1a790ba-1305-4e56-9553-5e074ef23c59"
-  const countryCode = "CO"
-  // console.log("🚀 , file: enrollment-lite.js:6 , initEnrollmentLite , countryCode", countryCode)
-  // console.log("🚀 , file: enrollment-lite.js:6 , initEnrollmentLite , customerSession", customerSession)
+const checkoutSession = '123'
+const customerSession = 'db7d5c88-c6f2-4e7a-8e1d-055c6c5949aa'
+const countryCode = 'CO'
 
-  // create enrollment
-  await createEnrollment(customerSession)
-
-  // get api key
+async function initFullEnrollmentImp () {
   const publicApiKey = await getPublicApiKey()
-
   // start Yuno SDK
   const yuno = Yuno.initialize(publicApiKey)
-
+  console.log("🚀 , file: fullEnrollmentImp.js:10 , initFullEnrollmentImp , yuno", yuno)
   yuno.mountEnrollmentLite({
     customerSession,
     /**
@@ -64,4 +56,4 @@ async function initEnrollmentLite() {
   });
 }
 
-window.addEventListener('load', initEnrollmentLite)
+window.addEventListener('load', initFullEnrollmentImp)

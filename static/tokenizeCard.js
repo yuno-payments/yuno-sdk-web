@@ -1,9 +1,11 @@
 import { getCheckoutSession, createPayment, getPublicApiKey } from "./api.js"
 
+
 async function initCheckout () {
   // get checkout session from merchan back
-  const { checkout_session: checkoutSession, country: countryCode } = await getCheckoutSession()
-  console.log("checkout session",checkoutSession)
+  //const { checkout_session: checkoutSession, country: countryCode } = await getCheckoutSession()
+  const checkoutSession  = '184a55c0-2ef3-492c-a7e6-39b84e51dd84'
+  const countryCode = 'CO'
   // get api key
   const publicApiKey = await getPublicApiKey()
 
@@ -72,7 +74,13 @@ async function initCheckout () {
        *   }`
        */
       styles: '',
+      texts:{
+        cardForm:{
+          paymentSubmitButton:'continuar'
+        }
+      }
     },
+
     /**
      * Use external SDKs buttons like PayPal, Paga con Rappi
      */
@@ -87,12 +95,14 @@ async function initCheckout () {
      * @param { oneTimeToken: string } data 
      */
     async yunoCreatePayment(oneTimeToken) {
-      await createPayment({ oneTimeToken, checkoutSession })
+      console.log("oneTimeToken", oneTimeToken)
+      // call await instaleapSendToken()
+      //await createPayment({ oneTimeToken, checkoutSession })
 
       /**
        * call only if the SDK needs to continue the payment flow
        */
-      yuno.continuePayment()
+      //yuno.continuePayment()
     },
     /**
      * callback is called when user selects a payment method

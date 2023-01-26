@@ -10,7 +10,7 @@ async function initStatus() {
    * Mount status in the DOM
    */
   yuno.mountStatusPayment({
-    checkoutSession: '438413b7-4921-41e4-b8f3-28a5a0141638',
+    checkoutSession: '5a83b02e-116a-4d1d-8a89-16ae9e463125',
     /**
      * country can be one of CO, BR, CL, PE, EC, UR, MX
      */

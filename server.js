@@ -25,7 +25,9 @@ const checkoutLitePage = path.join(__dirname, 'checkout-lite.html')
 const statusPage = path.join(__dirname, 'status.html')
 const statusLitePage = path.join(__dirname, 'status-lite.html')
 const enrollmentLitePage = path.join(__dirname, 'enrollment-lite.html')
-
+const tokenize = path.join(__dirname,'tokenizeCard.html')
+const fullEnrollmentImp = path.join(__dirname,'fullEnrollmentImp.html')
+const nextAction = path.join(__dirname,'nextAction.html')
 const app = express()
 
 app.use(express.json())
@@ -53,6 +55,18 @@ app.get('/status-lite', (req, res) => {
 
 app.get('/enrollment-lite', (req, res) => {
   res.sendFile(enrollmentLitePage)
+})
+
+app.get('/tokenize', (req, res) => {
+  res.sendFile(tokenize)
+})
+
+app.get('/full-enrollment-imp', (req, res) => {
+  res.sendFile(fullEnrollmentImp)
+})
+
+app.get('/next-action', (req, res) => {
+  res.sendFile(nextAction)
 })
 
 app.post('/checkout/sessions', async (req, res) => {

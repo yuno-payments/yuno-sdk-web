@@ -2,7 +2,9 @@ import { getCheckoutSession, createPayment, getPublicApiKey } from "./api.js"
 
 async function initCheckoutLite() {
   // get checkout session from merchan back
-  const { checkout_session: checkoutSession, country: countryCode } = await getCheckoutSession()
+  //const { checkout_session: checkoutSession, country: countryCode } = await getCheckoutSession()
+  const checkoutSession='c598759c-1f30-4b11-9ce4-132d127b5601'
+  const countryCode='CO'
   /**
    * this should be provided by the merchant
    * can be one of 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO | CARD
@@ -37,7 +39,7 @@ async function initCheckoutLite() {
      * @param { oneTimeToken: string } data 
      */
     async yunoCreatePayment(oneTimeToken) {
-      await createPayment({ oneTimeToken, checkoutSession })
+      //await createPayment({ oneTimeToken, checkoutSession })
 
       /**
        * call only if the SDK needs to continue the payment flow
