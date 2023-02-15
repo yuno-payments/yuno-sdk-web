@@ -10,7 +10,7 @@ async function initStatus() {
    * Mount status in the DOM
    */
   yuno.mountStatusPayment({
-    checkoutSession: '5a83b02e-116a-4d1d-8a89-16ae9e463125',
+    checkoutSession: '15982c57-722b-43bb-9ef8-1d11eb10be50',
     /**
      * country can be one of CO, BR, CL, PE, EC, UR, MX
      */
@@ -25,6 +25,9 @@ async function initStatus() {
      */
     yunoPaymentResult(data) {
       console.log('yunoPaymentResult', data)
+      if(data==='SUCCEEDED'){
+        window.location.replace("https://www.youtube.com/")
+      }
     }
   })
 }

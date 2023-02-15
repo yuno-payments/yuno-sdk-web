@@ -4,10 +4,10 @@ import { getCheckoutSession, createPayment, getPublicApiKey } from "./api.js"
 async function initCheckout () {
   // get checkout session from merchan back
   //const { checkout_session: checkoutSession, country: countryCode } = await getCheckoutSession()
-  const checkoutSession  = '184a55c0-2ef3-492c-a7e6-39b84e51dd84'
+  const checkoutSession  = '15982c57-722b-43bb-9ef8-1d11eb10be50'
   const countryCode = 'CO'
   // get api key
-  const publicApiKey = await getPublicApiKey()
+  const publicApiKey = 'sandbox_gAAAAABjtxiRutGlhcbHOQx77b9Pi5ITWjqRofanb0OlRsCsyUGrJkFTyfE-p_TnWAa5RuU-B4DpPDt69bxHdct3KAmtZoxtTV8DWBOZmzDzfNiPsNw0GDpeVJemoKX734zjDYyLSHdlHY0_6iPF4lrF_greF9JHeKNkMCApivcaKn6FXz2ce34='
 
   // start Yuno SDK
   const yuno = Yuno.initialize(publicApiKey)
