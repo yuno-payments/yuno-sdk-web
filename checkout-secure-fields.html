@@ -6,17 +6,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://assets-global.website-files.com/6277c350218d32e9e5dc0380/627e9998bb4b6124743a90fc_favicon-yuno32x32.png" rel="shortcut icon" type="image/x-icon"/>
   <link href="https://assets-global.website-files.com/6277c350218d32e9e5dc0380/627e999c388c6cd2a87050e7_favicon-yuno256x256.png" rel="apple-touch-icon"/>
-  <title>Yuno Checkout Lite</title>
+  <title>Yuno Checkout Secure Fields</title>
   <!-- default fonts -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter">
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-  <!-- create a component where the SDK will be mounted -->
-  <div id="root"></div>
+  <div class="list-group">
+    <!-- create components where the SDK will mount secure fields -->
+    <div id="pan"></div>
+    <br />
+    <div id="expiration"></div>
+    <br />
+    <div id="cvv"></div>
+  </div>
+  <br />
+  <!-- merchant should create a button to start payment flow after the user has selected a payment method -->
+  <button id="button-pay">Pay Now</button>
 
   <!-- include Yuno SDK -->
-  <script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+  <script src="https://sdk-web.dev.y.uno/v1/static/js/main.min.js"></script>
 
-  <script type="module" src="/static/checkout-lite.js"></script>
+  <!-- your app use the checkout -->
+  <script type="module" src="/static/checkout-secure-fields.js"></script>
 </body>
 </html>
