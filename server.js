@@ -25,6 +25,7 @@ const checkoutLitePage = path.join(__dirname, 'checkout-lite.html')
 const statusPage = path.join(__dirname, 'status.html')
 const statusLitePage = path.join(__dirname, 'status-lite.html')
 const enrollmentLitePage = path.join(__dirname, 'enrollment-lite.html')
+const checkoutSecureFieldsPage = path.join(__dirname, 'checkout-secure-fields.html')
 
 const app = express()
 
@@ -39,8 +40,12 @@ app.get('/checkout', (req, res) => {
   res.sendFile(checkoutPage)
 })
 
-app.get('/checkout-lite', (req, res) => {
+app.get('/checkout/lite', (req, res) => {
   res.sendFile(checkoutLitePage)
+})
+
+app.get('/checkout/secure-fields', (req, res) => {
+  res.sendFile(checkoutSecureFieldsPage)
 })
 
 app.get('/status', (req, res) => {

@@ -9,11 +9,12 @@
   <title>Yuno Checkout</title>
   <!-- default fonts -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter">
-  <link rel="stylesheet" href="./static/styles.css">
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <!-- create a component where the SDK will be mounted -->
   <div id="root"></div>
+  <div id="paypal"></div>
   <div id="form-element"></div>
 
   <!-- merchant should create a button to start payment flow after the user has selected a payment method -->
@@ -23,6 +24,6 @@
   <script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
 
   <!-- your app use the checkout -->
-  <script type="module" src="./static/checkout.js"></script>
+  <script type="module" src="/static/checkout.js"></script>
 </body>
 </html>
