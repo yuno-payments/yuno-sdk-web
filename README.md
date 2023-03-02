@@ -5,6 +5,7 @@
   - [Browser Requirements](#browser-requirements)
   - [Use Full Checkout](#use-full-checkout)
   - [Use Checkout Lite](#use-checkout-lite)
+  - [Use Checkout Secure Fields](#use-checkout-secure-fields)
   - [Use Status](#use-status)
   - [Use Enrollment Lite](#use-enrollment-lite)
   - [Start Demo App](#start-demo-app)
@@ -675,8 +676,8 @@ yuno.mountStatusPayment({
 })
 ```
 
-[Checkout lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout-secure-fields.html)  
-[Checkout lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout-secure-fields.js)
+[Checkout secure fields demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout-secure-fields.html)  
+[Checkout secure fields demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout-secure-fields.js)
 
 ## Use Status
 
