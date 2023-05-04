@@ -54,6 +54,12 @@ yuno.startCheckout({
    */
   showLoading: true,
   /**
+   *  Enable this will keep showing the loading component until either hideLoader() or 
+   *  continuePayment() are called.
+   *  Default is true
+   */
+  keepLoader: true,
+  /**
    * Required if you'd like to be informed if there is a server call
    * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
    * @optional
@@ -192,6 +198,11 @@ yuno.startCheckout({
    */
   yunoPaymentResult(data) {
     console.log('yunoPaymentResult', data)
+
+    /**
+     * call if you set `keepLoader = true` and you want to hide the loader 
+     */
+    yuno.hideLoader()
   },
   /**
    * If this is called the SDK should be mounted again
@@ -200,6 +211,10 @@ yuno.startCheckout({
    */
   yunoError: (error) => {
     console.log('There was an error', error)
+    /**
+     * call if you set `keepLoader = true` and you want to hide the loader 
+     */
+    yuno.hideLoader()
   },
 })
 ```
@@ -293,6 +308,12 @@ yuno.startCheckout({
    */
   showLoading: true,
   /**
+   *  Enable this will keep showing the loading component until either hideLoader() or 
+   *  continuePayment() are called.
+   *  Default is true
+   */
+  keepLoader: true,
+  /**
    * Required if you'd like to be informed if there is a server call
    * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
    * @optional
@@ -431,6 +452,10 @@ yuno.startCheckout({
    */
   yunoPaymentResult(data) {
     console.log('yunoPaymentResult', data)
+    /**
+     * call if you set `keepLoader = true` and you want to hide the loader 
+     */
+    yuno.hideLoader()
   },
   /**
    * If this is called the SDK should be mounted again
@@ -439,6 +464,10 @@ yuno.startCheckout({
    */
   yunoError: (error) => {
     console.log('There was an error', error)
+    /**
+     * call if you set `keepLoader = true` and you want to hide the loader 
+     */
+    yuno.hideLoader()
   },
 })
 ```
@@ -892,6 +921,14 @@ yuno.mountEnrollmentLite({
 ```
 [Enrollment Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/enrollment-lite.html)  
 [Enrollment Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/enrollment-lite.js)
+
+## Loader
+
+The loader will keep showing when the One Time Token is created until the merchant calls `yuno.hideLoader()` or `yuno.continuePayment()`.  This way the user experience is improved because they will see the loader while the payment is created by the merchant. 
+
+To disable this behavior the merchant should set the property `keepLoader` to `false` i the `yuno.startCheckout` method. 
+
+Check the documentation for [Use Full Checkout](#use-full-checkout) or [Use Checkout Lite](#use-checkout-lite)
 
 
 ## Start Demo App

@@ -30,6 +30,12 @@ async function initCheckout () {
      */
     showLoading: true,
     /**
+     *  Enable this will keep showing the loading component until either hideLoader() or 
+     *  continuePayment() are called.
+     *  Default is true
+     */
+    keepLoader: true,
+    /**
      * 
      * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
      */
@@ -107,12 +113,20 @@ async function initCheckout () {
      */
     yunoPaymentResult(data) {
       console.log('yunoPaymentResult', data)
+      /**
+       * call if you set `keepLoader = true` and you want to hide the loader 
+       */
+      yuno.hideLoader()
     },
     /**
      * @param { error: 'CANCELED_BY_USER' | any }
      */
     yunoError: (error) => {
       console.log('There was an error', error)
+      /**
+       * call if you set `keepLoader = true` and you want to hide the loader 
+       */
+      yuno.hideLoader()
     },
   })
 
