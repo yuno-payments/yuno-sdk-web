@@ -8,6 +8,7 @@
   - [Use Checkout Secure Fields](#use-checkout-secure-fields)
   - [Use Status](#use-status)
   - [Use Enrollment Lite](#use-enrollment-lite)
+  - [Use Loader](#loader)
   - [Start Demo App](#start-demo-app)
   - [CSS Styles](#css-styles)
 ## Browser Requirements
@@ -926,7 +927,7 @@ yuno.mountEnrollmentLite({
 
 The loader will keep showing when the One Time Token is created until the merchant calls `yuno.hideLoader()` or `yuno.continuePayment()`.  This way the user experience is improved because they will see the loader while the payment is created by the merchant. 
 
-To disable this behavior the merchant should set the property `keepLoader` to `false` i the `yuno.startCheckout` method. 
+To disable this behavior the merchant should set the property `keepLoader` to `false` in the `yuno.startCheckout` method. 
 
 Check the documentation for [Use Full Checkout](#use-full-checkout) or [Use Checkout Lite](#use-checkout-lite)
 
