@@ -61,6 +61,11 @@ yuno.startCheckout({
    */
   keepLoader: true,
   /**
+   * Enable the issuers form (bank list)
+   * Default is true
+   */
+  issuersFormEnable: true,
+  /**
    * Required if you'd like to be informed if there is a server call
    * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
    * @optional
@@ -314,6 +319,11 @@ yuno.startCheckout({
    *  Default is true
    */
   keepLoader: true,
+  /**
+   * Enable the issuers form (bank list)
+   * Default is true
+   */
+  issuersFormEnable: true,
   /**
    * Required if you'd like to be informed if there is a server call
    * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
