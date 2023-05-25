@@ -57,6 +57,14 @@ async function initCheckoutLite() {
     yunoError: (error) => {
       console.log('There was an error', error)
     },
+    /**
+     * Required if you'd like to be informed if there is a server call
+     * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
+     * @optional
+     */
+    onLoading: (args) => {
+      console.log('onLoading', args);
+    }
   })
 
   yuno.mountCheckoutLite({
