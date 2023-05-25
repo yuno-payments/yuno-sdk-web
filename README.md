@@ -888,7 +888,13 @@ yuno.mountEnrollmentLite({
      *     }
      *  }
      */
-    texts: {}
+    texts: {},
+    /**
+     * Hide or show the document fields into card form
+     * Default is true
+     * @optional
+     */
+    documentEnable: true,
   },
   /**
    * Call back is called with the following object
