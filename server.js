@@ -6,16 +6,16 @@ const { getCountryData } = require('./utils')
 
 require('dotenv').config()
 
-
-const YUNO_API_URL = process.env.YUNO_API_URL
+let API_URL
 
 // Ask for these keys to sales department
-const YUNO_X_ACCOUNT_CODE = process.env.YUNO_X_ACCOUNT_CODE
-const YUNO_PUBLIC_API_KEY = process.env.YUNO_PUBLIC_API_KEY
-const YUNO_PRIVATE_SECRET_KEY = process.env.YUNO_PRIVATE_SECRET_KEY
-const YUNO_CUSTOMER_ID = process.env.YUNO_CUSTOMER_ID
+const ACCOUNT_CODE = process.env.ACCOUNT_CODE
+const PUBLIC_API_KEY = process.env.PUBLIC_API_KEY
+const PRIVATE_SECRET_KEY = process.env.PRIVATE_SECRET_KEY
 
-const SERVER_PORT = process.env.PORT || 8080
+const SERVER_PORT = 8080
+
+let CUSTOMER_ID
 
 const staticDirectory = path.join(__dirname, 'static')
 
@@ -26,6 +26,7 @@ const statusPage = path.join(__dirname, 'status.html')
 const statusLitePage = path.join(__dirname, 'status-lite.html')
 const enrollmentLitePage = path.join(__dirname, 'enrollment-lite.html')
 const checkoutSecureFieldsPage = path.join(__dirname, 'checkout-secure-fields.html')
+const fullFeatures = path.join(__dirname, 'full-features.html')
 
 const app = express()
 
@@ -60,25 +61,29 @@ app.get('/enrollment-lite', (req, res) => {
   res.sendFile(enrollmentLitePage)
 })
 
+app.get('/full-features', (req, res) => {
+  res.sendFile(fullFeatures)
+})
+
 app.post('/checkout/sessions', async (req, res) => {
   const country = req.query.country || 'CO'
   const { currency } = getCountryData(country)
 
   const response = await fetch(
-    `${YUNO_API_URL}/v1/checkout/sessions`,
+    `${API_URL}/v1/checkout/sessions`,
     {
       method: 'POST',
       headers: {
-        'public-api-key': YUNO_PUBLIC_API_KEY,
-        'private-secret-key': YUNO_PRIVATE_SECRET_KEY,
+        'public-api-key': PUBLIC_API_KEY,
+        'private-secret-key': PRIVATE_SECRET_KEY,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        account_id: YUNO_X_ACCOUNT_CODE,
+        account_id: ACCOUNT_CODE,
         merchant_order_id: '1655401222',
         payment_description: 'Test MP 1654536326',
         country,
-        customer_id: YUNO_CUSTOMER_ID,
+        customer_id: CUSTOMER_ID,
         amount: {
           currency,
           value: 2000,
@@ -96,17 +101,17 @@ app.post('/payments', async (req, res) => {
   const country = req.query.country || 'CO'
   const { currency, documentNumber, documentType, amount } = getCountryData(country)
 
-  const response = await fetch(`${YUNO_API_URL}/v1/payments`, {
+  const response = await fetch(`${API_URL}/v1/payments`, {
     method: 'POST',
     headers: {
-      'public-api-key': YUNO_PUBLIC_API_KEY,
-      'private-secret-key': YUNO_PRIVATE_SECRET_KEY,
+      'public-api-key': PUBLIC_API_KEY,
+      'private-secret-key': PRIVATE_SECRET_KEY,
       'X-idempotency-key': v4(),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       description: 'Test Addi',
-      account_id: YUNO_X_ACCOUNT_CODE,
+      account_id: ACCOUNT_CODE,
       merchant_order_id: '0000022',
       country,
       additional_data: {
@@ -196,7 +201,7 @@ app.post('/payments', async (req, res) => {
         email: 'pepitoperez@y.uno',
         first_name: 'Pepito',
         gender: 'MALE',
-        id: YUNO_CUSTOMER_ID,
+        id: CUSTOMER_ID,
         ip_address: '192.168.123.167',
         last_name: 'Perez',
         merchant_customer_id: 'example00234',
@@ -228,18 +233,18 @@ app.post('/customers/sessions', async (req, res) => {
   const country = req.query.country || 'CO'
 
   const response = await fetch(
-    `${YUNO_API_URL}/v1/customers/sessions`,
+    `${API_URL}/v1/customers/sessions`,
     {
       method: 'POST',
       headers: {
-        'public-api-key': YUNO_PUBLIC_API_KEY,
-        'private-secret-key': YUNO_PRIVATE_SECRET_KEY,
+        'public-api-key': PUBLIC_API_KEY,
+        'private-secret-key': PRIVATE_SECRET_KEY,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        "account_id": YUNO_X_ACCOUNT_CODE,
+        "account_id": ACCOUNT_CODE,
         country,
-        "customer_id": YUNO_CUSTOMER_ID
+        "customer_id": CUSTOMER_ID
       })
     }
   ).then((resp) => resp.json())
@@ -253,19 +258,19 @@ app.post('/customers/sessions/:customerSession/payment-methods', async (req, res
   const country = req.query.country || 'CO'
 
   const response = await fetch(
-    `${YUNO_API_URL}/v1/customers/sessions/${customerSession}/payment-methods`,
+    `${API_URL}/v1/customers/sessions/${customerSession}/payment-methods`,
     {
       method: "POST",
       headers: {
-        'public-api-key': YUNO_PUBLIC_API_KEY,
-        'private-secret-key': YUNO_PRIVATE_SECRET_KEY,
+        'public-api-key': PUBLIC_API_KEY,
+        'private-secret-key': PRIVATE_SECRET_KEY,
         "X-idempotency-key": v4(),
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         "payment_method_type": paymentMethodType,
         country,
-        "account_id": YUNO_X_ACCOUNT_CODE
+        "account_id": ACCOUNT_CODE
       }),
     }
   )
@@ -279,9 +284,54 @@ app.get('/sdk-web/healthy', (req, res) => {
 })
 
 app.get('/public-api-key', (req, res) => {
-  res.json({ publicApiKey: YUNO_PUBLIC_API_KEY })
+  res.json({ publicApiKey: PUBLIC_API_KEY })
 })
 
-app.listen(SERVER_PORT, () => {
+app.listen(SERVER_PORT, async () => {
   console.log(`server started at port: ${SERVER_PORT}`)
+
+  API_URL =  generateBaseUrlApi()
+
+  CUSTOMER_ID = await createCustomer().then(({ id }) => id)
 })
+
+const ApiKeyPrefixToEnvironmentSuffix = {
+  dev: '-dev',
+  staging: '-staging',
+  sandbox: '-sandbox',
+  prod: '',
+}
+
+const baseAPIurl = 'https://api_ENVIRONMENT_.y.uno'
+
+function  generateBaseUrlApi() {
+  const [apiKeyPrefix] = PUBLIC_API_KEY.split('_')
+  let baseURL = ''
+  const environmentSuffix = ApiKeyPrefixToEnvironmentSuffix[apiKeyPrefix]
+  baseURL = baseAPIurl.replace('_ENVIRONMENT_', environmentSuffix)
+
+  return baseURL
+}
+
+function createCustomer() {
+  const response = fetch(
+    `${API_URL}/v1/customers`,
+    {
+      method: 'POST',
+      headers: {
+        'public-api-key': PUBLIC_API_KEY,
+        'private-secret-key': PRIVATE_SECRET_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        country: 'CO',
+        merchant_customer_id: Math.floor(Math.random() * 1000000).toString(),
+        first_name: "John",
+        last_name: "Doe",
+        email: "john.doe@y.uno"
+      })
+    }
+  ).then((resp) => resp.json())
+
+  return response
+}
