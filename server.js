@@ -3,6 +3,7 @@ const path = require('path')
 const fetch = require('node-fetch')
 const v4 = require('uuid').v4
 const { getCountryData } = require('./utils')
+const open = require('open')
 
 require('dotenv').config()
 
@@ -293,6 +294,8 @@ app.listen(SERVER_PORT, async () => {
   API_URL =  generateBaseUrlApi()
 
   CUSTOMER_ID = await createCustomer().then(({ id }) => id)
+  
+  await open(`http://localhost:${SERVER_PORT}`);
 })
 
 const ApiKeyPrefixToEnvironmentSuffix = {
