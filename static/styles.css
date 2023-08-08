@@ -32,3 +32,17 @@
   margin: auto;
   margin-top: 100px;
 }
+
+#root {
+  background-color: white;
+  max-width: 450px;
+  margin: 0px auto;
+  border-radius: 10px;
+  padding: 30px;
+  box-sizing: border-box;
+  margin: 30px auto;
+}
+
+body {
+  background-color: #F8FAFC;
+}
