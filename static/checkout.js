@@ -12,6 +12,10 @@ async function initCheckout () {
   /**
    * checkout configuration
    */
+
+  const loader = document.getElementById('loader')
+  let isPaying = false
+
   yuno.startCheckout({ 
     checkoutSession,
     // element where the SDK will be mount on
@@ -40,7 +44,9 @@ async function initCheckout () {
      * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
      */
     onLoading: (args) => {
-      console.log(args);
+      if (!isPaying) {
+        loader.style.display = 'none'
+      }
     },
     /**
      * Where the forms a shown
@@ -93,6 +99,9 @@ async function initCheckout () {
      * @param { oneTimeToken: string } data 
      */
     async yunoCreatePayment(oneTimeToken) {
+      loader.style.display = 'block'
+      isPaying = true
+
       await createPayment({ oneTimeToken, checkoutSession })
 
       /**
