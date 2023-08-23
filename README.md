@@ -8,6 +8,7 @@
   - [Use Checkout Secure Fields](#use-checkout-secure-fields)
   - [Use Status](#use-status)
   - [Use Enrollment Lite](#use-enrollment-lite)
+  - [Use Enrollment With Secure Fields](#use-enrollment-with-secure-fields)
   - [Start Demo App](#start-demo-app)
   - [CSS Styles](#css-styles)
 ## Browser Requirements
@@ -985,6 +986,236 @@ yuno.mountEnrollmentLite({
 [Enrollment Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/enrollment-lite.html)  
 [Enrollment Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/enrollment-lite.js)
 
+
+## Use Enrollment With Secure Fields
+
+To use enrollment with secure fields you should include our **SDK** file in your page before close your `<body>` tag
+
+```html
+<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+```
+
+Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
+
+```javascript
+const yuno = Yuno.initialize(PUBLIC_API_KEY)
+```
+
+Then create a configuration object
+
+```javascript
+  const secureFields = yuno.secureFields({
+    /**
+     * country can be one of CO, BR, CL, PE, EC, UR, MX
+     */
+    countryCode,
+    checkoutSession,
+  })
+```
+
+Configure and mount every secure field and mount them in `html` elements, you can use any valid css selector (`#`, `.`, `[data-*]`).
+
+```javascript
+  const secureNumber = secureFields.create({
+    /**
+     * Fields name, can be 'cvv' | 'pan' | 'expiration'
+     */
+    name: 'pan',
+    // All options are optional
+    options: {
+      placeholder: '0000 0000 0000 0000',
+      /**
+       * you can edit card form styles
+       * only you should write css then it will be injected into the iframe
+       * example 
+       * `@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+       *  .Yuno-text-field__content.focus label.Yuno-text-field__label {
+       *    color: red;
+       *    font-family: 'Luckiest Guy' !important;
+       *   }`
+       */
+      styles: ``,
+      label: 'Card Number',
+      showError: true,
+      // Indicates if the fields has error
+      onChange: ({ error }) => {
+        if (error) {
+          console.log('error_pan')
+        } else {
+          console.log('not_error_pan')
+        }
+      },
+      // Trigger when blurring from input
+      onBlur() {
+        console.log('blur_pan')
+      },
+      // Trigger when focussing on input
+      onFocus: () => {
+        console.log('focus_pan')
+      }
+    },
+  })
+
+  // Render into desired element
+  secureNumber.render('#pan')
+
+  const secureExpiration = secureFields.create({
+    /**
+     * Fields name, can be 'cvv' | 'pan' | 'expiration'
+     */
+    name: 'expiration',
+    // All options are optional
+    options: {
+      placeholder: 'MM / YY',
+      /**
+       * you can edit card form styles
+       * only you should write css then it will be injected into the iframe
+       * example 
+       * `@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+       *  .Yuno-text-field__content.focus label.Yuno-text-field__label {
+       *    color: red;
+       *    font-family: 'Luckiest Guy' !important;
+       *   }`
+       */
+      styles: ``,
+      label: 'Card Expiration',
+      showError: true,
+      // Indicates if the fields has error
+      onChange: ({ error }) => {
+        if (error) {
+          console.log('error_expiration')
+        } else {
+          console.log('not_error_expiration')
+        }
+      },
+      // Trigger when blurring from input
+      onBlur() {
+        console.log('blur_expiration')
+      },
+      // Trigger when focussing on input
+      onFocus: () => {
+        console.log('focus_expiration')
+      }
+    },
+  })
+
+  // Render into desired element
+  secureExpiration.render('#expiration')
+
+
+  const secureCvv = secureFields.create({
+    /**
+     * Fields name, can be 'cvv' | 'pan' | 'expiration'
+     */
+    name: 'cvv',
+    // All options are optional
+    options: {
+      placeholder: 'CVV',
+      /**
+       * you can edit card form styles
+       * only you should write css then it will be injected into the iframe
+       * example 
+       * `@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+       *  .Yuno-text-field__content.focus label.Yuno-text-field__label {
+       *    color: red;
+       *    font-family: 'Luckiest Guy' !important;
+       *   }`
+       */
+      styles: ``,
+      label: 'CVV',
+      showError: true,
+      // Indicates if the fields has error
+      onChange: ({ error }) => {
+        if (error) {
+          console.log('error_cvv')
+        } else {
+          console.log('not_error_cvv')
+        }
+      },
+      // Trigger when blurring from input
+      onBlur() {
+        console.log('blur_cvv')
+      },
+      // Trigger when focussing on input
+      onFocus: () => {
+        console.log('focus_cvv')
+      }
+    },
+  })
+
+  // Render into desired element
+  secureCvv.render('#cvv')
+```
+
+After they are mounted, the three secure fields will be shown
+
+To enroll, create a Vaulted Token
+
+```javascript
+// Create Vaulted Token
+// This will trigger an error if there are missing data
+// You can catch it using a try/catch
+const vaultedToken = await secureFields.generateVaultedToken({
+  // Required: You can create an input to get this formation
+  cardHolderName: 'John Deer',
+  // Check your card processor to know if you need to send 
+  // customer information
+  // full object here https://docs.y.uno/reference/the-customer-object
+  customer: {
+    document: {
+      document_number: '1090209924',
+      document_type: 'CC',
+    },
+  },
+})
+```
+
+If you need the full response you can use `secureFields.generateVaultedTokenWithInformation`
+
+```javascript
+/**
+ *  Create One Time Token
+ *  This will trigger an error if there are missing data
+ *  You can catch it using a try/catch
+ *  Returns an object with the full response
+ *  {
+ *   code: string;
+ *   idempotency_key: string;
+ *   organization_code: string;
+ *   account_code: string;
+ *   customer_session: string;
+ *   name: string;
+ *   description: string;
+ *   status: Enrollment.Status;
+ *   type: Payment.Type;
+ *   category: Payment.Category;
+ *   provider: {
+ *       type: string;
+ *       action: string;
+ *       token: string;
+ *       enrollment_id: string | null;
+ *       provider_status: string | null;
+ *       redirect: string | null;
+ *       raw_response: unknown;
+ *   };
+ *   created_at: Date;
+ *   updated_at: Date;
+ *  }
+ */ 
+const vaultedTokenWithInformation = await secureFields.generateVaultedTokenWithInformation({
+  // Required: You can create an input to get this formation
+  cardHolderName: 'John Deer',
+  // Check your card processor to know if you need to send 
+  // customer information
+  // full object here https://docs.y.uno/reference/the-customer-object
+  customer: {
+    document: {
+      document_number: '1090209924',
+      document_type: 'CC',
+    },
+  },
+})
+```
 
 
 ## Start Demo App
