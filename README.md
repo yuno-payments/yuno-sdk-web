@@ -8,7 +8,7 @@
   - [Use Checkout Secure Fields](#use-checkout-secure-fields)
   - [Use Status](#use-status)
   - [Use Enrollment Lite](#use-enrollment-lite)
-  - [Use Loader](#loader)
+  - [Use Enrollment With Secure Fields](#use-enrollment-with-secure-fields)
   - [Start Demo App](#start-demo-app)
   - [CSS Styles](#css-styles)
 ## Browser Requirements
@@ -55,14 +55,9 @@ yuno.startCheckout({
    */
   showLoading: true,
   /**
-   *  Enable this will keep showing the loading component until either hideLoader() or 
-   *  continuePayment() are called.
-   *  Default is true
-   */
-  keepLoader: true,
-  /**
    * Enable the issuers form (bank list)
    * Default is true
+   * @optional
    */
   issuersFormEnable: true,
   /**
@@ -82,11 +77,13 @@ yuno.startCheckout({
     /**
      * Type can be one of `modal` or `element`
      * Default modal
+     * @optional
      */
     type: 'modal',
     /**
      * Element where the form will be rendered
      * Only needed if type is element
+     * @optional
      */
     elementSelector: '#form-element',
   },
@@ -98,6 +95,7 @@ yuno.startCheckout({
     /**
      * Mode render card can be step or extends
      * Default extends
+     * @optional
      */
     type: "extends",
     /**
@@ -109,11 +107,13 @@ yuno.startCheckout({
      *    color: red !important;
      *    font-family: 'Luckiest Guy' !important;
      *   }`
+     * @optional
      */
     styles: '',
     /** 
      * Show checkbox for save/enroll card 
      * Default is false
+     * @optional
      */
     cardSaveEnable: false,
     /**
@@ -143,6 +143,7 @@ yuno.startCheckout({
      *       }
      *     }
      *  }
+     * @optional
      */
     texts: {}
   },
@@ -176,9 +177,9 @@ yuno.startCheckout({
   /**
    * Callback, is called when the One Time Token is created,
    * Merchant should create payment back to back
-   * @param { oneTimeToken: string } data 
+   * @param { oneTimeToken: string, tokenWithInformation: object } data 
    */
-  async yunoCreatePayment(oneTimeToken) {
+  async yunoCreatePayment(oneTimeToken, tokenWithInformation) {
     /**
      * Merchant's function to call its backend to create 
      * the payment into Yuno
@@ -206,7 +207,7 @@ yuno.startCheckout({
     console.log('yunoPaymentResult', data)
 
     /**
-     * call if you set `keepLoader = true` and you want to hide the loader 
+     * call if you want to hide the loader 
      */
     yuno.hideLoader()
   },
@@ -218,7 +219,7 @@ yuno.startCheckout({
   yunoError: (error) => {
     console.log('There was an error', error)
     /**
-     * call if you set `keepLoader = true` and you want to hide the loader 
+     * call if you want to hide the loader 
      */
     yuno.hideLoader()
   },
@@ -314,14 +315,9 @@ yuno.startCheckout({
    */
   showLoading: true,
   /**
-   *  Enable this will keep showing the loading component until either hideLoader() or 
-   *  continuePayment() are called.
-   *  Default is true
-   */
-  keepLoader: true,
-  /**
    * Enable the issuers form (bank list)
    * Default is true
+   * @optional
    */
   issuersFormEnable: true,
   /**
@@ -341,11 +337,13 @@ yuno.startCheckout({
     /**
      * Type can be one of `modal` or `element`
      * Default modal
+     * @optional
      */
     type: 'modal',
     /**
      * Element where the form will be rendered
      * Only needed if type is element
+     * @optional
      */
     elementSelector: '#form-element',
   },
@@ -356,7 +354,8 @@ yuno.startCheckout({
   card: {
     /**
      * Mode render card can be step or extends
-     * Default extends
+     * Default 
+     * @optional
      */
     type: "extends",
     /**
@@ -368,11 +367,13 @@ yuno.startCheckout({
      *    color: red !important;
      *    font-family: 'Luckiest Guy' !important;
      *   }`
+     * @optional
      */
     styles: '',
     /** 
      * Show checkbox for save/enroll card 
      * Default is false
+     * @optional
      */
     cardSaveEnable: false,
     /**
@@ -402,6 +403,7 @@ yuno.startCheckout({
      *       }
      *     }
      *  }
+     * @optional
      */
     texts: {}
   },
@@ -435,9 +437,9 @@ yuno.startCheckout({
   /**
    * Callback, is called when the One Time Token is created,
    * Merchant should create payment back to back
-   * @param { oneTimeToken: string } data 
+   * @param { oneTimeToken: string, tokenWithInformation: object } data 
    */
-  async yunoCreatePayment(oneTimeToken) {
+  async yunoCreatePayment(oneTimeToken, tokenWithInformation) {
     /**
      * Merchant's function to call its backend to create 
      * the payment into Yuno
@@ -464,7 +466,7 @@ yuno.startCheckout({
   yunoPaymentResult(data) {
     console.log('yunoPaymentResult', data)
     /**
-     * call if you set `keepLoader = true` and you want to hide the loader 
+     * call if you want to hide the loader 
      */
     yuno.hideLoader()
   },
@@ -476,7 +478,7 @@ yuno.startCheckout({
   yunoError: (error) => {
     console.log('There was an error', error)
     /**
-     * call if you set `keepLoader = true` and you want to hide the loader 
+     * call if you want to hide the loader 
      */
     yuno.hideLoader()
   },
@@ -674,6 +676,51 @@ To start payment, create a One Time Token
 // This will trigger an error if there are missing data
 // You can catch it using a try/catch
 const oneTimeToken = await secureFields.generateToken({
+  // Required: You can create an input to get this formation
+  cardHolderName: 'John Deer',
+  // Optional: You can create an input to get this formation
+  saveCard: true,
+  // Check your card processor to know if you need to send 
+  // customer information
+  // full object here https://docs.y.uno/reference/the-customer-object
+  customer: {
+    document: {
+      document_number: '1090209924',
+      document_type: 'CC',
+    },
+  },
+})
+```
+
+If you need the full response you can use `secureFields.generateTokenWithInformation`
+
+```javascript
+/**
+ *  Create One Time Token
+ *  This will trigger an error if there are missing data
+ *  You can catch it using a try/catch
+ *  Returns an object with the full response
+ *  {
+ *   token: string;
+ *   vaulted_token: string | null;
+ *   vault_on_success: boolean;
+ *   type: Payment.Type;
+ *   card_data?: {
+ *       holder_name: string;
+ *       iin: string;
+ *       lfd: string;
+ *       number_length: number;
+ *       security_code_length: number;
+ *       brand: string;
+ *       issuer_name: string;
+ *       issuer_code: string | null;
+ *       category: string | null;
+ *       type: string;
+ *    };
+ *    customer: Customer;
+ *  }
+ */ 
+const oneTimeTokenWithInformation = await secureFields.generateTokenWithInformation({
   // Required: You can create an input to get this formation
   cardHolderName: 'John Deer',
   // Optional: You can create an input to get this formation
@@ -939,13 +986,236 @@ yuno.mountEnrollmentLite({
 [Enrollment Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/enrollment-lite.html)  
 [Enrollment Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/enrollment-lite.js)
 
-## Loader
 
-The loader will keep showing when the One Time Token is created until the merchant calls `yuno.hideLoader()` or `yuno.continuePayment()`.  This way the user experience is improved because they will see the loader while the payment is created by the merchant. 
+## Use Enrollment With Secure Fields
 
-To disable this behavior the merchant should set the property `keepLoader` to `false` in the `yuno.startCheckout` method. 
+To use enrollment with secure fields you should include our **SDK** file in your page before close your `<body>` tag
 
-Check the documentation for [Use Full Checkout](#use-full-checkout) or [Use Checkout Lite](#use-checkout-lite)
+```html
+<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+```
+
+Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
+
+```javascript
+const yuno = Yuno.initialize(PUBLIC_API_KEY)
+```
+
+Then create a configuration object
+
+```javascript
+  const secureFields = yuno.secureFields({
+    /**
+     * country can be one of CO, BR, CL, PE, EC, UR, MX
+     */
+    countryCode,
+    checkoutSession,
+  })
+```
+
+Configure and mount every secure field and mount them in `html` elements, you can use any valid css selector (`#`, `.`, `[data-*]`).
+
+```javascript
+  const secureNumber = secureFields.create({
+    /**
+     * Fields name, can be 'cvv' | 'pan' | 'expiration'
+     */
+    name: 'pan',
+    // All options are optional
+    options: {
+      placeholder: '0000 0000 0000 0000',
+      /**
+       * you can edit card form styles
+       * only you should write css then it will be injected into the iframe
+       * example 
+       * `@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+       *  .Yuno-text-field__content.focus label.Yuno-text-field__label {
+       *    color: red;
+       *    font-family: 'Luckiest Guy' !important;
+       *   }`
+       */
+      styles: ``,
+      label: 'Card Number',
+      showError: true,
+      // Indicates if the fields has error
+      onChange: ({ error }) => {
+        if (error) {
+          console.log('error_pan')
+        } else {
+          console.log('not_error_pan')
+        }
+      },
+      // Trigger when blurring from input
+      onBlur() {
+        console.log('blur_pan')
+      },
+      // Trigger when focussing on input
+      onFocus: () => {
+        console.log('focus_pan')
+      }
+    },
+  })
+
+  // Render into desired element
+  secureNumber.render('#pan')
+
+  const secureExpiration = secureFields.create({
+    /**
+     * Fields name, can be 'cvv' | 'pan' | 'expiration'
+     */
+    name: 'expiration',
+    // All options are optional
+    options: {
+      placeholder: 'MM / YY',
+      /**
+       * you can edit card form styles
+       * only you should write css then it will be injected into the iframe
+       * example 
+       * `@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+       *  .Yuno-text-field__content.focus label.Yuno-text-field__label {
+       *    color: red;
+       *    font-family: 'Luckiest Guy' !important;
+       *   }`
+       */
+      styles: ``,
+      label: 'Card Expiration',
+      showError: true,
+      // Indicates if the fields has error
+      onChange: ({ error }) => {
+        if (error) {
+          console.log('error_expiration')
+        } else {
+          console.log('not_error_expiration')
+        }
+      },
+      // Trigger when blurring from input
+      onBlur() {
+        console.log('blur_expiration')
+      },
+      // Trigger when focussing on input
+      onFocus: () => {
+        console.log('focus_expiration')
+      }
+    },
+  })
+
+  // Render into desired element
+  secureExpiration.render('#expiration')
+
+
+  const secureCvv = secureFields.create({
+    /**
+     * Fields name, can be 'cvv' | 'pan' | 'expiration'
+     */
+    name: 'cvv',
+    // All options are optional
+    options: {
+      placeholder: 'CVV',
+      /**
+       * you can edit card form styles
+       * only you should write css then it will be injected into the iframe
+       * example 
+       * `@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+       *  .Yuno-text-field__content.focus label.Yuno-text-field__label {
+       *    color: red;
+       *    font-family: 'Luckiest Guy' !important;
+       *   }`
+       */
+      styles: ``,
+      label: 'CVV',
+      showError: true,
+      // Indicates if the fields has error
+      onChange: ({ error }) => {
+        if (error) {
+          console.log('error_cvv')
+        } else {
+          console.log('not_error_cvv')
+        }
+      },
+      // Trigger when blurring from input
+      onBlur() {
+        console.log('blur_cvv')
+      },
+      // Trigger when focussing on input
+      onFocus: () => {
+        console.log('focus_cvv')
+      }
+    },
+  })
+
+  // Render into desired element
+  secureCvv.render('#cvv')
+```
+
+After they are mounted, the three secure fields will be shown
+
+To enroll, create a Vaulted Token
+
+```javascript
+// Create Vaulted Token
+// This will trigger an error if there are missing data
+// You can catch it using a try/catch
+const vaultedToken = await secureFields.generateVaultedToken({
+  // Required: You can create an input to get this formation
+  cardHolderName: 'John Deer',
+  // Check your card processor to know if you need to send 
+  // customer information
+  // full object here https://docs.y.uno/reference/the-customer-object
+  customer: {
+    document: {
+      document_number: '1090209924',
+      document_type: 'CC',
+    },
+  },
+})
+```
+
+If you need the full response you can use `secureFields.generateVaultedTokenWithInformation`
+
+```javascript
+/**
+ *  Create One Time Token
+ *  This will trigger an error if there are missing data
+ *  You can catch it using a try/catch
+ *  Returns an object with the full response
+ *  {
+ *   code: string;
+ *   idempotency_key: string;
+ *   organization_code: string;
+ *   account_code: string;
+ *   customer_session: string;
+ *   name: string;
+ *   description: string;
+ *   status: Enrollment.Status;
+ *   type: Payment.Type;
+ *   category: Payment.Category;
+ *   provider: {
+ *       type: string;
+ *       action: string;
+ *       token: string;
+ *       enrollment_id: string | null;
+ *       provider_status: string | null;
+ *       redirect: string | null;
+ *       raw_response: unknown;
+ *   };
+ *   created_at: Date;
+ *   updated_at: Date;
+ *  }
+ */ 
+const vaultedTokenWithInformation = await secureFields.generateVaultedTokenWithInformation({
+  // Required: You can create an input to get this formation
+  cardHolderName: 'John Deer',
+  // Check your card processor to know if you need to send 
+  // customer information
+  // full object here https://docs.y.uno/reference/the-customer-object
+  customer: {
+    document: {
+      document_number: '1090209924',
+      document_type: 'CC',
+    },
+  },
+})
+```
 
 
 ## Start Demo App
@@ -960,25 +1230,20 @@ Check the documentation for [Use Full Checkout](#use-full-checkout) or [Use Chec
 You need to create a `.env` file in the root folder with your test keys and server port
 
 ```sh
-PORT=8080
-YUNO_X_ACCOUNT_CODE=abc
-YUNO_PUBLIC_API_KEY=abc
-YUNO_PRIVATE_SECRET_KEY=abc
-YUNO_API_URL=yuno-environment-url
-YUNO_CUSTOMER_ID=abc
+ACCOUNT_CODE=abc
+PUBLIC_API_KEY=abc
+PRIVATE_SECRET_KEY=abc
 ```
 
-[YUNO_X_ACCOUNT_CODE](https://dashboard.y.uno/developers)  
-[YUNO_PUBLIC_API_KEY](https://docs.y.uno/reference/authentication)  
-[YUNO_PRIVATE_SECRET_KEY](https://docs.y.uno/reference/authentication)  
-[YUNO_API_URL](https://docs.y.uno/reference/introduction)   
-[YUNO_CUSTOMER_ID](https://docs.y.uno/reference/create-a-customer)  
+[ACCOUNT_CODE](https://dashboard.y.uno/developers)  
+[PUBLIC_API_KEY](https://docs.y.uno/reference/authentication)  
+[PRIVATE_SECRET_KEY](https://docs.y.uno/reference/authentication)  
 
 
-Then go to [http://localhost:YOUR-PORT](http://localhost:YOUR-PORT)  
+Then go to [http://localhost:8080](http://localhost:8080)  
 
 To change the country you can add a query parameter named `country` with one of `CO, BR, CL, PE, EC, UR, MX`  
-[http://localhost:YOUR-PORT?country=CO](http://localhost:YOUR-PORT?country=CO)
+[http://localhost:8080?country=CO](http://localhost:8080?country=CO)
 
 ## CSS Styles
 
