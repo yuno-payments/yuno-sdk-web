@@ -557,12 +557,24 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       styles: ``,
       label: 'Card Number',
       showError: true,
-      // Indicates if the fields has error
-      onChange: ({ error }) => {
-        if (error) {
+      /**
+       * @param { event: {
+       *    data: {
+       *      installments?:  { installmentId: string, installment: number }
+       *    },
+       *    error: boolean
+       *  } 
+       * }
+       */
+      onChange: (event) => {
+        if (event.error) {
           console.log('error_pan')
         } else {
           console.log('not_error_pan')
+        }
+
+        if (event.data.installments) {
+          console.log('installments', event.data.installments)
         }
       },
       // Trigger when blurring from input
