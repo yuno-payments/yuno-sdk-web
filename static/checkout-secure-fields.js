@@ -15,6 +15,11 @@ async function initCheckoutSecureFields () {
   const secureFields = yuno.secureFields({
     countryCode,
     checkoutSession,
+    /**
+     * disabled or enable the functionality of the installment
+     * default is false
+     */
+    installmentEnable: false
   })
 
   const secureNumber = secureFields.create({
@@ -39,12 +44,39 @@ async function initCheckoutSecureFields () {
       label: 'Card Number',
       showError: true,
       // Indicates if the fields has error
-      onChange: ({ error }) => {
+      // If you have installmentEnable set to true, the data will include the installments property
+      /**
+       * 
+       * data : {
+       *  installments: [{
+       *    {
+              "installmentId": "10cef26f-7d5e-4783-89ee-e00f7ed93b64",
+              "installment": 1,
+              "amount": {
+                  "currency": "COP",
+                  "value": "2200",
+                  "total_value": "2200"
+              }
+            },
+           {
+              "installmentId": "10cef26f-7d5e-4783-89ee-e00f7ed93b64",
+              "installment": 12,
+              "amount": {
+                  "currency": "COP",
+                  "value": "2200",
+                  "total_value": "2200"
+              }
+            }
+       *  }]
+       * }
+       */
+      onChange: ({ error, data }) => {
         if (error) {
           console.log('error_pan')
         } else {
           console.log('not_error_pan')
         }
+        console.log(data.installments)
       },
       // Trigger when blurring from input
       onBlur() {
