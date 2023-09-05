@@ -530,6 +530,11 @@ Then create a configuration object
      */
     countryCode,
     checkoutSession,
+    /**
+     * disabled or enable the functionality of the installment
+     * default is false
+     */
+    installmentEnable: false
   })
 ```
 
@@ -564,6 +569,31 @@ Configure and mount every secure field and mount them in `html` elements, you ca
        *    },
        *    error: boolean
        *  } 
+       * }
+       */
+      /**
+       * 
+       * data : {
+       *  installments: [{
+       *    {
+              "installmentId": "10cef26f-7d5e-4783-89ee-e00f7ed93b64",
+              "installment": 1,
+              "amount": {
+                  "currency": "COP",
+                  "value": "2200",
+                  "total_value": "2200"
+              }
+            },
+           {
+              "installmentId": "10cef26f-7d5e-4783-89ee-e00f7ed93b64",
+              "installment": 12,
+              "amount": {
+                  "currency": "COP",
+                  "value": "2200",
+                  "total_value": "2200"
+              }
+            }
+       *  }]
        * }
        */
       onChange: (event) => {
