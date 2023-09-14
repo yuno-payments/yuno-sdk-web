@@ -13,6 +13,7 @@ export const ApmLiteCustomLoader = ({ paymentMethodType, vaultedToken, onClose }
       elementSelector: "#root-apm-yuno",
       countryCode,
       language: 'es',
+      showLoading: false,
       yunoCreatePayment: async (token) => {
         console.log('token ----->', token)
         try {
