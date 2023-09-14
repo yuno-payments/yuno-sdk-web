@@ -14,7 +14,12 @@ export const ApmLite = ({ paymentMethodType, vaultedToken, onClose }) => {
       language: 'es',
       yunoCreatePayment: async (token) => {
         console.log('token ----->', token)
-        await yunoInstance.continuePayment()
+        try {
+          await yunoInstance.continuePayment()
+        } catch (error) { 
+        } finally {
+          onClose()
+        }
       },
       yunoError: (err) => {
         if (err === 'CANCELED_BY_USER') {

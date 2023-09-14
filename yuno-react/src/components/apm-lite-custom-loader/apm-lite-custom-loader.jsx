@@ -17,10 +17,9 @@ export const ApmLiteCustomLoader = ({ paymentMethodType, vaultedToken, onClose }
         console.log('token ----->', token)
         try {
           await yunoInstance.continuePayment()
-        } catch (error) {
-          onClose()
-         }
+        } catch (error) {}
         finally {
+          onClose()
           setShowLoader(false)
         }
       },
