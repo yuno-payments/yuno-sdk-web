@@ -75,7 +75,7 @@ async function initCheckoutLite() {
     /**
      * Vaulted token related to payment method type
      */
-    valutedToken: VAULTED_TOKEN,
+    vaultedToken: VAULTED_TOKEN,
   })
 }
 

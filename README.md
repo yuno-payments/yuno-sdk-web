@@ -1051,7 +1051,7 @@ Then create a configuration object
      * country can be one of CO, BR, CL, PE, EC, UR, MX
      */
     countryCode,
-    checkoutSession,
+    customerSession,
   })
 ```
 
