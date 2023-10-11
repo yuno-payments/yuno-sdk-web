@@ -1,0 +1,28 @@
+{
+  "name": "@yuno-sdk-web/server",
+  "version": "1.0.1",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/*"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "nanoid": "5.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.8.4",
+    "tsup": "7.2.0",
+    "typescript": "5.2.2"
+  }
+}
