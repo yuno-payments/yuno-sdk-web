@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  color: #fff;
+  background-color: #242424;
+}
+
+button {
+  @apply bg-purple-700 font-semibold rounded-md hover:border hover:border-white p-2 cursor-pointer;
+}
+
+#button-pay {
+  @apply mt-4;
+}
