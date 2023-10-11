@@ -1,0 +1,30 @@
+{
+  "name": "@yuno-sdk-web/react",
+  "version": "1.0.1",
+  "license": "MIT",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "18.2.25",
+    "@types/react-dom": "18.2.11",
+    "tsup": "7.2.0",
+    "typescript": "5.2.2"
+  }
+}
