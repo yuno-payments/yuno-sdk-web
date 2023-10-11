@@ -570,8 +570,8 @@ Configure and mount every secure field and mount them in `html` elements, you ca
        *    error: boolean
        *  } 
        * }
-       */
-      /**
+       *
+       *
        * 
        * data : {
        *  installments: [{
@@ -731,6 +731,11 @@ const oneTimeToken = await secureFields.generateToken({
       document_type: 'CC',
     },
   },
+  // Optional: Send installment.  installmentId, installment from pan onChange event
+  installment: {
+    id: installmentId,
+    value: installment
+  }
 })
 ```
 
