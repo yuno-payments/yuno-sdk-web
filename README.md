@@ -565,7 +565,42 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       /**
        * @param { event: {
        *    data: {
-       *      installments?:  { installmentId: string, installment: number }
+       *      installments?:  [
+       *        { 
+       *          installmentId: string, 
+       *          installment: number, 
+       *          amount: { 
+       *            currency: string, 
+       *            value: string, 
+       *            total_value: string 
+       *          }
+       *        }
+       *      ],
+       *      cardIIN?: {
+       *        id: string,
+       *        iin: string,
+       *        scheme: string,
+       *        issuer_name: string
+       *        issuer_code: string,
+       *        brand: string,
+       *        type: string,
+       *        category: string,
+       *        country_code: string,
+       *        country_name: string,
+       *        website: string,
+       *        phone: {
+       *          country_code: string | null,
+       *          number: string | null
+       *        },
+       *        address: {
+       *          address_line_1: string | null,
+       *          address_line_2: string | null,
+       *          city: string | null,
+       *          country: string | null,
+       *          state: string | null,
+       *          zip_code: string | null
+       *        }
+       *      }
        *    },
        *    error: boolean
        *  } 
