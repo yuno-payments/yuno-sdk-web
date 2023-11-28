@@ -529,6 +529,10 @@ Then create a configuration object
      * country can be one of CO, BR, CL, PE, EC, UR, MX
      */
     countryCode,
+    /**
+     * Should be added her or in the token generation
+     * @optional
+     */
     checkoutSession,
     /**
      * disabled or enable the functionality of the installment
@@ -541,6 +545,25 @@ Then create a configuration object
 Configure and mount every secure field and mount them in `html` elements, you can use any valid css selector (`#`, `.`, `[data-*]`).
 
 ```javascript
+  /**
+   * interface SecureField {
+   *  render(elementSelector: string): void
+   * 
+   *  clearValue(): void
+   * 
+   *  setError(errorMessage: string): void
+   * 
+   *  updateProps(args: Record<string, unknown>): void
+   * 
+   *  focus(): void
+   * 
+   *  validate(): void
+   * 
+   *  unmountSync(): Promise<void>
+   * }
+   */
+
+
   const secureNumber = secureFields.create({
     /**
      * Fields name, can be 'cvv' | 'pan' | 'expiration'
@@ -757,6 +780,10 @@ const oneTimeToken = await secureFields.generateToken({
   cardHolderName: 'John Deer',
   // Optional: You can create an input to get this formation
   saveCard: true,
+  /**
+   * @optional
+   */
+  checkoutSession,
   // Check your card processor to know if you need to send 
   // customer information
   // full object here https://docs.y.uno/reference/the-customer-object
@@ -1091,6 +1118,10 @@ Then create a configuration object
      * country can be one of CO, BR, CL, PE, EC, UR, MX
      */
     countryCode,
+    /**
+     * Should be added her or in the token generation
+     * @optional
+     */
     customerSession,
   })
 ```
@@ -1098,6 +1129,24 @@ Then create a configuration object
 Configure and mount every secure field and mount them in `html` elements, you can use any valid css selector (`#`, `.`, `[data-*]`).
 
 ```javascript
+   /**
+   * interface SecureField {
+   *  render(elementSelector: string): void
+   * 
+   *  clearValue(): void
+   * 
+   *  setError(errorMessage: string): void
+   * 
+   *  updateProps(args: Record<string, unknown>): void
+   * 
+   *  focus(): void
+   * 
+   *  validate(): void
+   * 
+   *  unmountSync(): Promise<void>
+   * }
+   */
+
   const secureNumber = secureFields.create({
     /**
      * Fields name, can be 'cvv' | 'pan' | 'expiration'
@@ -1240,6 +1289,10 @@ To enroll, create a Vaulted Token
 const vaultedToken = await secureFields.generateVaultedToken({
   // Required: You can create an input to get this formation
   cardHolderName: 'John Deer',
+  /**
+   * @optional
+   */
+  customerSession,
   // Check your card processor to know if you need to send 
   // customer information
   // full object here https://docs.y.uno/reference/the-customer-object
