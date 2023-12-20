@@ -6,41 +6,41 @@ interface Customer {
   device_fingerprint?: string | null;
   third_party_session_id?: string | null;
   document: {
-      document_number: string;
-      document_type: string;
+    document_number: string;
+    document_type: string;
   };
   phone: {
-      country_code: string;
-      number: string;
+    country_code: string;
+    number: string;
   };
   billing_address: {
-      address_line_1: string;
-      address_line_2: string;
-      city: string;
-      country: string;
-      state: string;
-      zip_code: string;
+    address_line_1: string;
+    address_line_2: string;
+    city: string;
+    country: string;
+    state: string;
+    zip_code: string;
   };
   shipping_address: {
-      address_line_1: string;
-      address_line_2: string;
-      country: string;
-      state: string;
-      city: string;
-      zip_code: string;
+    address_line_1: string;
+    address_line_2: string;
+    country: string;
+    state: string;
+    city: string;
+    zip_code: string;
   };
   browser_info?: Partial<{
-      accept_browser: string | null;
-      accept_content: string | null;
-      accept_header: string | null;
-      color_depth: string | null;
-      javascript_enabled: boolean | null;
-      language: string | null;
-      screen_height: string | null;
-      screen_width: string | null;
-      user_agent: string | null;
-      java_enabled: boolean | null;
-      browser_time_difference: string | null;
+    accept_browser: string | null;
+    accept_content: string | null;
+    accept_header: string | null;
+    color_depth: string | null;
+    javascript_enabled: boolean | null;
+    language: string | null;
+    screen_height: string | null;
+    screen_width: string | null;
+    user_agent: string | null;
+    java_enabled: boolean | null;
+    browser_time_difference: string | null;
   }>;
   merchant_customer_id?: string;
 }
@@ -53,36 +53,77 @@ type Installment = {
   installmentId: string;
   installment: number;
   amount: {
-      currency: string;
-      value: string;
-      total_value: string;
+    currency: string;
+    value: string;
+    total_value: string;
   };
 };
+
+interface CardIINResponse {
+  id: string;
+  iin: string;
+  scheme: string;
+  issuer_name: string;
+  issuer_code: string;
+  brand: string;
+  type: string;
+  category: string;
+  country_code: string;
+  country_name: string;
+  website: string;
+  phone: {
+      country_code: string;
+      number: string;
+  };
+  address: {
+      address_line_1: string;
+      address_line_2: string | null;
+      city: string;
+      country: string;
+      state: string;
+      zip_code: string;
+  };
+}
+
 type OnChangeArgs = {
   error: boolean;
   data?: {
-      installments?: Installment[];
+    installments?: Installment[];
+    cardIIN?: CardIINResponse;
+    isCardIINLoading: boolean;
+    isInstallmentLoading: boolean;
   };
 };
 type Create = {
   name: Name;
   options: {
-      label?: string;
-      showError?: boolean;
-      onChange?(onChangeArgs: OnChangeArgs): void;
-      onBlur?(): void;
-      onFocus?(): void;
-      styles?: string;
-      placeholder: string;
+    label?: string;
+    showError?: boolean;
+    onChange?(onChangeArgs: OnChangeArgs): void;
+    onBlur?(): void;
+    onFocus?(): void;
+    styles?: string;
+    placeholder: string;
   };
 };
 type GetElement = {
   name: Name;
 };
 interface GenerateTokenArgs {
+  checkoutSession?: string;
   cardHolderName: string;
   saveCard?: boolean;
   customer?: Partial<Customer>;
+  installment?: {
+    id: string;
+    value: number;
+    amount?: {
+      currency: string;
+      value: string;
+      total_value: string;
+    };
+  }
+  cardType?: string;
 }
 interface GenerateVaultedToken {
   cardHolderName: string;
@@ -94,16 +135,16 @@ interface OneTimeToken {
   vault_on_success: boolean;
   type: string;
   card_data?: {
-      holder_name: string;
-      iin: string;
-      lfd: string;
-      number_length: number;
-      security_code_length: number;
-      brand: string;
-      issuer_name: string;
-      issuer_code: string | null;
-      category: string | null;
-      type: string;
+    holder_name: string;
+    iin: string;
+    lfd: string;
+    number_length: number;
+    security_code_length: number;
+    brand: string;
+    issuer_name: string;
+    issuer_code: string | null;
+    category: string | null;
+    type: string;
   };
   customer: Customer;
 }
@@ -119,21 +160,28 @@ interface VaultedToken {
   type: string;
   category: string;
   provider: {
-      type: string;
-      action: string;
-      token: string;
-      enrollment_id: string | null;
-      provider_status: string | null;
-      redirect: string | null;
-      raw_response: unknown;
+    type: string;
+    action: string;
+    token: string;
+    enrollment_id: string | null;
+    provider_status: string | null;
+    redirect: string | null;
+    raw_response: unknown;
   };
   created_at: Date;
   updated_at: Date;
 }
+
+type CardType = 'CREDIT' | 'DEBIT'
+
 interface SecureField {
   render(elementSelector: string): Promise<void>;
   focus(): void;
+  validate(): void;
   unmountSync(): void;
+  clearValue(): void;
+  setError(errorMessage: string): void
+  setCardType(cardType: CardType): void
 }
 interface SecureFields {
   create({ name, options }: Create): SecureField;
@@ -147,33 +195,33 @@ interface SecureFields {
 
 interface ButtonTextCard {
   cardForm?: {
-      enrollmentSubmitButton?: string;
-      paymentSubmitButton?: string;
+    enrollmentSubmitButton?: string;
+    paymentSubmitButton?: string;
   };
   cardStepper?: {
-      numberCardStep?: {
-          nextButton?: string;
-      };
-      cardHolderNameStep?: {
-          prevButton?: string;
-          nextButton?: string;
-      };
-      expirationDateStep?: {
-          prevButton?: string;
-          nextButton?: string;
-      };
-      cvvStep?: {
-          prevButton?: string;
-          nextButton?: string;
-      };
+    numberCardStep?: {
+      nextButton?: string;
+    };
+    cardHolderNameStep?: {
+      prevButton?: string;
+      nextButton?: string;
+    };
+    expirationDateStep?: {
+      prevButton?: string;
+      nextButton?: string;
+    };
+    cvvStep?: {
+      prevButton?: string;
+      nextButton?: string;
+    };
   };
 }
 interface TextsCustom {
   customerForm?: {
-      submitButton?: string;
+    submitButton?: string;
   };
   paymentOtp?: {
-      sendOtpButton?: string;
+    sendOtpButton?: string;
   };
 }
 interface CardConfig {
@@ -192,7 +240,7 @@ declare enum ExternalPaymentButtonsTypes {
 }
 type ExternalPaymentButtons = {
   [key in ExternalPaymentButtonsTypes]: {
-      elementSelector: string;
+    elementSelector: string;
   };
 };
 type LoadingType = 'DOCUMENT' | 'ONE_TIME_TOKEN';
@@ -218,23 +266,23 @@ interface YunoConfig {
   showOnlyThesePaymentMethods?: string[];
   yunoCreatePayment?: (oneTimeToken: string, tokenWithInformation: OneTimeToken) => void;
   yunoPaymentMethodSelected?: (arg: {
-      type: string;
-      name: string;
+    type: string;
+    name: string;
   }) => void;
   yunoPaymentResult?: (status: Status) => void;
   yunoError?: (message: string) => void;
   onRendered?(): void;
   onOneTimeTokenCreationStart?(): void;
   yunoEnrollmentStatus?(params: {
-      status: EnrollmentStatus;
-      vaultedToken?: string;
+    status: EnrollmentStatus;
+    vaultedToken?: string;
   }): void;
   /**
    * @deprecated
    */
   onLoading?(args: {
-      isLoading: boolean;
-      type: LoadingType;
+    isLoading: boolean;
+    type: LoadingType;
   }): void;
 }
 type StartCheckoutArgs = Omit<YunoConfig, 'yunoEnrollmentStatus' | 'customerSession' | 'publicApiKey'>;
