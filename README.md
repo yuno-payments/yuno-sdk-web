@@ -585,6 +585,7 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       styles: ``,
       label: 'Card Number',
       showError: true,
+      errorMessage: 'Test message',
       /**
        * @param { event: {
        *    data: {
@@ -634,23 +635,23 @@ Configure and mount every secure field and mount them in `html` elements, you ca
        * data : {
        *  installments: [{
        *    {
-              "installmentId": "10cef26f-7d5e-4783-89ee-e00f7ed93b64",
-              "installment": 1,
-              "amount": {
-                  "currency": "COP",
-                  "value": "2200",
-                  "total_value": "2200"
-              }
-            },
-           {
-              "installmentId": "10cef26f-7d5e-4783-89ee-e00f7ed93b64",
-              "installment": 12,
-              "amount": {
-                  "currency": "COP",
-                  "value": "2200",
-                  "total_value": "2200"
-              }
-            }
+       *      "installmentId": "10cef26f-7d5e-4783-89ee-e00f7ed93b64",
+       *      "installment": 1,
+       *      "amount": {
+       *          "currency": "COP",
+       *          "value": "2200",
+       *          "total_value": "2200"
+       *      }
+       *    },
+       *    {
+       *      "installmentId": "10cef26f-7d5e-4783-89ee-e00f7ed93b64",
+       *      "installment": 12,
+       *      "amount": {
+       *          "currency": "COP",
+       *          "value": "2200",
+       *          "total_value": "2200"
+       *      }
+       *    }
        *  }]
        * }
        */
@@ -700,6 +701,7 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       styles: ``,
       label: 'Card Expiration',
       showError: true,
+      errorMessage: 'Test message',
       // Indicates if the fields has error
       onChange: ({ error }) => {
         if (error) {
@@ -744,6 +746,7 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       styles: ``,
       label: 'CVV',
       showError: true,
+      errorMessage: 'Test message',
       // Indicates if the fields has error
       onChange: ({ error }) => {
         if (error) {
@@ -1168,6 +1171,7 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       styles: ``,
       label: 'Card Number',
       showError: true,
+      errorMessage: 'Test message',
       // Indicates if the fields has error
       onChange: ({ error }) => {
         if (error) {
@@ -1211,6 +1215,7 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       styles: ``,
       label: 'Card Expiration',
       showError: true,
+      errorMessage: 'Test message',
       // Indicates if the fields has error
       onChange: ({ error }) => {
         if (error) {
@@ -1255,6 +1260,7 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       styles: ``,
       label: 'CVV',
       showError: true,
+      errorMessage: 'Test message',
       // Indicates if the fields has error
       onChange: ({ error }) => {
         if (error) {
