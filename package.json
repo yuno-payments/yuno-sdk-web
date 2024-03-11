@@ -1,5 +1,5 @@
 {
-  "name": "yuno-sdk-web",
+  "name": "mv-yuno",
   "version": "1.0.1",
   "description": "Demo app to show how to use Yuno's web SDK",
   "workspaces": [
