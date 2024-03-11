@@ -1,5 +1,5 @@
 {
-  "name": "@yuno-sdk-web/server",
+  "name": "@yuno-sdk-web/node",
   "version": "1.0.1",
   "license": "MIT",
   "main": "./dist/index.js",
