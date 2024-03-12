@@ -1,5 +1,5 @@
 {
-  "name": "@mv-yuno/js",
+  "name": "@miguelv-yuno/js",
   "version": "1.0.0",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
