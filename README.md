@@ -2,11 +2,14 @@
 
 ## Table of Contents
 
+- [yuno-sdk-web](#yuno-sdk-web)
+  - [Table of Contents](#table-of-contents)
   - [Browser Requirements](#browser-requirements)
   - [Use Full Checkout](#use-full-checkout)
   - [Use Checkout Lite](#use-checkout-lite)
   - [Use Checkout Secure Fields](#use-checkout-secure-fields)
   - [Use Status](#use-status)
+  - [Use Status Lite](#use-status-lite)
   - [Use Enrollment Lite](#use-enrollment-lite)
   - [Use Enrollment With Secure Fields](#use-enrollment-with-secure-fields)
   - [Start Demo App](#start-demo-app)
@@ -575,6 +578,14 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       showError: true,
       errorMessage: 'Test message',
       /**
+       * Change validation behavior, improving user experience
+       * providing validation feedback after the field has lost focus
+       * @type {?boolean}
+       * @default false
+       * @optional
+       */
+      validateOnBlur: false,
+      /**
        * @param { event: {
        *    data: {
        *      installments?:  [
@@ -690,6 +701,14 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       label: 'Card Expiration',
       showError: true,
       errorMessage: 'Test message',
+      /**
+       * Change validation behavior, improving user experience
+       * providing validation feedback after the field has lost focus
+       * @type {?boolean}
+       * @default false
+       * @optional
+       */
+      validateOnBlur: false,
       // Indicates if the fields has error
       onChange: ({ error }) => {
         if (error) {
@@ -735,6 +754,14 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       label: 'CVV',
       showError: true,
       errorMessage: 'Test message',
+      /**
+       * Change validation behavior, improving user experience
+       * providing validation feedback after the field has lost focus
+       * @type {?boolean}
+       * @default false
+       * @optional
+       */
+      validateOnBlur: false,
       // Indicates if the fields has error
       onChange: ({ error }) => {
         if (error) {
