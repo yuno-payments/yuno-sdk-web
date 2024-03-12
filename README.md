@@ -161,19 +161,7 @@ yuno.startCheckout({
    *   }
    * @optional
    */
-  texts: {}
-  /**
-   * Use external SDKs buttons like PayPal, Paga con Rappi
-   * @optional
-   */
-  externalPaymentButtons: {
-    paypal: {
-      elementSelector: '#paypal',
-    },
-    pagaConRappi: {
-      elementSelector: '#paga-con-rappi',
-    },
-  },
+  texts: {},
   /**
    * Callback, is called when the One Time Token is created,
    * Merchant should create payment back to back
@@ -213,10 +201,10 @@ yuno.startCheckout({
   },
   /**
    * If this is called the SDK should be mounted again
-   * @param { error: 'CANCELED_BY_USER' | any }
+   * @param { error: 'CANCELED_BY_USER' | string, data?: { cause: USER_CANCEL_ON_PROVIDER | string, provider: PAYPAL | string } }
    * @optional
    */
-  yunoError: (error) => {
+  yunoError: (error, data) => {
     console.log('There was an error', error)
     /**
      * call if you want to hide the loader 
