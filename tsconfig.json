@@ -8,6 +8,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["server/src/**/*"],
+  "include": ["packages/**/*"],
   "exclude": ["node_modules"]
 }
