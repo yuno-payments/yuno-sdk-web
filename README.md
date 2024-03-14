@@ -64,7 +64,7 @@ yuno.startCheckout({
    */
   issuersFormEnable: true,
   /**
-   * Enable Payment Status page
+   * Hide or show the Yuno Payment Status page
    * Default is true
    * @optional
    */
@@ -319,7 +319,7 @@ yuno.startCheckout({
    */
   issuersFormEnable: true,
   /**
-   * Enable Payment Status page
+   * Hide or show the Yuno Payment Status page
    * Default is true
    * @optional
    */
