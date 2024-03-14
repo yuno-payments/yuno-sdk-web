@@ -64,6 +64,12 @@ yuno.startCheckout({
    */
   issuersFormEnable: true,
   /**
+   * Hide or show the Yuno Payment Status page
+   * Default is true
+   * @optional
+   */
+  showPaymentStatus: true,
+  /**
    * Required if you'd like to be informed if there is a server call
    * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
    * @optional
@@ -178,8 +184,9 @@ yuno.startCheckout({
     await createPayment({ oneTimeToken, checkoutSession })
     /**
      * Call only if the SDK needs to continue the payment flow
+     * @param {{ showPaymentStatus: boolean }}
      */
-    yuno.continuePayment()
+    yuno.continuePayment({ showPaymentStatus: true })
   },
   /**
    * Callback is called when user selects a payment method
@@ -312,6 +319,12 @@ yuno.startCheckout({
    */
   issuersFormEnable: true,
   /**
+   * Hide or show the Yuno Payment Status page
+   * Default is true
+   * @optional
+   */
+  showPaymentStatus: true,
+  /**
    * Required if you'd like to be informed if there is a server call
    * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
    * @optional
@@ -438,8 +451,9 @@ yuno.startCheckout({
     await createPayment({ oneTimeToken, checkoutSession })
     /**
      * Call only if the SDK needs to continue the payment flow
+     * @param {{ showPaymentStatus: boolean }}
      */
-    yuno.continuePayment()
+    yuno.continuePayment({ showPaymentStatus: true })
   },
   /**
    * Callback is called when user selects a payment method
