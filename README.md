@@ -37,13 +37,21 @@ Then start checkout with configuration
 
 ```javascript
 yuno.startCheckout({
+  /**
+   * Refers to the current payment's checkout session.
+   * @example `438413b7-4921-41e4-b8f3-28a5a0141638`
+   * @type {String}
+   */
   checkoutSession,
   /**
    * Element where the SDK will be mount on 
    */ 
   elementSelector: '#root', 
   /**
-   * country can be one of CO, BR, CL, PE, EC, UR, MX
+   * This parameter determines the country for which the payment process is being configured.
+   * The complete list of supported countries and their country code is available on the
+   * {@link https://docs.y.uno/docs/country-coverage-yuno-sdk | Country coverage} page.
+   * @type {String}
    */
   countryCode: country,
   /**
@@ -53,19 +61,19 @@ yuno.startCheckout({
   language: 'es',
   /**
    * Hide or show the Yuno loading/spinner page
-   * Default is true
+   * @default true
    * @optional
    */
   showLoading: true,
   /**
    * Enable the issuers form (bank list)
-   * Default is true
+   * @default true
    * @optional
    */
   issuersFormEnable: true,
   /**
    * Hide or show the Yuno Payment Status page
-   * Default is true
+   * @default true
    * @optional
    */
   showPaymentStatus: true,
@@ -78,14 +86,14 @@ yuno.startCheckout({
     console.log(args);
   }
   /**
-   * Where the forms will be shown
-   * Default { type: 'modal' }
+   * Where and how the forms will be shown
+   * @default { type: 'modal' }
    * @optional
    */
   renderMode: {
     /**
      * Type can be one of `modal` or `element`
-     * Default modal
+     * @default 'modal'
      * @optional
      */
     type: 'modal',
@@ -97,13 +105,13 @@ yuno.startCheckout({
     elementSelector: '#form-element',
   },
   /**
-   *  API card
+   *  Card API
    *  @optional
    */
   card: {
     /**
      * Mode render card can be step or extends
-     * Default extends
+     * @default 'extends'
      * @optional
      */
     type: "extends",
@@ -121,14 +129,13 @@ yuno.startCheckout({
     styles: '',
     /** 
      * Show checkbox for save/enroll card 
-     * Default is false
+     * @default false
      * @optional
      */
     cardSaveEnable: false,
     /**
      * Custom texts in Card forms buttons
-     * Example:
-     * 
+     * @example
      *  texts: {
      *    cardForm?: {
      *      enrollmentSubmitButton?: string;
@@ -158,8 +165,7 @@ yuno.startCheckout({
   },
   /**
    * Custom texts in payment forms buttons 
-   * Example:
-   * 
+   * @example
    *  texts: {
    *    customerForm?: {
    *       submitButton?: string;
@@ -179,7 +185,8 @@ yuno.startCheckout({
   async yunoCreatePayment(oneTimeToken, tokenWithInformation) {
     /**
      * Merchant's function to call its backend to create 
-     * the payment into Yuno
+     * the payment into Yuno.
+     * {@link https://docs.y.uno/reference/create-payment}
      */
     await createPayment({ oneTimeToken, checkoutSession })
     /**
@@ -230,17 +237,17 @@ Finally mount the **SDK** in a `html` element, you can use any valid css selecto
 /**
  * Mount checkout in browser DOM
  */
-yuno.mountCheckout()
+await yuno.mountCheckout()
 ```
 
-IF you need to select a payment method by default, mount it using
+If you need to select a payment method by default, mount it using
 
 ```javascript
 /**
  * Mount checkout in browser DOM with a payment method selected by default
  * @optional
  */
-yuno.mountCheckout({
+await yuno.mountCheckout({
   /**
    * Optional, only needed if you would like this method type selected by default
    * Can be one of 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO
@@ -276,7 +283,7 @@ PayButton.addEventListener('click', () => {
 
 ## Use Checkout Lite
 
-To use checkout lite you should include our **SDK** file in your page before close your `<body>` tag
+To use checkout lite you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
 <script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
@@ -291,14 +298,22 @@ const yuno = Yuno.initialize(PUBLIC_API_KEY)
 Then create a configuration object
 
 ```javascript
-yuno.startCheckout({ 
+yuno.startCheckout({
+  /**
+   * Refers to the current payment's checkout session.
+   * @example `438413b7-4921-41e4-b8f3-28a5a0141638`
+   * @type {String}
+   */
   checkoutSession,
   /**
    * Element where the SDK will be mount on 
    */ 
   elementSelector: '#root', 
   /**
-   * country can be one of CO, BR, CL, PE, EC, UR, MX
+   * This parameter determines the country for which the payment process is being configured.
+   * The complete list of supported countries and their country code is available on the
+   * {@link https://docs.y.uno/docs/country-coverage-yuno-sdk | Country coverage} page.
+   * @type {String}
    */
   countryCode: country,
   /**
@@ -308,19 +323,19 @@ yuno.startCheckout({
   language: 'es',
   /**
    * Hide or show the Yuno loading/spinner page
-   * Default is true
+   * @default true
    * @optional
    */
   showLoading: true,
   /**
    * Enable the issuers form (bank list)
-   * Default is true
+   * @default true
    * @optional
    */
   issuersFormEnable: true,
   /**
    * Hide or show the Yuno Payment Status page
-   * Default is true
+   * @default true
    * @optional
    */
   showPaymentStatus: true,
@@ -333,14 +348,14 @@ yuno.startCheckout({
     console.log(args);
   }
   /**
-   * Where the forms will be shown
-   * Default { type: 'modal' }
+   * Where and how the forms will be shown
+   * @default { type: 'modal' }
    * @optional
    */
   renderMode: {
     /**
      * Type can be one of `modal` or `element`
-     * Default modal
+     * @default 'modal'
      * @optional
      */
     type: 'modal',
@@ -352,13 +367,13 @@ yuno.startCheckout({
     elementSelector: '#form-element',
   },
   /**
-   *  API card
-   *  @optional
+   * Card API
+   * @optional
    */
   card: {
     /**
-     * Mode render card can be step or extends
-     * Default 
+     * Card render mode can be either `step` or `extends`
+     * @default 'extends' 
      * @optional
      */
     type: "extends",
@@ -376,14 +391,13 @@ yuno.startCheckout({
     styles: '',
     /** 
      * Show checkbox for save/enroll card 
-     * Default is false
+     * @default false
      * @optional
      */
     cardSaveEnable: false,
     /**
      * Custom texts in Card forms buttons
-     * Example:
-     * 
+     * @example
      *  texts: {
      *    cardForm?: {
      *      enrollmentSubmitButton?: string;
@@ -413,8 +427,7 @@ yuno.startCheckout({
   },
   /**
    * Custom texts in payment forms buttons 
-   * Example:
-   * 
+   * @exmaple
    *  texts: {
    *    customerForm?: {
    *       submitButton?: string;
@@ -425,19 +438,7 @@ yuno.startCheckout({
    *   }
    * @optional
    */
-  texts: {}
-  /**
-   * Use external SDKs buttons like PayPal, Paga con Rappi
-   * @optional
-   */
-  externalPaymentButtons: {
-    paypal: {
-      elementSelector: '#paypal',
-    },
-    pagaConRappi: {
-      elementSelector: '#paga-con-rappi',
-    },
-  },
+  texts: {},
   /**
    * Callback, is called when the One Time Token is created,
    * Merchant should create payment back to back
@@ -446,7 +447,8 @@ yuno.startCheckout({
   async yunoCreatePayment(oneTimeToken, tokenWithInformation) {
     /**
      * Merchant's function to call its backend to create 
-     * the payment into Yuno
+     * the payment into Yuno.
+     * {@link https://docs.y.uno/reference/create-payment}
      */
     await createPayment({ oneTimeToken, checkoutSession })
     /**
@@ -477,10 +479,10 @@ yuno.startCheckout({
   },
   /**
    * If this is called the SDK should be mounted again
-   * @param { error: 'CANCELED_BY_USER' | any }
+   * @param { error: 'CANCELED_BY_USER' | string, data?: { cause: USER_CANCEL_ON_PROVIDER | string, provider: PAYPAL | string } }
    * @optional
    */
-  yunoError: (error) => {
+  yunoError: (error, data) => {
     console.log('There was an error', error)
     /**
      * call if you want to hide the loader 
@@ -493,7 +495,7 @@ yuno.startCheckout({
 Finally mount the **SDK** in a `html` element, you can use any valid css selector (`#`, `.`, `[data-*]`).
 
 ```javascript
-yuno.mountCheckoutLite({
+await yuno.mountCheckoutLite({
   /**
    * can be one of 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO | CARD
    */
@@ -514,7 +516,7 @@ After it is mounted, it will start the desired flow
 
 ## Use Checkout Secure Fields
 
-To use checkout secure fields you should include our **SDK** file in your page before close your `<body>` tag
+To use checkout secure fields you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
 <script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
@@ -531,17 +533,20 @@ Then create a configuration object
 ```javascript
   const secureFields = yuno.secureFields({
     /**
-     * country can be one of CO, BR, CL, PE, EC, UR, MX
+     * This parameter determines the country for which the payment process is being configured.
+     * The complete list of supported countries and their country code is available on the
+     * {@link https://docs.y.uno/docs/country-coverage-yuno-sdk | Country coverage} page.
+     * @type {String}
      */
     countryCode,
     /**
-     * Should be added her or in the token generation
+     * Should be added here or in the token generation
      * @optional
      */
     checkoutSession,
     /**
      * disabled or enable the functionality of the installment
-     * default is false
+     * @default false
      */
     installmentEnable: false
   })
@@ -600,7 +605,7 @@ Configure and mount every secure field and mount them in `html` elements, you ca
        */
       validateOnBlur: false,
       /**
-       * @param { event: {
+       * @param {{
        *    data: {
        *      installments?:  [
        *        { 
@@ -640,33 +645,32 @@ Configure and mount every secure field and mount them in `html` elements, you ca
        *      }
        *    },
        *    error: boolean
-       *  } 
-       * }
+       *  }} event
        *
-       *
-       * 
-       * data : {
-       *  installments: [{
-       *    {
-       *      "installmentId": "10cef26f-7d5e-4783-89ee-e00f7ed93b64",
-       *      "installment": 1,
-       *      "amount": {
-       *          "currency": "COP",
-       *          "value": "2200",
-       *          "total_value": "2200"
+       * @example { event: {
+       *  data : {
+       *    installments: [{
+       *      {
+       *        "installmentId": "10cef26f-7d5e-4783-89ee-e00f7ed93b64",
+       *        "installment": 1,
+       *        "amount": {
+       *            "currency": "COP",
+       *            "value": "2200",
+       *            "total_value": "2200"
+       *        }
+       *      },
+       *      {
+       *        "installmentId": "10cef26f-7d5e-4783-89ee-e00f7ed93b64",
+       *        "installment": 12,
+       *        "amount": {
+       *            "currency": "COP",
+       *            "value": "2200",
+       *            "total_value": "2200"
+       *        }
        *      }
-       *    },
-       *    {
-       *      "installmentId": "10cef26f-7d5e-4783-89ee-e00f7ed93b64",
-       *      "installment": 12,
-       *      "amount": {
-       *          "currency": "COP",
-       *          "value": "2200",
-       *          "total_value": "2200"
-       *      }
-       *    }
-       *  }]
-       * }
+       *    }]
+       *  }
+       * }}
        */
       onChange: (event) => {
         if (event.error) {
@@ -679,11 +683,15 @@ Configure and mount every secure field and mount them in `html` elements, you ca
           console.log('installments', event.data.installments)
         }
       },
-      // Trigger when blurring from input
+      /**
+       * Triggered when blurring from input
+       */
       onBlur() {
         console.log('blur_pan')
       },
-      // Trigger when focussing on input
+      /**
+       * Triggered when focussing on input
+       */
       onFocus: () => {
         console.log('focus_pan')
       }
@@ -731,11 +739,15 @@ Configure and mount every secure field and mount them in `html` elements, you ca
           console.log('not_error_expiration')
         }
       },
-      // Trigger when blurring from input
+      /**
+       * Triggered when blurring from input
+       */
       onBlur() {
         console.log('blur_expiration')
       },
-      // Trigger when focussing on input
+      /**
+       * Triggered when focussing on input
+       */
       onFocus: () => {
         console.log('focus_expiration')
       }
@@ -784,11 +796,15 @@ Configure and mount every secure field and mount them in `html` elements, you ca
           console.log('not_error_cvv')
         }
       },
-      // Trigger when blurring from input
+      /**
+       * Triggered when blurring from input
+       */
       onBlur() {
         console.log('blur_cvv')
       },
-      // Trigger when focussing on input
+      /**
+       * Triggered when focussing on input
+       */
       onFocus: () => {
         console.log('focus_cvv')
       }
@@ -881,14 +897,20 @@ const oneTimeTokenWithInformation = await secureFields.generateTokenWithInformat
 Finally create a payment
 
 ```javascript
-// Create your payment, you should implement this function
+/**
+ * Create your payment, you should implement this function
+ * {@link https://docs.y.uno/reference/create-payment}
+ */
 await createPayment({ oneTimeToken, checkoutSession })
 
 // Check payment status
 yuno.mountStatusPayment({
   checkoutSession: checkoutSession,
   /**
-   * Country can be one of CO, BR, CL, PE, EC, UR, MX
+   * This parameter determines the country for which the payment process is being configured.
+   * The complete list of supported countries and their country code is available on the
+   * {@link https://docs.y.uno/docs/country-coverage-yuno-sdk | Country coverage} page.
+   * @type {String}
    */
   countryCode: 'CO',
   /**
@@ -927,7 +949,10 @@ Finally mount the **SDK** in a `html` element, you can use any valid css selecto
 yuno.mountStatusPayment({
   checkoutSession: '438413b7-4921-41e4-b8f3-28a5a0141638',
   /**
-   * Country can be one of CO, BR, CL, PE, EC, UR, MX
+   * This parameter determines the country for which the payment process is being configured.
+   * The complete list of supported countries and their country code is available on the
+   * {@link https://docs.y.uno/docs/country-coverage-yuno-sdk | Country coverage} page.
+   * @type {String}
    */
   countryCode: 'CO',
   /**
@@ -993,7 +1018,10 @@ Finally call the **SDK** `mountEnrollmentLite` method.
 yuno.mountEnrollmentLite({
   customerSession,
   /**
-   * country can be one of CO, BR, CL, PE, EC, UR, MX
+   * This parameter determines the country for which the payment process is being configured.
+   * The complete list of supported countries and their country code is available on the
+   * {@link https://docs.y.uno/docs/country-coverage-yuno-sdk | Country coverage} page.
+   * @type {String}
    */
   countryCode: country,
   /**
@@ -1016,7 +1044,7 @@ yuno.mountEnrollmentLite({
     console.log(args);
   }
   /**
-   * Where the forms will be shown
+   * Where and how the forms will be shown
    * Default { type: 'modal' }
    * @optional
    */
@@ -1039,7 +1067,8 @@ yuno.mountEnrollmentLite({
   card: {
     /**
      * Mode render card can be step or extends
-     * Default extends
+     * @default 'extends'
+     * @optional
      */
     type: "extends",
     /**
@@ -1116,11 +1145,15 @@ yuno.mountEnrollmentLite({
   },
   /**
    * If this is called the SDK should be mounted again
-   * @param { error: 'CANCELED_BY_USER' | any }
+   * @param { error: 'CANCELED_BY_USER' | string, data?: { cause: USER_CANCEL_ON_PROVIDER | string, provider: PAYPAL | string } }
    * @optional
    */
-  yunoError: (error) => {
+  yunoError: (error, data) => {
     console.log('There was an error', error)
+    /**
+     * call if you want to hide the loader 
+     */
+    yuno.hideLoader()
   },
 });
 ```
@@ -1147,7 +1180,10 @@ Then create a configuration object
 ```javascript
   const secureFields = yuno.secureFields({
     /**
-     * country can be one of CO, BR, CL, PE, EC, UR, MX
+     * This parameter determines the country for which the payment process is being configured.
+     * The complete list of supported countries and their country code is available on the
+     * {@link https://docs.y.uno/docs/country-coverage-yuno-sdk | Country coverage} page.
+     * @type {String}
      */
     countryCode,
     /**
@@ -1386,7 +1422,6 @@ const vaultedTokenWithInformation = await secureFields.generateVaultedTokenWithI
   },
 })
 ```
-
 
 ## Start Demo App
 
