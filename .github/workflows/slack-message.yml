@@ -1,0 +1,24 @@
+name: Send Message to Slack Channel
+on:
+    pull_request:
+      branches:
+        - main
+      types: [closed]
+      paths:
+        - 'README.md'
+jobs:
+  send-slack-message:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Send Message to Slack Channel
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "Read Me file was updated https://github.com/${{github.repository}}/pull/${{github.event.number}}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
