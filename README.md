@@ -261,10 +261,12 @@ await yuno.mountCheckout({
 })
 ```
 
-Remember you need to call 
+Remember you need to call
+
 ```javascript
 yuno.startPayment()
 ```
+
 to start the payment flow after the user has selected a payment method.  
 
 Example:
