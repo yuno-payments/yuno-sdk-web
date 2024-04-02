@@ -19,7 +19,6 @@
 
 * We don't support IE
 
-
 ## Use Full Checkout
 
 To use full checkout you should include our **SDK** file in your page before close your `<body>` tag
