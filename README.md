@@ -16,7 +16,7 @@
   - [CSS Styles](#css-styles)
 ## Browser Requirements
 
-* We don't support IE 
+* We don't support IE
 
 
 ## Use Full Checkout
