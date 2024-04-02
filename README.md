@@ -283,7 +283,6 @@ PayButton.addEventListener('click', () => {
 [Checkout demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout.html)  
 [Checkout demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout.js)
 
-
 ## Use Checkout Lite
 
 To use checkout lite you should include our **SDK** file in your page before close your `</body>` tag
