@@ -997,6 +997,7 @@ Finally call the **SDK** `yunoPaymentResult` method.
  */
 const status = await yuno.yunoPaymentResult(checkoutSession)
 ```
+
 [Status Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/status-lite.html)  
 [Status Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/status-lite.js)
 
