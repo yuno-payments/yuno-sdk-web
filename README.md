@@ -270,6 +270,7 @@ yuno.startPayment()
 to start the payment flow after the user has selected a payment method.  
 
 Example:
+
 ```javascript
 // Start payment when user clicks on merchant payment button
 const PayButton = document.querySelector('#button-pay')
