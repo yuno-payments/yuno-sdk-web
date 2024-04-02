@@ -14,6 +14,7 @@
   - [Use Enrollment With Secure Fields](#use-enrollment-with-secure-fields)
   - [Start Demo App](#start-demo-app)
   - [CSS Styles](#css-styles)
+
 ## Browser Requirements
 
 * We don't support IE
