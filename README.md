@@ -5,7 +5,7 @@
 - [yuno-sdk-web](#yuno-sdk-web)
   - [Table of Contents](#table-of-contents)
   - [Browser Requirements](#browser-requirements)
-  - [Use Full Checkout](#use-full-checkout)
+  - [Use Full Checkout:)](#use-full-checkout)
   - [Use Checkout Lite](#use-checkout-lite)
   - [Use Checkout Secure Fields](#use-checkout-secure-fields)
   - [Use Status](#use-status)
@@ -19,7 +19,7 @@
 
 - We don't support IE
 
-## Use Full Checkout
+## Use Full Checkout:)
 
 To use full checkout you should include our **SDK** file in your page before close your `<body>` tag
 
