@@ -1463,7 +1463,7 @@ By default the font that we use is `Inter` so if you want this font you should a
 />
 ```
 
-[Using Inter font](https://github.com/yuno-payments/yuno-sdk-web/blob/main/index.html#L12) 
+[Using Inter font](https://github.com/yuno-payments/yuno-sdk-web/blob/main/index.html#L12)
 
 or you can apply your own font using CSS
 
