@@ -1160,6 +1160,7 @@ yuno.mountEnrollmentLite({
   },
 });
 ```
+
 [Enrollment Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/enrollment-lite.html)  
 [Enrollment Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/enrollment-lite.js)
 
