@@ -1160,9 +1160,9 @@ yuno.mountEnrollmentLite({
   },
 });
 ```
+
 [Enrollment Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/enrollment-lite.html)  
 [Enrollment Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/enrollment-lite.js)
-
 
 ## Use Enrollment With Secure Fields
 
@@ -1446,7 +1446,6 @@ PRIVATE_SECRET_KEY=abc
 [ACCOUNT_CODE](https://dashboard.y.uno/developers)  
 [PUBLIC_API_KEY](https://docs.y.uno/reference/authentication)  
 [PRIVATE_SECRET_KEY](https://docs.y.uno/reference/authentication)  
-
 
 Then go to [http://localhost:8080](http://localhost:8080)  
 
