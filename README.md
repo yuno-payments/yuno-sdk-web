@@ -7,6 +7,7 @@
   - [Browser Requirements](#browser-requirements)
   - [Use Full Checkout](#use-full-checkout)
   - [Use Checkout Lite](#use-checkout-lite)
+  - [Hide Checkout Pay Button](#hide-checkout-pay-button)
   - [Use Checkout Secure Fields](#use-checkout-secure-fields)
   - [Use Status](#use-status)
   - [Use Status Lite](#use-status-lite)
@@ -77,6 +78,12 @@ yuno.startCheckout({
    * @optional
    */
   showPaymentStatus: true,
+  /**
+   * Hide or show the customer or card form pay button
+   * @default true
+   * @optional
+   */
+  showPayButton: true,
   /**
    * Required if you'd like to be informed if there is a server call
    * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
@@ -340,6 +347,12 @@ yuno.startCheckout({
    */
   showPaymentStatus: true,
   /**
+   * Hide or show the customer or card form pay button
+   * @default true
+   * @optional
+   */
+  showPayButton: true,
+  /**
    * Required if you'd like to be informed if there is a server call
    * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
    * @optional
@@ -513,6 +526,29 @@ After it is mounted, it will start the desired flow
 
 [Checkout lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout-lite.html)  
 [Checkout lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout-lite.js)
+
+## Hide Checkout Pay Button
+
+If you would like to hide the customer or card pay button, in the checkout configuration set the `showPayButton` to `false` then call the function `submitOneTimeTokenForm` as shown below
+
+```javascript
+yuno.startCheckout({
+  /**
+   * Hide or show the customer or card form pay button
+   * @default true
+   * @optional
+   */
+  showPayButton: false,
+  /**
+   * Set other configurations 
+   */
+})
+
+/**
+ * This function trigger the same functionality that is called when the customer clicks on the pay form button.  This doesn't work on the step Card form
+ */
+yuno.submitOneTimeTokenForm()
+```
 
 ## Use Checkout Secure Fields
 
