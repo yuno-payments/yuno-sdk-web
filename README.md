@@ -15,7 +15,6 @@
   - [Start Demo App](#start-demo-app)
   - [CSS Styles](#css-styles)
   - [Prueba Readme](#prueba-readme)
-  - [Otra prueba](#otra-prueba)
 ## Browser Requirements
 
 * We don't support IE 
@@ -1474,7 +1473,4 @@ or you can apply your own font using CSS
 ```
 
 ## Prueba Readme
-prueba prueba
-
-## Otra prueba
 prueba prueba
