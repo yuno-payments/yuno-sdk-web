@@ -5,7 +5,7 @@
 - [yuno-sdk-web](#yuno-sdk-web)
   - [Table of Contents](#table-of-contents)
   - [Browser Requirements](#browser-requirements)
-  - [Use Full Checkout](#use-full-checkout)
+  - [Use Full Checkout:)](#use-full-checkout)
   - [Use Checkout Lite](#use-checkout-lite)
   - [Use Checkout Secure Fields](#use-checkout-secure-fields)
   - [Use Status](#use-status)
@@ -14,12 +14,12 @@
   - [Use Enrollment With Secure Fields](#use-enrollment-with-secure-fields)
   - [Start Demo App](#start-demo-app)
   - [CSS Styles](#css-styles)
+
 ## Browser Requirements
 
-* We don't support IE 
+- We don't support IE
 
-
-## Use Full Checkout
+## Use Full Checkout:)
 
 To use full checkout you should include our **SDK** file in your page before close your `<body>` tag
 
@@ -261,13 +261,16 @@ await yuno.mountCheckout({
 })
 ```
 
-Remember you need to call 
+Remember you need to call
+
 ```javascript
 yuno.startPayment()
 ```
+
 to start the payment flow after the user has selected a payment method.  
 
 Example:
+
 ```javascript
 // Start payment when user clicks on merchant payment button
 const PayButton = document.querySelector('#button-pay')
@@ -279,7 +282,6 @@ PayButton.addEventListener('click', () => {
 
 [Checkout demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout.html)  
 [Checkout demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout.js)
-
 
 ## Use Checkout Lite
 
@@ -995,6 +997,7 @@ Finally call the **SDK** `yunoPaymentResult` method.
  */
 const status = await yuno.yunoPaymentResult(checkoutSession)
 ```
+
 [Status Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/status-lite.html)  
 [Status Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/status-lite.js)
 
@@ -1157,9 +1160,9 @@ yuno.mountEnrollmentLite({
   },
 });
 ```
+
 [Enrollment Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/enrollment-lite.html)  
 [Enrollment Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/enrollment-lite.js)
-
 
 ## Use Enrollment With Secure Fields
 
@@ -1444,7 +1447,6 @@ PRIVATE_SECRET_KEY=abc
 [PUBLIC_API_KEY](https://docs.y.uno/reference/authentication)  
 [PRIVATE_SECRET_KEY](https://docs.y.uno/reference/authentication)  
 
-
 Then go to [http://localhost:8080](http://localhost:8080)  
 
 To change the country you can add a query parameter named `country` with one of `CO, BR, CL, PE, EC, UR, MX`  
@@ -1462,9 +1464,13 @@ By default the font that we use is `Inter` so if you want this font you should a
   rel="stylesheet"
 />
 ```
+
 [Using Inter font](https://github.com/yuno-payments/yuno-sdk-web/blob/main/index.html#L12) 
 
-or you can apply your own font using CSS 
+[Using Inter font](https://github.com/yuno-payments/yuno-sdk-web/blob/main/index.html#L12)
+
+or you can apply your own font using CSS
+
 ```css
 [class*=yuno] {
   font-family: YOUR_FONT;

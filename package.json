@@ -1,15 +1,18 @@
 {
-  "name": "yuno-sdk-web",
-  "version": "1.0.1",
+  "name": "miguelv-yuno",
+  "version": "1.0.0",
   "description": "Demo app to show how to use Yuno's web SDK",
-  "main": "index.js",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "start:dev": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yuno-payments/yuno-sdk-web.git"
+    "url": "git+https://github.com/miguelvelasquezdev/yuno-sdk-web.git"
   },
   "author": "Camilo Segura",
   "license": "MIT",
@@ -20,8 +23,20 @@
   "dependencies": {
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
+    "nanoid": "5.0.1",
     "node-fetch": "^2.6.7",
     "open": "0.0.5",
+    "prettier": "3.0.3",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "6.7.4",
+    "@typescript-eslint/parser": "6.7.4",
+    "eslint": "8.51.0",
+    "typescript": "5.2.2"
+  },
+  "main": " ",
+  "directories": {
+    "example": "examples"
   }
 }
