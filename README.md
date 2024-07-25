@@ -868,6 +868,12 @@ const oneTimeToken = await secureFields.generateToken({
    * @optional
    */
   checkoutSession,
+  /**
+   * @optional
+   * Send this value if you already have a registered or enrolled payment method.
+   * Other fields like card and customer are optional unless your provider requires them.
+   */
+  vaultedToken: "aad8578e-ac2f-40a0-8065-25b5957f6555",
   // Check your card processor to know if you need to send 
   // customer information
   // full object here https://docs.y.uno/reference/the-customer-object
@@ -918,6 +924,12 @@ const oneTimeTokenWithInformation = await secureFields.generateTokenWithInformat
   cardHolderName: 'John Deer',
   // Optional: You can create an input to get this formation
   saveCard: true,
+  /**
+   * @optional
+   * Send this value if you already have a registered or enrolled payment method.
+   * Other fields like card and customer are optional unless your provider requires them.
+   */
+  vaultedToken: "aad8578e-ac2f-40a0-8065-25b5957f6555",
   // Check your card processor to know if you need to send 
   // customer information
   // full object here https://docs.y.uno/reference/the-customer-object
