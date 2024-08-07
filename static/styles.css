@@ -27,6 +27,15 @@
   color: #FEFEFE;
 }
 
+#button-pay:disabled {
+  cursor: not-allowed;
+  background: gray;
+}
+
+#button-pay:active {
+  transform: translateY(1px);
+}
+
 .list-group {
   max-width: 50%;
   margin: auto;

@@ -1,6 +1,35 @@
 import { getCheckoutSession, createPayment, getPublicApiKey } from "./api.js"
+import { dispatchLoaderEvent } from './loader.js'
+import { watchedObject } from './watched-object.js'
+import { disabledButton, enableLoadingButton, showButton } from './button.js'
 
-async function initCheckoutSecureFields () {
+
+function shouldHideLoader(state) {
+  const allTrue = Object.values(state).every(value => value === true);
+  if (allTrue) {
+    dispatchLoaderEvent({ showLoader: false })
+    showButton({ show: true })
+  }
+}
+
+function shouldEnableButton(state){
+  const enable = Object.values(state).every(value => value === false);
+  disabledButton({ disabled: !enable })
+}
+
+async function initCheckoutSecureFields() {
+  const renderState = watchedObject({
+    pan: false,
+    expiration: false,
+    cvv: false
+  }, shouldHideLoader)
+
+  const errorState = watchedObject({
+    pan: true,
+    expiration: true,
+    cvv: true
+  }, shouldEnableButton)
+
   // get checkout session from merchant back
   const { checkout_session: checkoutSession, country: countryCode } = await getCheckoutSession()
 
@@ -71,6 +100,7 @@ async function initCheckoutSecureFields () {
        * }
        */
       onChange: ({ error, data }) => {
+        errorState.pan = error
         if (error) {
           console.log('error_pan')
         } else {
@@ -85,6 +115,9 @@ async function initCheckoutSecureFields () {
       // Trigger when focussing on input
       onFocus: () => {
         console.log('focus_pan')
+      },
+      onRenderedSecureField: () => {
+        renderState.pan = true
       }
     },
   })
@@ -115,6 +148,7 @@ async function initCheckoutSecureFields () {
       showError: true,
       // Indicates if the fields has error
       onChange: ({ error }) => {
+        errorState.expiration = error
         if (error) {
           console.log('error_expiration')
         } else {
@@ -128,6 +162,9 @@ async function initCheckoutSecureFields () {
       // Trigger when focussing on input
       onFocus: () => {
         console.log('focus_expiration')
+      },
+      onRenderedSecureField: () => {
+        renderState.expiration = true
       }
     },
   })
@@ -159,6 +196,7 @@ async function initCheckoutSecureFields () {
       showError: true,
       // Indicates if the fields has error
       onChange: ({ error }) => {
+        errorState.cvv = error
         if (error) {
           console.log('error_cvv')
         } else {
@@ -172,6 +210,9 @@ async function initCheckoutSecureFields () {
       // Trigger when focussing on input
       onFocus: () => {
         console.log('focus_cvv')
+      },
+      onRenderedSecureField: () => {
+        renderState.cvv = true
       }
     },
   })
@@ -181,8 +222,9 @@ async function initCheckoutSecureFields () {
 
   // start payment when user clicks on merchant payment button
   const PayButton = document.querySelector('#button-pay')
-  
+
   PayButton.addEventListener('click', async () => {
+    enableLoadingButton({ loading: true })
     // Create One Time Token
     // This will trigger an error if there are missing data
     // You can catch it using a try/catch
@@ -205,6 +247,8 @@ async function initCheckoutSecureFields () {
     // Create your payment, you should implement this function
     await createPayment({ oneTimeToken, checkoutSession })
 
+    enableLoadingButton({ loading: false, previousText: 'Pay Now' })
+
     // Check payment status
     yuno.mountStatusPayment({
       checkoutSession: checkoutSession,
@@ -223,7 +267,6 @@ async function initCheckoutSecureFields () {
         console.log('yunoPaymentResult', data)
       },
     })
-    
   })
 }
 
