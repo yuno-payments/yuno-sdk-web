@@ -231,3 +231,21 @@ class LoaderMessage extends HTMLElement {
 }
 
 customElements.define("loader-message", LoaderMessage);
+
+document.addEventListener('yuno-loader-message', (event) => {
+  var loader = document.getElementById('loader')
+  if (event.detail) {
+    loader.style.display = 'inline'
+    document.body.style.overflow = 'hidden'
+  }
+  else {
+    loader.style.display = 'none'
+    document.body.style.overflow = 'auto'
+  }
+})
+
+export const dispatchLoaderEvent = ({ showLoader }) => {
+  const customEvent = new CustomEvent('yuno-loader-message', { detail: showLoader })
+  document.dispatchEvent(customEvent)
+}
+

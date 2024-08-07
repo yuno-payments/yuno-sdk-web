@@ -15,6 +15,8 @@
   - [Use Enrollment With Secure Fields](#use-enrollment-with-secure-fields)
   - [Start Demo App](#start-demo-app)
   - [CSS Styles](#css-styles)
+  - [Typescript](#sdk-web-types)
+
 ## Browser Requirements
 
 * We don't support IE 
@@ -730,6 +732,10 @@ Configure and mount every secure field and mount them in `html` elements, you ca
        */
       onFocus: () => {
         console.log('focus_pan')
+      },
+      // Trigger when input has finished rendering 
+      onRenderedSecureField: ()=> {
+        console.log('render completed')
       }
     },
   })
@@ -786,6 +792,10 @@ Configure and mount every secure field and mount them in `html` elements, you ca
        */
       onFocus: () => {
         console.log('focus_expiration')
+      },
+      // Trigger when input has finished rendering 
+      onRenderedSecureField: ()=> {
+        console.log('render completed')
       }
     },
   })
@@ -843,6 +853,10 @@ Configure and mount every secure field and mount them in `html` elements, you ca
        */
       onFocus: () => {
         console.log('focus_cvv')
+      },
+      // Trigger when input has finished rendering 
+      onRenderedSecureField: ()=> {
+        console.log('render completed')
       }
     },
   })
@@ -1300,6 +1314,10 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       // Trigger when focussing on input
       onFocus: () => {
         console.log('focus_pan')
+      },
+      // Trigger when input has finished rendering 
+      onRenderedSecureField: ()=> {
+        console.log('render completed')
       }
     },
   })
@@ -1344,6 +1362,10 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       // Trigger when focussing on input
       onFocus: () => {
         console.log('focus_expiration')
+      },
+      // Trigger when input has finished rendering 
+      onRenderedSecureField: ()=> {
+        console.log('render completed')
       }
     },
   })
@@ -1389,6 +1411,10 @@ Configure and mount every secure field and mount them in `html` elements, you ca
       // Trigger when focussing on input
       onFocus: () => {
         console.log('focus_cvv')
+      },
+      // Trigger when input has finished rendering 
+      onRenderedSecureField: ()=> {
+        console.log('render completed')
       }
     },
   })
@@ -1517,4 +1543,35 @@ or you can apply your own font using CSS
 [class*=yuno] {
   font-family: YOUR_FONT;
 }
+```
+
+## Typescript
+
+#### Install the type definitions SDK using npm
+
+```sh
+npm install @yuno-payments/sdk-web-types
+```
+
+[@yuno-payments/sdk-web-types](https://www.npmjs.com/package/@yuno-payments/sdk-web-types)
+
+### implementación
+
+Include Type in tsconfig.js or tsconfig.json
+
+```javascript
+{
+  "compilerOptions": {
+    ....
+    "types": ["@yuno-payments/sdk-web-types"]
+  },
+  ...
+}
+```
+
+how to use types in your code
+
+```javascript
+import { YunoInstance } from '@yuno-payments/sdk-web-types/dist/types'
+const yunoInstance: YunoInstance = Yuno.initialize('publickAPikey')
 ```
