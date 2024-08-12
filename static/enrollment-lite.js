@@ -46,10 +46,22 @@ async function initEnrollmentLite() {
        */
       type: 'modal',
       /**
-       * element where the form will be rendered
-       * only needed if type is element
+       * Element where the form will be rendered.
+       * Can be a string (deprecated) or an object with the following structure:
+       * 
+       * {
+       *   apmForm: "#form-element",
+       *   actionForm: "#action-form-element"
+       * }
+       * 
+       * Only needed if type is `element`.
+       * 
+       * @optional
        */
-      elementSelector: '#form-element',
+      elementSelector: {
+        apmForm: "#form-element",
+        actionForm: "#action-form-element"
+      } // or use a string (deprecated): '#form-element',
     },
     /**
      * @param { error: 'CANCELED_BY_USER' | any }
@@ -74,8 +86,8 @@ async function initEnrollmentLite() {
      *  vaultedToken: string,
      * }}
      */
-    yunoEnrollmentStatus: ({ status, vaultedToken}) => {
-      console.log('status', { status, vaultedToken})
+    yunoEnrollmentStatus: ({ status, vaultedToken }) => {
+      console.log('status', { status, vaultedToken })
     },
   });
 }

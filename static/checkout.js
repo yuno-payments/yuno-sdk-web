@@ -1,6 +1,6 @@
 import { getCheckoutSession, createPayment, getPublicApiKey } from "./api.js"
 
-async function initCheckout () {
+async function initCheckout() {
   // get checkout session from merchan back
   const { checkout_session: checkoutSession, country: countryCode } = await getCheckoutSession()
 
@@ -16,10 +16,10 @@ async function initCheckout () {
   const loader = document.getElementById('loader')
   let isPaying = false
 
-  yuno.startCheckout({ 
+  yuno.startCheckout({
     checkoutSession,
     // element where the SDK will be mount on
-    elementSelector: '#root', 
+    elementSelector: '#root',
     /**
      * country can be one of CO, BR, CL, PE, EC, UR, MX
      */
@@ -59,10 +59,22 @@ async function initCheckout () {
        */
       type: 'modal',
       /**
-       * element where the form will be rendered
-       * only needed if type is element
+       * Element where the form will be rendered.
+       * Can be a string (deprecated) or an object with the following structure:
+       * 
+       * {
+       *   apmForm: "#form-element",
+       *   actionForm: "#action-form-element"
+       * }
+       * 
+       * Only needed if type is `element`.
+       * 
+       * @optional
        */
-      elementSelector: '#form-element',
+      elementSelector: {
+        apmForm: "#form-element",
+        actionForm: "#action-form-element"
+      } // or use a string (deprecated): '#form-element',
     },
     /**
      *  API card
@@ -147,7 +159,7 @@ async function initCheckout () {
 
   // start payment when user clicks on merchant payment button
   const PayButton = document.querySelector('#button-pay')
-  
+
   PayButton.addEventListener('click', () => {
     yuno.startPayment()
   })
