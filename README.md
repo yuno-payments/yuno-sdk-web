@@ -15,7 +15,7 @@
   - [Use Enrollment With Secure Fields](#use-enrollment-with-secure-fields)
   - [Start Demo App](#start-demo-app)
   - [CSS Styles](#css-styles)
-  - [Typescript](#sdk-web-types)
+  - [Typescript](#typescript)
 
 ## Browser Requirements
 
@@ -107,11 +107,22 @@ yuno.startCheckout({
      */
     type: 'modal',
     /**
-     * Element where the form will be rendered
-     * Only needed if type is element
+     * Element where the form will be rendered.
+     * Can be a string (deprecated) or an object with the following structure:
+     * 
+     * {
+     *   apmForm: "#form-element",
+     *   actionForm: "#action-form-element"
+     * }
+     * 
+     * Only needed if type is `element`.
+     * 
      * @optional
      */
-    elementSelector: '#form-element',
+    elementSelector: {
+      apmForm: "#form-element",
+      actionForm: "#action-form-element"
+    } // or use a string (deprecated): '#form-element',
   },
   /**
    *  Card API
@@ -375,12 +386,23 @@ yuno.startCheckout({
      */
     type: 'modal',
     /**
-     * Element where the form will be rendered
-     * Only needed if type is element
+     * Element where the form will be rendered.
+     * Can be a string (deprecated) or an object with the following structure:
+     * 
+     * {
+     *   apmForm: "#form-element",
+     *   actionForm: "#action-form-element"
+     * }
+     * 
+     * Only needed if type is `element`.
+     * 
      * @optional
      */
-    elementSelector: '#form-element',
-  },
+    elementSelector: {
+      apmForm: "#form-element",
+      actionForm: "#action-form-element"
+    } // or use a string (deprecated): '#form-element',
+  }
   /**
    * Card API
    * @optional
@@ -1113,15 +1135,28 @@ yuno.mountEnrollmentLite({
   renderMode: {
     /**
      * Type can be one of `modal` or `element`
-     * Default modal
+     * @default 'modal'
+     * @optional
      */
     type: 'modal',
     /**
-     * Element where the form will be rendered
-     * Only needed if type is element
+     * Element where the form will be rendered.
+     * Can be a string (deprecated) or an object with the following structure:
+     * 
+     * {
+     *   apmForm: "#form-element",
+     *   actionForm: "#action-form-element"
+     * }
+     * 
+     * Only needed if type is `element`.
+     * 
+     * @optional
      */
-    elementSelector: '#form-element',
-  },
+    elementSelector: {
+      apmForm: "#form-element",
+      actionForm: "#action-form-element"
+    } // or use a string (deprecated): '#form-element',
+  }
   /**
    *  API card
    *  @optional
