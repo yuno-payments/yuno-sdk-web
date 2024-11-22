@@ -1,8 +1,8 @@
-import { getCheckoutSession, createPayment, getPublicApiKey } from "./api.js"
+import { getSeamlessCheckoutSession, getPublicApiKey } from "./api.js"
 
-async function initCheckoutLite() {
+async function initSeamlessCheckoutLite() {
   // get checkout session from merchan back
-  const { checkout_session: checkoutSession, country: countryCode } = await getCheckoutSession()
+  const { checkout_session: checkoutSession, country: countryCode } = await getSeamlessCheckoutSession()
   /**
    * this should be provided by the merchant
    * can be one of 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO | CARD
@@ -32,18 +32,9 @@ async function initCheckoutLite() {
       */
     language: 'es',
     /**
-     * callback is called when one time token is created,
-     * merchant should create payment back to back
-     * @param { oneTimeToken: string } data 
+     * Empty function.  Won't be called, 
      */
-    async yunoCreatePayment(oneTimeToken) {
-      await createPayment({ oneTimeToken, checkoutSession })
-
-      /**
-       * call only if the SDK needs to continue the payment flow
-       */
-      yuno.continuePayment()
-    },
+    async yunoCreatePayment() { },
     /**
      * 
      * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
@@ -67,7 +58,7 @@ async function initCheckoutLite() {
     }
   })
 
-  yuno.mountCheckoutLite({
+  yuno.mountSeamlessCheckoutLite({
     /**
      * can be one of 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO
      */
@@ -79,4 +70,4 @@ async function initCheckoutLite() {
   })
 }
 
-window.addEventListener('load', initCheckoutLite)
+window.addEventListener('load', initSeamlessCheckoutLite)

@@ -23,6 +23,7 @@ const staticDirectory = path.join(__dirname, 'static')
 const indexPage = path.join(__dirname, 'index.html')
 const checkoutPage = path.join(__dirname, 'checkout.html')
 const checkoutLitePage = path.join(__dirname, 'checkout-lite.html')
+const seamlessCheckoutLitePage = path.join(__dirname, 'checkout-seamless-lite.html')
 const statusPage = path.join(__dirname, 'status.html')
 const statusLitePage = path.join(__dirname, 'status-lite.html')
 const enrollmentLitePage = path.join(__dirname, 'enrollment-lite.html')
@@ -44,6 +45,10 @@ app.get('/checkout', (req, res) => {
 
 app.get('/checkout/lite', (req, res) => {
   res.sendFile(checkoutLitePage)
+})
+
+app.get('/checkout/seamless/lite', (req, res) => {
+  res.sendFile(seamlessCheckoutLitePage)
 })
 
 app.get('/checkout/secure-fields', (req, res) => {
@@ -89,6 +94,198 @@ app.post('/checkout/sessions', async (req, res) => {
           currency,
           value: 2000,
         },
+      }),
+    }
+  ).then((resp) => resp.json())
+
+  res.send(response)
+})
+
+app.post('/checkout/seamless/sessions', async (req, res) => {
+  const country = req.query.country || 'CO'
+  const { currency } = getCountryData(country)
+
+  const response = await fetch(
+    `${API_URL}/v1/checkout/sessions`,
+    {
+      method: 'POST',
+      headers: {
+        'public-api-key': PUBLIC_API_KEY,
+        'private-secret-key': PRIVATE_SECRET_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        account_id: ACCOUNT_CODE,
+        merchant_order_id: '1655401222',
+        payment_description: 'Test MP 1654536326',
+        country,
+        customer_id: CUSTOMER_ID,
+        amount: {
+          currency,
+          value: 2000,
+        },
+        workflow: 'SDK_SEAMLESS',
+        additional_data: {
+          order: {
+            shipping_amount: 12,
+            fee_amount: 111,
+            tip_amount: '12',
+            taxes: [
+              {
+                type: 'VAT',
+                tax_base: 123,
+                value: 1,
+                percentage: 1
+              }
+            ],
+            items: [
+              {
+                category: 'coupons',
+                id: 'ASD',
+                name: 'rter',
+                quantity: 12312,
+                unit_amount: 1,
+                brand: 'ASDA',
+                sku_code: '123123',
+                manufacture_part_number: 'SADSADAS'
+              }
+            ]
+          },
+          airline: {
+            pnr: 'SADSDASD',
+            legs: [
+              {
+                departure_airport: 'ASD',
+                departure_datetime: '2024-07-03T05:00:00',
+                arrival_airport: 'AMS',
+                departure_airport_timezone: '-03:00',
+                arrival_datetime: '2024-08-03T05:00:00',
+                carrier_code: 'KL',
+                flight_number: '842',
+                fare_basis_code: 'HL7LNR',
+                fare_class_code: 'FR',
+                base_fare: 200,
+                base_fare_currency: 'BRL',
+                stopover_code: 's'
+              }
+            ],
+            passengers: [
+              {
+                document: {
+                  document_number: '351.040.753-97',
+                  document_type: 'CI',
+                  country: 'BO'
+                },
+                phone: {
+                  country_code: '57',
+                  number: '3132450765'
+                },
+                first_name: 'John',
+                last_name: 'Doe',
+                middle_name: 'Theodore',
+                type: 'A',
+                date_of_birth: '05-01-1984',
+                nationality: 'BR',
+                loyalty_number: '123456',
+                loyalty_tier: '1'
+              }
+            ],
+            tickets: [
+              {
+                issue: {
+                  carrier_prefix_code: 'ASDASD',
+                  travel_agent_code: 'DSADAS',
+                  travel_agent_name: 'ASDA',
+                  address: 'DASDAS',
+                  city: 'ASDASD',
+                  country: 'BR'
+                },
+                ticket_number: '123456',
+                e_ticket: false,
+                restricted: false,
+                total_fare_amount: 80,
+                total_tax_amount: 22,
+                total_fee_amount: 14
+              }
+            ]
+          }
+        },
+        customer_payer: {
+          merchant_customer_id: '1',
+          first_name: 'John',
+          last_name: 'Doe',
+          date_of_birth: '1990-02-28',
+          email: 'johndoe@y.uno',
+          nationality: 'BO',
+          ip_address: '192.168.123.167',
+          device_fingerprint: 'hi88287gbd8d7d782ge',
+          browser_info: {
+            user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9',
+            accept_header: 'true',
+            color_depth: '15',
+            screen_height: '2048',
+            screen_width: '1152',
+            javascript_enabled: false,
+            language: 'es'
+          },
+          document: {
+            document_number: '351.040.753-97',
+            document_type: 'CI'
+          },
+          billing_address: {
+            address_line_1: 'Calle 34 # 56 - 78',
+            address_line_2: 'Apartamento 502, Torre I',
+            city: 'Bogota',
+            country: 'AR',
+            state: 'Cundinamarca',
+            zip_code: '111111',
+            neighborhood: 'Barrio 11'
+          },
+          shipping_address: {
+            address_line_1: 'Calle 34 # 56 - 78',
+            address_line_2: 'Apartamento 502, Torre I',
+            city: 'Bogota',
+            state: 'Cundinamarca',
+            zip_code: '111111',
+            neighborhood: 'Barrio 11',
+            country: 'CO'
+          },
+          phone: {
+            country_code: '57',
+            number: '3132450765'
+          }
+        },
+        payment_method: {
+          detail: {
+            card: {
+              verify: false,
+              capture: true
+            },
+            ticket: {
+              benefit_type: 'PRIVATE'
+            }
+          },
+          vaulted_token: null,
+          type: 'CARD',
+          vault_on_success: false
+        },
+        installments: {
+          plan: [
+            {
+              installment: 1,
+              rate: 1
+            }
+          ]
+        },
+        fraud_screening: {
+          stand_alone: false
+        },
+        metadata: [
+          {
+            key: 'ID',
+            value: 'SD00'
+          }
+        ]
       }),
     }
   ).then((resp) => resp.json())
@@ -291,10 +488,10 @@ app.get('/public-api-key', (req, res) => {
 app.listen(SERVER_PORT, async () => {
   console.log(`server started at port: ${SERVER_PORT}`)
 
-  API_URL =  generateBaseUrlApi()
+  API_URL = generateBaseUrlApi()
 
   CUSTOMER_ID = await createCustomer().then(({ id }) => id)
-  
+
   await open(`http://localhost:${SERVER_PORT}`);
 })
 
@@ -307,7 +504,7 @@ const ApiKeyPrefixToEnvironmentSuffix = {
 
 const baseAPIurl = 'https://api_ENVIRONMENT_.y.uno'
 
-function  generateBaseUrlApi() {
+function generateBaseUrlApi() {
   const [apiKeyPrefix] = PUBLIC_API_KEY.split('_')
   let baseURL = ''
   const environmentSuffix = ApiKeyPrefixToEnvironmentSuffix[apiKeyPrefix]

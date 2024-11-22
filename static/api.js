@@ -14,6 +14,13 @@ export async function getCheckoutSession() {
   .then(resp => resp.json())
 }
 
+export async function getSeamlessCheckoutSession() {
+  return fetch(`/checkout/seamless/sessions${window.location.search}`, {
+    method: 'POST'
+  })
+  .then(resp => resp.json())
+}
+
 export async function createPayment(data) {
   return fetch(`/payments${window.location.search}`, {
     method: 'POST',
