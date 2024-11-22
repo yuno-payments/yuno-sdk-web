@@ -5,7 +5,8 @@
 - [yuno-sdk-web](#yuno-sdk-web)
   - [Table of Contents](#table-of-contents)
   - [Browser Requirements](#browser-requirements)
-  - [Use Full Checkout](#use-full-checkout)
+  - [Use Checkout Full](#use-full-checkout)
+  - [Use Checkout Seamless Lite](#use-seamless-checkout-lite)
   - [Use Checkout Lite](#use-checkout-lite)
   - [Hide Checkout Pay Button](#hide-checkout-pay-button)
   - [Use Checkout Secure Fields](#use-checkout-secure-fields)
@@ -299,6 +300,242 @@ PayButton.addEventListener('click', () => {
 
 [Checkout demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout.html)  
 [Checkout demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout.js)
+
+## Use Seamless Checkout Lite
+
+To use checkout seamless you should include our **SDK** file in your page before close your `</body>` tag
+
+```html
+<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+```
+
+Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
+
+```javascript
+const yuno = Yuno.initialize(PUBLIC_API_KEY)
+```
+
+Then create a configuration object
+
+```javascript
+yuno.startCheckout({
+  /**
+   * Refers to the current payment's checkout session.
+   * @example `438413b7-4921-41e4-b8f3-28a5a0141638`
+   * @type {String}
+   */
+  checkoutSession,
+  /**
+   * Element where the SDK will be mount on 
+   */ 
+  elementSelector: '#root', 
+  /**
+   * This parameter determines the country for which the payment process is being configured.
+   * The complete list of supported countries and their country code is available on the
+   * {@link https://docs.y.uno/docs/country-coverage-yuno-sdk | Country coverage} page.
+   * @type {String}
+   */
+  countryCode: country,
+  /**
+  * Language can be one of es, en, pt
+  * Default is browser language
+  */
+  language: 'es',
+  /**
+   * Hide or show the Yuno loading/spinner page
+   * @default true
+   * @optional
+   */
+  showLoading: true,
+  /**
+   * Enable the issuers form (bank list)
+   * @default true
+   * @optional
+   */
+  issuersFormEnable: true,
+  /**
+   * Hide or show the Yuno Payment Status page
+   * @default true
+   * @optional
+   */
+  showPaymentStatus: true,
+  /**
+   * Hide or show the customer or card form pay button
+   * @default true
+   * @optional
+   */
+  showPayButton: true,
+  /**
+   * Required if you'd like to be informed if there is a server call
+   * @param { isLoading: boolean, type: 'DOCUMENT' | 'ONE_TIME_TOKEN'  } data
+   * @optional
+   */
+  onLoading: (args) => {
+    console.log(args);
+  }
+  /**
+   * Where and how the forms will be shown
+   * @default { type: 'modal' }
+   * @optional
+   */
+  renderMode: {
+    /**
+     * Type can be one of `modal` or `element`
+     * @default 'modal'
+     * @optional
+     */
+    type: 'modal',
+    /**
+     * Element where the form will be rendered.
+     * Can be a string (deprecated) or an object with the following structure:
+     * 
+     * {
+     *   apmForm: "#form-element",
+     *   actionForm: "#action-form-element"
+     * }
+     * 
+     * Only needed if type is `element`.
+     * 
+     * @optional
+     */
+    elementSelector: {
+      apmForm: "#form-element",
+      actionForm: "#action-form-element"
+    } // or use a string (deprecated): '#form-element',
+  }
+  /**
+   * Card API
+   * @optional
+   */
+  card: {
+    /**
+     * Card render mode can be either `step` or `extends`
+     * @default 'extends' 
+     * @optional
+     */
+    type: "extends",
+    /**
+     * You can edit card form styles
+     * Only you should write css, then it will be injected into the iframe
+     * Example 
+     * `@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+     *  .Yuno-front-side-card__name-label { 
+     *    color: red !important;
+     *    font-family: 'Luckiest Guy' !important;
+     *   }`
+     * @optional
+     */
+    styles: '',
+    /** 
+     * Show checkbox for save/enroll card 
+     * @default false
+     * @optional
+     */
+    cardSaveEnable: false,
+    /**
+     * Custom texts in Card forms buttons
+     * @example
+     *  texts: {
+     *    cardForm?: {
+     *      enrollmentSubmitButton?: string;
+     *       paymentSubmitButton?: string;
+     *     }
+     *     cardStepper?: {
+     *       numberCardStep?: {
+     *         nextButton?: string;
+     *       },
+     *       cardHolderNameStep?: {
+     *         prevButton?: string;
+     *         nextButton?: string;
+     *       },
+     *       expirationDateStep?: {
+     *         prevButton?: string;
+     *         nextButton?: string;
+     *       },
+     *       cvvStep?: {
+     *         prevButton?: string;
+     *         nextButton?: string;
+     *       }
+     *     }
+     *  }
+     * @optional
+     */
+    texts: {}
+  },
+  /**
+   * Custom texts in payment forms buttons 
+   * @exmaple
+   *  texts: {
+   *    customerForm?: {
+   *       submitButton?: string;
+   *     }
+   *     paymentOtp?: {
+   *       sendOtpButton?: string;
+   *     }
+   *   }
+   * @optional
+   */
+  texts: {},
+  /**
+   * Empty function.  Won't be called, but should be implemented
+   */
+  async yunoCreatePayment() {},
+  /**
+   * Callback is called when user selects a payment method
+   * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY', name: string} } data 
+   * @optional
+   */
+  yunoPaymentMethodSelected(data) {
+    console.log('onPaymentMethodSelected', data)
+  },
+  /**
+   * After the payment is done, this function will be called with the payment status 
+   * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
+   * @optional
+   */
+  yunoPaymentResult(data) {
+    console.log('yunoPaymentResult', data)
+    /**
+     * call if you want to hide the loader 
+     */
+    yuno.hideLoader()
+  },
+  /**
+   * If this is called the SDK should be mounted again
+   * @param { error: 'CANCELED_BY_USER' | string, data?: { cause: USER_CANCEL_ON_PROVIDER | string, provider: PAYPAL | string } }
+   * @optional
+   */
+  yunoError: (error, data) => {
+    console.log('There was an error', error)
+    /**
+     * call if you want to hide the loader 
+     */
+    yuno.hideLoader()
+  },
+})
+```
+
+Finally mount the **SDK** in a `html` element, you can use any valid css selector (`#`, `.`, `[data-*]`).
+
+```javascript
+await yuno.mountSeamlessCheckoutLite({
+  /**
+   * can be one of 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO | CARD
+   */
+  paymentMethodType: PAYMENT_METHOD_TYPE,
+  /**
+   * Vaulted token related to payment method type.
+   * Only if you already have it
+   * @optional 
+   */
+  vaultedToken: VAULTED_TOKEN,
+})
+```
+
+After it is mounted, it will start the desired flow
+
+[Checkout seamless demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout-seamless-lite.html)  
+[Checkout seamless demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout-seamless-lite.js)
 
 
 ## Use Checkout Lite
