@@ -1219,32 +1219,37 @@ Finally create a payment
 
 ```javascript
 /**
- * Create your payment, you should implement this function
+ * Create your payment, you should implement createPayment function
  * {@link https://docs.y.uno/reference/create-payment}
  */
-await createPayment({ oneTimeToken, checkoutSession })
+const payment = await createPayment({ oneTimeToken, checkoutSession })
 
-// Check payment status
-yuno.mountStatusPayment({
-  checkoutSession: checkoutSession,
-  /**
-   * This parameter determines the country for which the payment process is being configured.
-   * The complete list of supported countries and their country code is available on the
-   * {@link https://docs.y.uno/docs/country-coverage-yuno-sdk | Country coverage} page.
-   * @type {String}
-   */
-  countryCode: 'CO',
-  /**
-   * Language can be one of es, en, pt
-   */
-  language: 'en',
-  /**
-   * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
-   */
-  yunoPaymentResult(data) {
-    console.log('yunoPaymentResult', data)
-  },
-})
+// check if an sdk action is required, if so call continuePayment function
+if (payment.checkout.sdk_action_required) {
+      yuno.continuePayment()
+} else {
+  // Check payment status
+  yuno.mountStatusPayment({
+    checkoutSession: checkoutSession,
+    /**
+     * This parameter determines the country for which the payment process is being configured.
+     * The complete list of supported countries and their country code is available on the
+     * {@link https://docs.y.uno/docs/country-coverage-yuno-sdk | Country coverage} page.
+     * @type {String}
+     */
+    countryCode: 'CO',
+    /**
+     * Language can be one of es, en, pt
+     */
+    language: 'en',
+    /**
+     * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
+     */
+    yunoPaymentResult(data) {
+      console.log('yunoPaymentResult', data)
+    },
+  })
+}
 ```
 
 [Checkout secure fields demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout-secure-fields.html)  
