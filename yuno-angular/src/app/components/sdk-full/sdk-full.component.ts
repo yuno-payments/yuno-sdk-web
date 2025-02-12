@@ -4,11 +4,10 @@ const PUBLIC_API_KEY = 'staging_gAAAAABjnL4O3-hbUTovDItjvG-EjV3WNkZyrxDvqMphxOVq
 const CHECKOUT_SESSION = '0360702d-d089-4a06-be9a-cd39f5b37ac6'
 
 @Component({
-  selector: 'app-sdk-full',
-  standalone: true,
-  imports: [],
-  templateUrl: './sdk-full.component.html',
-  styleUrl: './sdk-full.component.scss'
+    selector: 'app-sdk-full',
+    imports: [],
+    templateUrl: './sdk-full.component.html',
+    styleUrl: './sdk-full.component.scss'
 })
 export class SdkFullComponent implements OnInit {
   yunoInstance = Yuno.initialize(PUBLIC_API_KEY)
