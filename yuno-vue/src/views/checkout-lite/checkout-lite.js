@@ -1,4 +1,4 @@
-const PUBLIC_API_KEY = ''
+const PUBLIC_API_KEY = 'test'
 const CHECKOUT_SESSION = ''
 const PAYMENT_METHOD_TYPE = 'CARD'
 const VAULTED_TOKEN = null
