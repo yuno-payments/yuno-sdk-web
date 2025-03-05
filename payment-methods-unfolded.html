@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .payment-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 5px;
+      cursor: pointer;
+      border-radius: 8px;
+      background: white;
+    }
+
+    .payment-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .payment-option input {
+      margin-left: auto;
+    }
+
+    .payment-form {
+      padding: 16px;
+      display: none;
+    }
+
+    .form-content {
+      display: none;
+    }
+
+    .loading {
+      color: white;
+    }
+
+    body {
+      background: #bdddde;
+    }
+
+    .checkout-content {
+      display: flex;
+      gap: 16px;
+    }
+
+    .payment-methods {
+      flex: 2;
+    }
+
+    .payment-datails {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .btn-pay {
+      background-color: #007bff;
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 50px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-pay:hover {
+      background-color: #0056b3;
+    }
+    .text {
+      color: #666666;
+      text-align: center;
+      font-size: 18px;
+    }
+    .Yuno-fieldset {
+      background: transparent !important;
+    } 
+  </style>
+</head>
+
+<body>
+  <!-- include Yuno SDK -->
+  <div class="checkout-content">
+    <form class="payment-methods" id="payment-methods"></form>
+    <div class="payment-datails">
+      <p class="text"><b>Total</b>: $12.000</p>
+      <button id="btn-pay" class="btn-pay">Pay now</button>
+    </div>
+  </div>
+  <div id="root"></div>
+
+  <script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+  <script type="module" src="/static/payment-methods-unfolded.js"></script>
+</body>
+
+</html>

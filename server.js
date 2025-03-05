@@ -29,6 +29,7 @@ const statusLitePage = path.join(__dirname, 'status-lite.html')
 const enrollmentLitePage = path.join(__dirname, 'enrollment-lite.html')
 const checkoutSecureFieldsPage = path.join(__dirname, 'checkout-secure-fields.html')
 const fullFeatures = path.join(__dirname, 'full-features.html')
+const paymentMethodsUnfolded = path.join(__dirname, 'payment-methods-unfolded.html')
 
 const app = express()
 
@@ -69,6 +70,10 @@ app.get('/enrollment-lite', (req, res) => {
 
 app.get('/full-features', (req, res) => {
   res.sendFile(fullFeatures)
+})
+
+app.get('/checkout/payment-methods-unfolded', async (req, res) => {
+  res.sendFile(paymentMethodsUnfolded)
 })
 
 app.post('/checkout/sessions', async (req, res) => {
@@ -476,6 +481,23 @@ app.post('/customers/sessions/:customerSession/payment-methods', async (req, res
   res.send(response)
 })
 
+app.get('/payment-methods/:checkoutSession', async (req, res) => {
+  const checkoutSession = req.params.checkoutSession
+  const response = await fetch(
+    `${API_URL}/v1/checkout/sessions/${checkoutSession}/payment-methods`,
+    {
+      method: 'GET',
+      headers: {
+        'public-api-key': PUBLIC_API_KEY,
+        'private-secret-key': PRIVATE_SECRET_KEY,
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+  const paymentMethods = await response.json()
+  res.json(paymentMethods)
+})
+
 
 app.get('/sdk-web/healthy', (req, res) => {
   res.sendStatus(200)
@@ -487,6 +509,11 @@ app.get('/public-api-key', (req, res) => {
 
 app.listen(SERVER_PORT, async () => {
   console.log(`server started at port: ${SERVER_PORT}`)
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route && middleware.route.methods.get) {
+      console.log(`Ruta disponible: http://localhost:8080${middleware.route.path}`);
+    }
+  });
 
   API_URL = generateBaseUrlApi()
 
