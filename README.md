@@ -17,6 +17,7 @@
   - [Start Demo App](#start-demo-app)
   - [CSS Styles](#css-styles)
   - [Typescript](#typescript)
+  - [Example](#example)
 
 ## Browser Requirements
 
@@ -1840,7 +1841,7 @@ Include Type in tsconfig.js or tsconfig.json
 {
   "compilerOptions": {
     ....
-    "types": ["@yuno-payments/sdk-web-types"]
+    "types": ["@yuno-payments/sdk-web-types/dist/global"]
   },
   ...
 }
@@ -1849,6 +1850,13 @@ Include Type in tsconfig.js or tsconfig.json
 how to use types in your code
 
 ```javascript
-import { YunoInstance } from '@yuno-payments/sdk-web-types/dist/types'
-const yunoInstance: YunoInstance = Yuno.initialize('publickAPikey')
+import { YunoInstance } from '@yuno-payments/sdk-web-types'
+
+const yunoInstance: YunoInstance = Yuno.initialize('publicApiKey')
 ```
+
+## Example
+
+ - Create an embedded payment methods list using Checkout Lite and 'Hide Checkout Pay Button.'
+ [Payment method unfolded html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/payment-methods-unfolded.html)  
+[Payment method unfolded js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/payment-methods-unfolded.js)

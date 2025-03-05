@@ -48,3 +48,10 @@ export async function createEnrollment(customerSession) {
   })
   .then(resp => resp.json())
 }
+
+export async function getPaymentMethods(checkoutSession) {
+  return fetch(`/payment-methods/${checkoutSession}`, {
+    method: 'GET'
+  })
+  .then(resp => resp.json())
+}
