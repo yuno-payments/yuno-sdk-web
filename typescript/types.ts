@@ -237,6 +237,17 @@ interface OneTimeToken {
     type: string;
   };
   customer: Customer;
+  installment?: {
+    id: string,
+    value: number,
+    rate: number,
+    amount: {
+        currency: string,
+        value: number,
+        total_value: number,
+    },
+    installment_selected_id: string | null
+  };
 }
 interface VaultedToken {
   code: string;
