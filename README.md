@@ -214,8 +214,16 @@ yuno.startCheckout({
     /**
      * Call only if the SDK needs to continue the payment flow
      * @param {{ showPaymentStatus: boolean }}
+     * * This is specifically for cases where the payment method requires merchant-side action
+     * due to SDK limitations (e.g. when the payment provider requires a redirect URL in a webview)
+     * @returns {Promise<{ action: 'REDIRECT_URL', type: 'MERCADO_PAGO_CHECKOUT_PRO', redirect: { init_url: string, success_url: string, error_url: string } } | null>}
      */
-    yuno.continuePayment({ showPaymentStatus: true })
+    const action = await yuno.continuePayment({ showPaymentStatus: true })
+
+    // When the SDK can't continue the payment flow, it will return a redirect url to continue the payment flow by your own
+    if (action?.action === 'REDIRECT_URL') {
+      // TODO: Implement the redirect URL
+    }
   },
   /**
    * Callback is called when user selects a payment method
