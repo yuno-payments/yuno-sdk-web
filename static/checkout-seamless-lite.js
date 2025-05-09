@@ -15,11 +15,11 @@ async function initSeamlessCheckoutLite() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = Yuno.initialize(publicApiKey)
+  const yuno = await Yuno.initialize(publicApiKey)
   /**
    * checkout configuration
    */
-  yuno.startCheckout({ 
+  await yuno.startCheckout({ 
     checkoutSession,
     // element where the SDK will be mount on
     elementSelector: '#root', 
@@ -70,4 +70,4 @@ async function initSeamlessCheckoutLite() {
   })
 }
 
-window.addEventListener('load', initSeamlessCheckoutLite)
+window.addEventListener('yuno-sdk-ready', initSeamlessCheckoutLite)

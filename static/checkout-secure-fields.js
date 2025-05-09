@@ -37,11 +37,11 @@ async function initCheckoutSecureFields() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = Yuno.initialize(publicApiKey)
+  const yuno = await Yuno.initialize(publicApiKey)
   /**
    * checkout configuration
    */
-  const secureFields = yuno.secureFields({
+  const secureFields = await yuno.secureFields({
     countryCode,
     checkoutSession,
     /**
@@ -270,4 +270,4 @@ async function initCheckoutSecureFields() {
   })
 }
 
-window.addEventListener('load', initCheckoutSecureFields)
+window.addEventListener('yuno-sdk-ready', initCheckoutSecureFields)

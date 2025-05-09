@@ -8,7 +8,7 @@ async function initCheckout() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = Yuno.initialize(publicApiKey)
+  const yuno = await Yuno.initialize(publicApiKey)
   /**
    * checkout configuration
    */
@@ -16,7 +16,7 @@ async function initCheckout() {
   const loader = document.getElementById('loader')
   let isPaying = false
 
-  yuno.startCheckout({
+  await yuno.startCheckout({
     checkoutSession,
     // element where the SDK will be mount on
     elementSelector: '#root',
@@ -165,4 +165,4 @@ async function initCheckout() {
   })
 }
 
-window.addEventListener('load', initCheckout)
+window.addEventListener('yuno-sdk-ready', initCheckout)
