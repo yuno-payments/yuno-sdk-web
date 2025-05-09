@@ -1,12 +1,15 @@
+import { loadScript } from '@yuno-payments/sdk-web'
+
 const PUBLIC_API_KEY = 'test'
 const CHECKOUT_SESSION = ''
 const PAYMENT_METHOD_TYPE = 'CARD'
-const VAULTED_TOKEN = null
+const VAULTED_TOKEN = undefined
 
 export const startPayment = async () => {
-  const yuno = window.Yuno.initialize(PUBLIC_API_KEY)
+  const yuno = await loadScript()
+  const yunoInstance = await yuno.initialize(PUBLIC_API_KEY)
 
-  yuno.startCheckout({
+  await yunoInstance.startCheckout({
     checkoutSession: CHECKOUT_SESSION,
     elementSelector: '#yuno-root',
     countryCode: 'CO',
@@ -17,7 +20,7 @@ export const startPayment = async () => {
     }
   })
 
-  yuno.mountCheckoutLite({
+  yunoInstance.mountCheckoutLite({
     paymentMethodType: PAYMENT_METHOD_TYPE,
     vaultedToken: VAULTED_TOKEN
   })

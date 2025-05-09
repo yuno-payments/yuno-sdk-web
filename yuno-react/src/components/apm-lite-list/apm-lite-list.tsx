@@ -6,7 +6,7 @@ import { CardForm } from '../card-form'
 import { ApmLite } from '../apm-lite'
 import { ApmLiteCustomLoader } from '../apm-lite-custom-loader'
 
-export const ApmListLite = ({ customLoader }) => {
+export const ApmListLite: React.FC<{ customLoader: boolean }> = ({ customLoader }) => {
   const [pmSelected, setPmSelected] = useState('CARD');
   const isCARD = pmSelected === 'CARD';
   const isPSE = pmSelected === 'PSE';

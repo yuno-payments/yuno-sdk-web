@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { loadScript } from '@yuno-payments/sdk-web'
+import { YunoInstance } from '@yuno-payments/sdk-web-types'
 
-const PUBLIC_API_KEY = 'staging_gAAAAABjnL4O3-hbUTovDItjvG-EjV3WNkZyrxDvqMphxOVqbBp5e4RlxJZNk0hF-Er_baVq3fgQeN3WR9pT9Fvfha-glV5vMtp-tTGwfGEcl2HZfCttq77I_Ql24gabCSvN5xTkrikRJwC9A2g5aHpVm37nnIfCgdt-rNNoVpjvSFpM15FIpj8='
-const CHECKOUT_SESSION = '0360702d-d089-4a06-be9a-cd39f5b37ac6'
+const PUBLIC_API_KEY = ''
+const CHECKOUT_SESSION = ''
 
 @Component({
     selector: 'app-sdk-full',
@@ -10,9 +12,11 @@ const CHECKOUT_SESSION = '0360702d-d089-4a06-be9a-cd39f5b37ac6'
     styleUrl: './sdk-full.component.scss'
 })
 export class SdkFullComponent implements OnInit {
-  yunoInstance = Yuno.initialize(PUBLIC_API_KEY)
-  ngOnInit() {
-    this.yunoInstance.startCheckout({
+  yunoInstance?: YunoInstance
+  async ngOnInit() {
+    const yuno = await loadScript()
+    this.yunoInstance = await yuno.initialize(PUBLIC_API_KEY)
+    await this.yunoInstance.startCheckout({
       checkoutSession: CHECKOUT_SESSION,
       countryCode: 'CO',
       language: 'es',
@@ -28,6 +32,6 @@ export class SdkFullComponent implements OnInit {
   }
 
   onPayClick = ()=> {
-    this.yunoInstance.startPayment()
+    this.yunoInstance!.startPayment()
   }
 }
