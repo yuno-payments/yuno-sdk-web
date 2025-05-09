@@ -5,6 +5,7 @@
 - [yuno-sdk-web](#yuno-sdk-web)
   - [Table of Contents](#table-of-contents)
   - [Browser Requirements](#browser-requirements)
+  - [Changes in v1.1](#changes-in-v11)
   - [Use Checkout Full](#use-full-checkout)
   - [Use Checkout Seamless Lite](#use-seamless-checkout-lite)
   - [Use Checkout Lite](#use-checkout-lite)
@@ -1868,3 +1869,213 @@ const yunoInstance: YunoInstance = Yuno.initialize('publicApiKey')
  - Create an embedded payment methods list using Checkout Lite and 'Hide Checkout Pay Button.'
  [Payment method unfolded html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/payment-methods-unfolded.html)  
 [Payment method unfolded js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/payment-methods-unfolded.js)
+
+## Changes in v1.1
+
+The v1.1 version of the Yuno SDK introduces significant changes to the API, primarily converting synchronous methods to asynchronous ones that return Promises. This section outlines these changes and provides examples of how to update your code.
+
+### SDK URL Update
+
+To use v1.1, update your SDK import URL:
+
+```html
+<!-- Old v1 URL -->
+<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+
+<!-- New v1.1 URL -->
+<script src="https://sdk-web.y.uno/v1.1/main.js"></script>
+```
+
+### Asynchronous Methods
+
+In v1.1, all methods provided by the Yuno.initialize() interface now return Promises and require the `await` keyword:
+
+```javascript
+// Old v1 initialization
+const yuno = Yuno.initialize(publicApiKey)
+
+// New v1.1 initialization with await
+const yuno = await Yuno.initialize(publicApiKey)
+```
+
+### Complete List of Methods That Now Return Promises
+
+All of the following methods now return Promises and should be used with `await`:
+
+```javascript
+// Initialization
+const yunoInstance = await Yuno.initialize(publicApiKey);
+
+// API Clients
+const apiClientPayment = await yunoInstance.apiClientPayment({ 
+  country_code: 'BR', 
+  checkout_session: 'checkout_session' 
+});
+
+const apiClientEnroll = await yunoInstance.apiClientEnroll({ 
+  country_code: 'BR', 
+  customer_session: 'customer_session' 
+});
+
+// Checkout Methods
+await yunoInstance.startCheckout({...})
+await yunoInstance.mountCheckout({...})
+await yunoInstance.mountCheckoutLite({...})
+await yunoInstance.mountSeamlessCheckoutLite({...})
+await yunoInstance.mountStatusPayment({...})
+await yunoInstance.yunoPaymentResult({...})
+await yunoInstance.mountEnrollmentLite({...})
+await yunoInstance.mountFraud({...})
+await yunoInstance.startPayment({...})
+await yunoInstance.continuePayment({...})
+
+// Secure Fields
+const secureFields = await yunoInstance.secureFields({...})
+
+// Common Functions
+await yunoInstance.showLoader({...})
+await yunoInstance.hideLoader({...})
+await yunoInstance.updateCheckoutSession({...})
+await yunoInstance.notifyError({...})
+await yunoInstance.submitOneTimeTokenForm({...})
+await yunoInstance.unmountSdk({...})
+```
+
+### Example: Updated Full Checkout Implementation
+
+```javascript
+async function initCheckout() {
+  // Get API key
+  const publicApiKey = await getPublicApiKey()
+
+  // Initialize SDK - now with await
+  const yuno = await Yuno.initialize(publicApiKey)
+  
+  // Start checkout - now with await
+  await yuno.startCheckout({
+    checkoutSession,
+    elementSelector: '#root',
+    countryCode: 'CO',
+    language: 'es',
+    // Other configuration options...
+    
+    async yunoCreatePayment(oneTimeToken, tokenWithInformation) {
+      await createPayment({ oneTimeToken, checkoutSession })
+      const action = await yuno.continuePayment({ showPaymentStatus: true })
+      
+      if (action?.action === 'REDIRECT_URL') {
+        // Handle redirect
+      }
+    },
+    
+    yunoPaymentResult(data) {
+      console.log('yunoPaymentResult', data)
+      yuno.hideLoader()
+    },
+    
+    yunoError: (error, data) => {
+      console.log('There was an error', error)
+      yuno.hideLoader()
+    },
+  })
+  
+  // Mount checkout - now with await
+  await yuno.mountCheckout()
+}
+
+// Start payment when user clicks on merchant payment button
+const PayButton = document.querySelector('#button-pay')
+
+PayButton.addEventListener('click', async () => {
+  // Now with await
+  await yuno.startPayment()
+})
+```
+
+### Example: Updated Secure Fields Implementation
+
+```javascript
+async function initSecureFields() {
+  // Get API key
+  const publicApiKey = await getPublicApiKey()
+  
+  // Initialize SDK - now with await
+  const yuno = await Yuno.initialize(publicApiKey)
+  
+  // Create secure fields - now with await
+  const secureFields = await yuno.secureFields({
+    countryCode,
+    checkoutSession,
+    installmentEnable: false
+  })
+  
+  // Create and render secure fields
+  const secureNumber = secureFields.create({
+    name: 'pan',
+    options: {
+      // Configuration options...
+    }
+  })
+  
+  secureNumber.render('#pan')
+  
+  // Generate token - already returned a Promise in v1
+  const oneTimeToken = await secureFields.generateToken({
+    cardHolderName: 'John Deer',
+    saveCard: true,
+    // Other options...
+  })
+  
+  // Create payment
+  await createPayment({ oneTimeToken, checkoutSession })
+}
+```
+
+### TypeScript Updates
+
+If you're using TypeScript, update your type imports:
+
+```typescript
+import { YunoInstance } from '@yuno-payments/sdk-web-types'
+
+// Now with await
+const yunoInstance: YunoInstance = await Yuno.initialize('publicApiKey')
+```
+
+### Migration Tips
+
+1. Add `async` to functions that use Yuno SDK methods
+2. Add `await` before all Yuno SDK method calls
+3. Update error handling to catch Promise rejections
+4. Update event handlers that call SDK methods to be async functions
+
+### SDK Script Placement and Event Listeners
+
+In v1.1, the SDK emits a `yuno-sdk-ready` event when it's fully loaded:
+
+```javascript
+// Use the yuno-sdk-ready event
+window.addEventListener('yuno-sdk-ready', initCheckout)
+```
+
+For this to work correctly, you must:
+
+1. Place the SDK script tag at the very end of the body, after your application scripts
+2. Define your event listeners before the SDK loads
+
+```html
+<body>
+  <!-- Your app content -->
+  <div id="root"></div>
+  
+  <!-- First load your application script that defines the event listener -->
+  <script type="module" src="/static/your-app.js"></script>
+  
+  <!-- Then load the SDK script as the last element before closing body tag -->
+  <script src="https://sdk-web.y.uno/v1.1/main.js" defer></script>
+</body>
+```
+
+This ensures that your event listener is registered before the SDK fires the `yuno-sdk-ready` event.
+
+For more detailed examples, refer to the demo implementations in this repository.

@@ -5,7 +5,7 @@ async function initStatus() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = Yuno.initialize(publicApiKey)
+  const yuno = await Yuno.initialize(publicApiKey)
 
   const checkoutSession = '438413b7-4921-41e4-b8f3-28a5a0141638'
 
@@ -19,4 +19,4 @@ async function initStatus() {
   document.write(`Payment Status: ${status}`)
 }
 
-window.addEventListener('load', initStatus)
+window.addEventListener('yuno-sdk-ready', initStatus)

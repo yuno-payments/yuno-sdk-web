@@ -6,13 +6,13 @@ async function initCheckout() {
   const publicApiKey = await getPublicApiKey()
   const paymentMethodsList = await getPaymentMethods(checkoutSession)
 
-  const yunoInstance = Yuno.initialize(publicApiKey)
+  const yunoInstance = await Yuno.initialize(publicApiKey)
 
-  const loadChekoutLite = (paymentMethod, optionId) => {
+  const loadChekoutLite = async (paymentMethod, optionId) => {
     resetStateList(paymentMethodsList)
     showContent(optionId)
 
-    yunoInstance.startCheckout({
+    await yunoInstance.startCheckout({
       checkoutSession,
       elementSelector: "#root",
       countryCode,
@@ -85,4 +85,4 @@ async function initCheckout() {
   })
 }
 
-window.addEventListener('load', initCheckout)
+window.addEventListener('yuno-sdk-ready', initCheckout)

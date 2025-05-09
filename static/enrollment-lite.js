@@ -11,7 +11,7 @@ async function initEnrollmentLite() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = Yuno.initialize(publicApiKey)
+  const yuno = await Yuno.initialize(publicApiKey)
 
   yuno.mountEnrollmentLite({
     customerSession,
@@ -92,4 +92,4 @@ async function initEnrollmentLite() {
   });
 }
 
-window.addEventListener('load', initEnrollmentLite)
+window.addEventListener('yuno-sdk-ready', initEnrollmentLite)

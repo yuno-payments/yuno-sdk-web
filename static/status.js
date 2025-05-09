@@ -5,7 +5,7 @@ async function initStatus() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = Yuno.initialize(publicApiKey)
+  const yuno = await Yuno.initialize(publicApiKey)
   /**
    * Mount status in the DOM
    */
@@ -29,4 +29,4 @@ async function initStatus() {
   })
 }
 
-window.addEventListener('load', initStatus)
+window.addEventListener('yuno-sdk-ready', initStatus)

@@ -4,4 +4,4 @@ export const ContentForm = styled.div`
   display: flex;
   gap: 10px;
   flex-direction: column;
-`
+` 
