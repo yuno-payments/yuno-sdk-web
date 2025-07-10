@@ -2079,3 +2079,49 @@ For this to work correctly, you must:
 This ensures that your event listener is registered before the SDK fires the `yuno-sdk-ready` event.
 
 For more detailed examples, refer to the demo implementations in this repository.
+
+### Changes in v1.2
+
+The v1.2 version of the Yuno SDK introduces a new optional `options` parameter to `Yuno.initialize`, allowing for advanced configuration such as custom cookie names for device identification.
+
+#### Initialization Options
+
+Yuno.initialize now accepts an optional third parameter, `options`, which allows you to configure extra features such as custom cookie names for device identification.
+
+**Function signature:**
+
+```javascript
+const yuno = await Yuno.initialize(publicApiKey, applicationSession, options)
+```
+
+- `publicApiKey` (string): Your public API key.
+- `applicationSession` (string | undefined): Your application session identifier.
+- `options` (object | undefined, optional): Additional configuration options.
+
+> **Recommendation:** It is recommended to keep `applicationSession` as `undefined`, since the SDK will internally set its own application session. Only provide this parameter if you have a specific use case that requires a custom session value.
+
+#### Options Structure
+
+The `options` object currently supports the following structure:
+
+```javascript
+const options = {
+  cookies: {
+    deviceId: {
+      name: "cookieName" // The name of the cookie to use for device identification
+    }
+  }
+}
+```
+
+> **Note:** If you do not specify `name`, the default value for `deviceId.name` is `"yuno"`.
+
+#### Example Usage
+
+```javascript
+const publicApiKey = 'your-public-api-key';
+// Recommended: omit applicationSession or set to undefined
+const yuno = await Yuno.initialize(publicApiKey, undefined, options);
+```
+
+This feature is optional and is intended for advanced use cases where you need to customize how the SDK handles device identification cookies.
