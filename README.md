@@ -8,6 +8,7 @@
   - [Changes in v1.1](#changes-in-v11)
   - [Use Checkout Full](#use-full-checkout)
   - [Use Checkout Seamless Lite](#use-seamless-checkout-lite)
+  - [Use Checkout Seamless External Buttons](#use-seamless-external-buttons)
   - [Use Checkout Lite](#use-checkout-lite)
   - [Hide Checkout Pay Button](#hide-checkout-pay-button)
   - [Use Checkout Secure Fields](#use-checkout-secure-fields)
@@ -30,19 +31,19 @@
 To use full checkout you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+<script src="https://sdk-web.y.uno/v1.3/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await Yuno.initialize(PUBLIC_API_KEY)
 ```
 
 Then start checkout with configuration
 
 ```javascript
-yuno.startCheckout({
+await yuno.startCheckout({
   /**
    * Refers to the current payment's checkout session.
    * @example `438413b7-4921-41e4-b8f3-28a5a0141638`
@@ -308,27 +309,27 @@ PayButton.addEventListener('click', () => {
 })
 ```
 
-[Checkout demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout.html)  
-[Checkout demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout.js)
+[Checkout demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/pages/checkout.html)  
+[Checkout demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/static/checkout.js)
 
 ## Use Seamless Checkout Lite
 
 To use checkout seamless you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+<script src="https://sdk-web.y.uno/v1.3/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await Yuno.initialize(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
 
 ```javascript
-yuno.startCheckout({
+await yuno.startCheckout({
   /**
    * Refers to the current payment's checkout session.
    * @example `438413b7-4921-41e4-b8f3-28a5a0141638`
@@ -544,28 +545,137 @@ await yuno.mountSeamlessCheckoutLite({
 
 After it is mounted, it will start the desired flow
 
-[Checkout seamless demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout-seamless-lite.html)  
-[Checkout seamless demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout-seamless-lite.js)
+[Checkout seamless demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/pages/checkout-seamless-lite.html)  
+[Checkout seamless demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/static/checkout-seamless-lite.js)
 
+## Use Seamless External Buttons
+
+To use checkout seamless you should include our **SDK** file in your page before close your `</body>` tag
+
+```html
+<script src="https://sdk-web.y.uno/v1.3/main.js"></script>
+```
+
+Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
+
+```javascript
+const yuno = await Yuno.initialize(PUBLIC_API_KEY)
+```
+
+Then create a configuration object
+
+```javascript
+/**
+   * checkout configuration
+   */
+  await yuno.startSeamlessCheckout({
+    checkoutSession,
+    // element where the SDK will be mount on
+    elementSelector: '#root',
+    /**
+     * country can be one of CO, BR, CL, PE, EC, UR, MX
+     */
+    countryCode,
+    /**
+      * language can be one of es, en, pt
+      */
+    language: 'es',
+    /**
+     * Where the forms a shown
+     * default { type: 'modal' }
+     */
+    renderMode: {
+      /**
+       * type can be one of modal or element
+       * default modal
+       */
+      type: 'element',
+      // type: 'modal',
+      /**
+       * element where the form will be rendered
+       * only needed if type is element
+       */
+      elementSelector: '#form-element',
+    },
+    /**
+     * 
+     * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
+     */
+    yunoPaymentResult(data) {
+      console.log('yunoPaymentResult', data)
+    },
+    /**
+     * @param { error: 'CANCELED_BY_USER' | any }
+     */
+    yunoError: (error) => {
+      console.log('There was an error', error)
+    },
+    onLoading: (data) => {
+      console.log('onLoading', data)
+    },
+    onRendered: () => {
+      console.log("termino el render")
+    },
+    onCreateOneTimeToken: () => {
+      console.log("creando ott")
+    },
+    /**
+     * callback is called when user selects a payment method
+     * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO', name: string} } data
+     */
+    yunoPaymentMethodSelected(data) {
+      console.log('onPaymentMethodSelected', data)
+    },
+  })
+```
+
+Finally mount the **SDK** in a `html` element, you can use any valid css selector (`#`, `.`, `[data-*]`).
+
+```javascript
+yuno.mountSeamlessExternalButtons([
+    {
+      paymentMethodType: 'PAYPAL',
+      elementSelector: '#paypal',
+    },
+    
+    {
+      paymentMethodType: 'APPLE_PAY',
+      elementSelector: '#apple-pay',
+    },
+    {
+      paymentMethodType: 'GOOGLE_PAY',
+      elementSelector: '#google-pay',
+    },
+    // {
+    //   paymentMethodType: 'PAYPAL_ENROLLMENT',
+    //   elementSelector: '#paypal',
+    // },
+  ])
+```
+
+After it is mounted, it will start the desired flow
+
+[Checkout seamless demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/pages/checkout-seamless-external-buttons.html)  
+[Checkout seamless demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/static/checkout-seamless-external-buttons.js)
 
 ## Use Checkout Lite
 
 To use checkout lite you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+<script src="https://sdk-web.y.uno/v1.3/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await Yuno.initialize(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
 
 ```javascript
-yuno.startCheckout({
+await yuno.startCheckout({
   /**
    * Refers to the current payment's checkout session.
    * @example `438413b7-4921-41e4-b8f3-28a5a0141638`
@@ -795,15 +905,15 @@ await yuno.mountCheckoutLite({
 
 After it is mounted, it will start the desired flow
 
-[Checkout lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout-lite.html)  
-[Checkout lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout-lite.js)
+[Checkout lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/pages/checkout-lite.html)  
+[Checkout lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/static/checkout-lite.js)
 
 ## Hide Checkout Pay Button
 
 If you would like to hide the customer or card pay button, in the checkout configuration set the `showPayButton` to `false` then call the function `submitOneTimeTokenForm` as shown below
 
 ```javascript
-yuno.startCheckout({
+await yuno.startCheckout({
   /**
    * Hide or show the customer or card form pay button
    * @default true
@@ -818,7 +928,7 @@ yuno.startCheckout({
 /**
  * This function trigger the same functionality that is called when the customer clicks on the pay form button.  This doesn't work on the step Card form
  */
-yuno.submitOneTimeTokenForm()
+await yuno.submitOneTimeTokenForm()
 ```
 
 ## Use Checkout Secure Fields
@@ -826,19 +936,19 @@ yuno.submitOneTimeTokenForm()
 To use checkout secure fields you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+<script src="https://sdk-web.y.uno/v1.3/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await Yuno.initialize(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
 
 ```javascript
-  const secureFields = yuno.secureFields({
+  const secureFields = await yuno.secureFields({
     /**
      * This parameter determines the country for which the payment process is being configured.
      * The complete list of supported countries and their country code is available on the
@@ -1262,27 +1372,27 @@ if (payment.checkout.sdk_action_required) {
 }
 ```
 
-[Checkout secure fields demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/checkout-secure-fields.html)  
-[Checkout secure fields demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/checkout-secure-fields.js)
+[Checkout secure fields demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/pages/checkout-secure-fields.html)  
+[Checkout secure fields demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/static/checkout-secure-fields.js)
 
 ## Use Status
 
 To use status you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+<script src="https://sdk-web.y.uno/v1.3/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await Yuno.initialize(PUBLIC_API_KEY)
 ```
 
 Finally mount the **SDK** in a `html` element, you can use any valid css selector (`#`, `.`, `[data-*]`).
 
 ```javascript
-yuno.mountStatusPayment({
+await yuno.mountStatusPayment({
   checkoutSession: '438413b7-4921-41e4-b8f3-28a5a0141638',
   /**
    * This parameter determines the country for which the payment process is being configured.
@@ -1304,21 +1414,21 @@ yuno.mountStatusPayment({
 })
 ```
 
-[Status demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/status.html)  
-[Status demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/status.js)
+[Status demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/pages/status.html)  
+[Status demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/static/status.js)
 
 ## Use Status Lite
 
 To use status lite you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+<script src="https://sdk-web.y.uno/v1.3/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await Yuno.initialize(PUBLIC_API_KEY)
 ```
 
 Finally call the **SDK** `yunoPaymentResult` method.
@@ -1331,27 +1441,27 @@ Finally call the **SDK** `yunoPaymentResult` method.
  */
 const status = await yuno.yunoPaymentResult(checkoutSession)
 ```
-[Status Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/status-lite.html)  
-[Status Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/status-lite.js)
+[Status Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/pages/status-lite.html)  
+[Status Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/static/status-lite.js)
 
 ## Use Enrollment Lite
 
 To use enrollment lite you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+<script src="https://sdk-web.y.uno/v1.3/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await Yuno.initialize(PUBLIC_API_KEY)
 ```
 
 Finally call the **SDK** `mountEnrollmentLite` method.
 
 ```javascript
-yuno.mountEnrollmentLite({
+await yuno.mountEnrollmentLite({
   customerSession,
   /**
    * This parameter determines the country for which the payment process is being configured.
@@ -1506,8 +1616,8 @@ yuno.mountEnrollmentLite({
   },
 });
 ```
-[Enrollment Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/enrollment-lite.html)  
-[Enrollment Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/enrollment-lite.js)
+[Enrollment Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/pages/enrollment-lite.html)  
+[Enrollment Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/static/enrollment-lite.js)
 
 
 ## Use Enrollment With Secure Fields
@@ -1515,19 +1625,19 @@ yuno.mountEnrollmentLite({
 To use enrollment with secure fields you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+<script src="https://sdk-web.y.uno/v1.3/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await Yuno.initialize(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
 
 ```javascript
-  const secureFields = yuno.secureFields({
+  const secureFields = await yuno.secureFields({
     /**
      * This parameter determines the country for which the payment process is being configured.
      * The complete list of supported countries and their country code is available on the
@@ -1823,7 +1933,7 @@ By default the font that we use is `Inter` so if you want this font you should a
   rel="stylesheet"
 />
 ```
-[Using Inter font](https://github.com/yuno-payments/yuno-sdk-web/blob/main/index.html#L12) 
+[Using Inter font](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/pages/index.html#L12) 
 
 or you can apply your own font using CSS 
 ```css
@@ -1861,7 +1971,7 @@ how to use types in your code
 ```javascript
 import { YunoInstance } from '@yuno-payments/sdk-web-types'
 
-const yunoInstance: YunoInstance = Yuno.initialize('publicApiKey')
+const yunoInstance: YunoInstance = await Yuno.initialize('publicApiKey')
 ```
 
 ## Example
@@ -1879,11 +1989,11 @@ The v1.1 version of the Yuno SDK introduces significant changes to the API, prim
 To use v1.1, update your SDK import URL:
 
 ```html
-<!-- Old v1 URL -->
-<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+<!-- Old v1.3 URL -->
+<script src="https://sdk-web.y.uno/v1.3/main.js"></script>
 
-<!-- New v1.1 URL -->
-<script src="https://sdk-web.y.uno/v1.1/main.js"></script>
+<!-- New v1.3 URL -->
+<script src="https://sdk-web.y.uno/v1.3/main.js"></script>
 ```
 
 ### Asynchronous Methods
@@ -1892,7 +2002,7 @@ In v1.1, all methods provided by the Yuno.initialize() interface now return Prom
 
 ```javascript
 // Old v1 initialization
-const yuno = Yuno.initialize(publicApiKey)
+const yuno = await Yuno.initialize(publicApiKey)
 
 // New v1.1 initialization with await
 const yuno = await Yuno.initialize(publicApiKey)
@@ -1952,7 +2062,7 @@ async function initCheckout() {
   const yuno = await Yuno.initialize(publicApiKey)
   
   // Start checkout - now with await
-  await yuno.startCheckout({
+  await await yuno.startCheckout({
     checkoutSession,
     elementSelector: '#root',
     countryCode: 'CO',
@@ -2072,7 +2182,7 @@ For this to work correctly, you must:
   <script type="module" src="/static/your-app.js"></script>
   
   <!-- Then load the SDK script as the last element before closing body tag -->
-  <script src="https://sdk-web.y.uno/v1.1/main.js" defer></script>
+  <script src="https://sdk-web.y.uno/v1.3/main.js" defer></script>
 </body>
 ```
 
