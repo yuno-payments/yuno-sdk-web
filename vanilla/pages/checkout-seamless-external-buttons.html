@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+    href="https://assets-global.website-files.com/6277c350218d32e9e5dc0380/627e9998bb4b6124743a90fc_favicon-yuno32x32.png"
+    rel="shortcut icon" type="image/x-icon" />
+  <link
+    href="https://assets-global.website-files.com/6277c350218d32e9e5dc0380/627e999c388c6cd2a87050e7_favicon-yuno256x256.png"
+    rel="apple-touch-icon" />
+  <title>Yuno Checkout Seamless Lite</title>
+  <!-- default fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script>
+    window.addEventListener('yuno-sdk-ready', () => {
+      console.log('Yuno SDK is ready', window.Yuno)
+    })
+  </script>
+  <script type="module" src="/static/checkout-seamless-external-buttons.js"></script>
+</head>
+
+<body>
+  <!-- create a component where the SDK will be mounted -->
+  <div id="root"></div>
+  <div id="form-element"></div>
+  <div id="paypal"></div>
+  <div id="apple-pay"></div>
+  <div id="google-pay"></div>
+  <div id="pse"></div>
+  <br />
+  <br />
+  <button id="unmount-all">Unmount All</button>
+  <button id="unmount-paypal">Unmount PayPal</button>
+  <button id="unmount-paypal-enrollment">Unmount PayPal Enrollment</button>
+  <button id="unmount-apple-pay">Unmount Apple Pay</button>
+  <button id="unmount-google-pay">Unmount Google Pay</button>
+  <br />
+  <br />
+  <button id="mount-all">Mount All</button>
+  <button id="mount-paypal">Mount PayPal</button>
+  <button id="mount-paypal-enrollment">Mount PayPal Enrollment</button>
+  <button id="mount-apple-pay">Mount Apple Pay</button>
+  <button id="mount-google-pay">Mount Google Pay</button>
+  <script src="https://sdk-web.y.uno/v1.3/main.js" defer></script>
+</body>
+
+</html>

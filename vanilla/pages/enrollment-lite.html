@@ -6,10 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://assets-global.website-files.com/6277c350218d32e9e5dc0380/627e9998bb4b6124743a90fc_favicon-yuno32x32.png" rel="shortcut icon" type="image/x-icon"/>
   <link href="https://assets-global.website-files.com/6277c350218d32e9e5dc0380/627e999c388c6cd2a87050e7_favicon-yuno256x256.png" rel="apple-touch-icon"/>
-  <title>Yuno Checkout</title>
+  <title>Yuno Enrollment Lite</title>
   <!-- default fonts -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter">
-  <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <!-- create a component where the SDK will be mounted -->
@@ -17,13 +16,7 @@
   <div id="form-element"></div>
   <div id="action-form-element"></div>
 
-  <!-- merchant should create a button to start payment flow after the user has selected a payment method -->
-  <button id="button-pay">Pagar Ahora</button>
-
-  <loader-message id="loader"></loader-message>
-
-  <script src="/static/loader.js"></script>
-  <script type="module" src="/static/checkout.js"></script>
-  <script src="https://sdk-web.y.uno/v1.1/main.js" defer></script>
+  <script type="module" src="../static/enrollment-lite.js"></script>
+  <script src="https://sdk-web.y.uno/v1.3/main.js" defer></script>
 </body>
 </html>
