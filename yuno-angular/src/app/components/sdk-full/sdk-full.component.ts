@@ -28,7 +28,7 @@ export class SdkFullComponent implements OnInit {
         //
       },
     });
-    this.yunoInstance.mountCheckout({});
+    this.yunoInstance.mountCheckout();
   }
 
   onPayClick = () => {
