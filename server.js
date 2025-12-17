@@ -23,14 +23,15 @@ const staticDirectory = path.join(__dirname, 'vanilla/static')
 const indexPage = path.join(__dirname, 'vanilla/pages/index.html')
 const checkoutPage = path.join(__dirname, 'vanilla/pages/checkout.html')
 const checkoutLitePage = path.join(__dirname, 'vanilla/pages/checkout-lite.html')
+const seamlessCheckoutPage = path.join(__dirname, 'vanilla/pages/checkout-seamless.html')
 const seamlessCheckoutLitePage = path.join(__dirname, 'vanilla/pages/checkout-seamless-lite.html')
+const seamlessExternalButtonsPage = path.join(__dirname, 'vanilla/pages/checkout-seamless-external-buttons.html')
 const statusPage = path.join(__dirname, 'vanilla/pages/status.html')
 const statusLitePage = path.join(__dirname, 'vanilla/pages/status-lite.html')
 const enrollmentLitePage = path.join(__dirname, 'vanilla/pages/enrollment-lite.html')
 const checkoutSecureFieldsPage = path.join(__dirname, 'vanilla/pages/checkout-secure-fields.html')
 const fullFeatures = path.join(__dirname, 'vanilla/pages/full-features.html')
 const paymentMethodsUnfolded = path.join(__dirname, 'vanilla/pages/payment-methods-unfolded.html')
-const seamlessExternalButtonsPage = path.join(__dirname, 'vanilla/pages/checkout-seamless-external-buttons.html')
 
 const app = express()
 
@@ -47,6 +48,10 @@ app.get('/checkout', (req, res) => {
 
 app.get('/checkout/lite', (req, res) => {
   res.sendFile(checkoutLitePage)
+})
+
+app.get('/checkout/seamless', (req, res) => {
+  res.sendFile(seamlessCheckoutPage)
 })
 
 app.get('/checkout/seamless/lite', (req, res) => {
