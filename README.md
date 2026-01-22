@@ -12,6 +12,7 @@
   - [Use Checkout Full](#use-full-checkout)
   - [Use Checkout Lite](#use-checkout-lite)
   - [Hide Checkout Pay Button](#hide-checkout-pay-button)
+  - [Clear API Cache](#clear-api-cache)
   - [Use Checkout Secure Fields](#use-checkout-secure-fields)
   - [Use Status](#use-status)
   - [Use Status Lite](#use-status-lite)
@@ -1174,6 +1175,17 @@ await yuno.startCheckout({
  */
 await yuno.submitOneTimeTokenForm()
 ```
+
+## Clear API Cache
+
+The **SDK** caches **GET** responses from Yuno services to optimize performance. To ensure you are working with the latest data—for example, after updating a checkout session via **PATCH** to retrieve updated installment options—you can manually refresh the state by calling:
+
+```javascript
+....
+await yuno.clearApiCache()
+...
+```
+
 
 ## Use Checkout Secure Fields
 
