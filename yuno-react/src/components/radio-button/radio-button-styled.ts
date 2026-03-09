@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-export const Content = styled.div`
+export const Content = styled.div<{ checked: boolean }>`
   display: flex;
   gap: 12px;
   align-items: center;
