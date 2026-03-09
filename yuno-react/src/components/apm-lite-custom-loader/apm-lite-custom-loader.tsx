@@ -53,6 +53,6 @@ export const ApmLiteCustomLoader: React.FC<{
 
     return <>
       <div id="root-apm-yuno"></div>
-      {showLoader && <loader-message />}
+      {showLoader && <div className="loader-message" />}
     </>
   }

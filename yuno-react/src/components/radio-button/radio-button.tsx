@@ -2,7 +2,13 @@
 
 import { Content } from "./radio-button-styled"
 
-export const RadioButton = ({ text, onClick, checked }) => {
+interface RadioButtonProps {
+  text: string
+  onClick: () => void
+  checked: boolean
+}
+
+export const RadioButton: React.FC<RadioButtonProps> = ({ text, onClick, checked }) => {
   return <Content checked={checked} onClick={onClick}>
     <p>{text}</p>
   </Content>
