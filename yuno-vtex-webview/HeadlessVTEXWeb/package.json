@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^6.3.6"
+    "vite": "^6.4.1"
   },
   "dependencies": {
     "@yuno-payments/sdk-web-vtex": "^0.4.0"
