@@ -11,6 +11,7 @@ export const ApmListLite: React.FC<{ customLoader: boolean }> = ({ customLoader 
   const isCARD = pmSelected === 'CARD';
   const isPSE = pmSelected === 'PSE';
   const isADDI = pmSelected === 'ADDI';
+  const isBCI_MACH_QR = pmSelected === 'BCI_MACH_QR';
 
   const ComponentApmLite = customLoader ? ApmLiteCustomLoader : ApmLite
 
@@ -39,6 +40,14 @@ export const ApmListLite: React.FC<{ customLoader: boolean }> = ({ customLoader 
         onClick={() => { setPmSelected('ADDI') }}
       />
       {isADDI && <ComponentApmLite paymentMethodType={'ADDI'} onClose={() => { setPmSelected('') }} />}
+    </div>
+    <div>
+      <RadioButton
+        checked={isBCI_MACH_QR}
+        text={'BCI_MACH_QR'}
+        onClick={() => { setPmSelected('BCI_MACH_QR') }}
+      />
+      {isBCI_MACH_QR && <ComponentApmLite paymentMethodType={'BCI_MACH_QR'} onClose={() => { setPmSelected('') }} />}
     </div>
   </Content>
 }
