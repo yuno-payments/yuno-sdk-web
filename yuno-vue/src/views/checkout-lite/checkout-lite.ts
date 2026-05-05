@@ -9,10 +9,16 @@ const VAULTED_TOKEN = undefined;
 type YunoInstanceWithCanary = YunoInstance & { setCanaryMode: (enabled: boolean) => void };
 
 let yunoInstance: YunoInstanceWithCanary | null = null;
+let pendingCanaryMode = false;
 
 export const startPayment = async () => {
   const yuno = await loadScript();
   yunoInstance = (await yuno.initialize(PUBLIC_API_KEY)) as YunoInstanceWithCanary;
+
+  // Apply stored canary preference to the new SDK instance
+  if (pendingCanaryMode) {
+    yunoInstance.setCanaryMode(true);
+  }
 
   await yunoInstance.startCheckout({
     checkoutSession: CHECKOUT_SESSION,
@@ -32,6 +38,7 @@ export const startPayment = async () => {
 };
 
 export const setCanaryMode = (enabled: boolean) => {
+  pendingCanaryMode = enabled;
   if (yunoInstance) {
     yunoInstance.setCanaryMode(enabled);
   }
