@@ -16,6 +16,14 @@
   />
 </head>
 <body>
+  <!-- Canary Mode Toggle -->
+  <div class="canary-toggle-container">
+    <label class="canary-toggle-label">
+      <input type="checkbox" id="canary-toggle" />
+      <span>Canary Mode</span>
+    </label>
+  </div>
+
   <!-- create a component where the SDK will be mounted -->
   <div class="list-group">
     <a href="/checkout" class="list-group-item list-group-item-action" target="_blank">
@@ -28,5 +36,13 @@
     <a href="/enrollment-lite" class="list-group-item list-group-item-action" target="_blank">Enrollment Lite</a>
   </div>
 
+  <script>
+    const canaryToggle = document.getElementById('canary-toggle')
+    canaryToggle.addEventListener('change', (e) => {
+      if (window.yunoInstance) {
+        window.yunoInstance.setCanaryMode(e.target.checked)
+      }
+    })
+  </script>
 </body>
 </html>

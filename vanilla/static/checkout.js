@@ -9,6 +9,10 @@ async function initCheckout() {
 
   // start Yuno SDK
   const yuno = await Yuno.initialize(publicApiKey)
+
+  // expose instance for canary toggle
+  window.yunoInstance = yuno
+
   /**
    * checkout configuration
    */
