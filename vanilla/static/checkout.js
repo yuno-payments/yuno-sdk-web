@@ -9,6 +9,7 @@ async function initCheckout() {
 
   // start Yuno SDK
   const yuno = await Yuno.initialize(publicApiKey)
+  window.yunoInstance = yuno
   /**
    * checkout configuration
    */

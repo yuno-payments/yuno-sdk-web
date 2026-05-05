@@ -16,6 +16,7 @@ async function initSeamlessCheckoutLite() {
 
   // start Yuno SDK
   const yuno = await Yuno.initialize(publicApiKey)
+  window.yunoInstance = yuno
   /**
    * checkout configuration
    */

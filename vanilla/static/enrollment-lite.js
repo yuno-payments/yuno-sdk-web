@@ -12,6 +12,7 @@ async function initEnrollmentLite() {
 
   // start Yuno SDK
   const yuno = await Yuno.initialize(publicApiKey)
+  window.yunoInstance = yuno
 
   yuno.mountEnrollmentLite({
     customerSession,
