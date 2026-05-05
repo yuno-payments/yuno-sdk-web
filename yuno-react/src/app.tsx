@@ -11,6 +11,7 @@ const CHECKOUT_SESSION = "";
 export const App = () => {
   const instanceFlag = useRef(0);
   const [yunoInstance, setYunoInstance] = useState<YunoInstance | null>(null);
+  const [canaryMode, setCanaryMode] = useState(false);
 
   useEffect(() => {
     const createYunoInstance = async () => {
@@ -24,6 +25,14 @@ export const App = () => {
     }
   }, []);
 
+  const handleCanaryToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const enabled = e.target.checked;
+    setCanaryMode(enabled);
+    if (yunoInstance) {
+      yunoInstance.setCanaryMode(enabled);
+    }
+  };
+
   if (!yunoInstance) {
     return <div>Loading...</div>;
   }
@@ -36,6 +45,17 @@ export const App = () => {
         countryCode: "CO",
       }}
     >
+      <div className="canary-toggle-container">
+        <label className="toggle-label">
+          <input
+            type="checkbox"
+            id="canary-toggle"
+            checked={canaryMode}
+            onChange={handleCanaryToggle}
+          />
+          <span>Canary Mode</span>
+        </label>
+      </div>
       <RouterProvider router={router} />
     </AppContext.Provider>
   );

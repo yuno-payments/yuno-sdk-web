@@ -1,2 +1,13 @@
+<div class="canary-toggle-container">
+  <label class="toggle-label">
+    <input
+      type="checkbox"
+      id="canary-toggle"
+      [checked]="canaryMode"
+      (change)="onCanaryToggle($event)"
+    />
+    <span>Canary Mode</span>
+  </label>
+</div>
 <div id="sdk-root"></div>
 <button (click)="onPayClick()">Pay now</button>

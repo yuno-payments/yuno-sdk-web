@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { loadScript } from '@yuno-payments/sdk-web';
 import { YunoInstance } from '@yuno-payments/sdk-web-types';
 
@@ -7,12 +8,14 @@ const CHECKOUT_SESSION = '';
 
 @Component({
   selector: 'app-sdk-full',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './sdk-full.component.html',
   styleUrl: './sdk-full.component.scss',
 })
 export class SdkFullComponent implements OnInit {
   yunoInstance?: YunoInstance;
+  canaryMode = false;
+
   async ngOnInit() {
     const yuno = await loadScript();
     this.yunoInstance = await yuno.initialize(PUBLIC_API_KEY);
@@ -33,5 +36,13 @@ export class SdkFullComponent implements OnInit {
 
   onPayClick = () => {
     this.yunoInstance!.startPayment();
+  };
+
+  onCanaryToggle = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    this.canaryMode = target.checked;
+    if (this.yunoInstance) {
+      this.yunoInstance.setCanaryMode(this.canaryMode);
+    }
   };
 }
