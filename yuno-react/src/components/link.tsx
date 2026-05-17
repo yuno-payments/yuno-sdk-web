@@ -6,6 +6,7 @@ export const Links = () => {
     <Link to="/secure-fields"> Secure fields</Link>
     <Link to="/apm-lite-list"> Payment methods lite list </Link>
     <Link to='/apm-lite-list/custom-loader'>Payment methods lite list custom loader</Link>
+    <Link to='/split-checkout'>Split / Combo Checkout</Link>
   </LinkContent>
 }
 

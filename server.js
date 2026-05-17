@@ -32,6 +32,7 @@ const enrollmentLitePage = path.join(__dirname, 'vanilla/pages/enrollment-lite.h
 const checkoutSecureFieldsPage = path.join(__dirname, 'vanilla/pages/checkout-secure-fields.html')
 const fullFeatures = path.join(__dirname, 'vanilla/pages/full-features.html')
 const paymentMethodsUnfolded = path.join(__dirname, 'vanilla/pages/payment-methods-unfolded.html')
+const splitCheckoutPage = path.join(__dirname, 'vanilla/pages/split-checkout.html')
 
 const app = express()
 
@@ -84,6 +85,10 @@ app.get('/full-features', (req, res) => {
 
 app.get('/checkout/payment-methods-unfolded', async (req, res) => {
   res.sendFile(paymentMethodsUnfolded)
+})
+
+app.get('/checkout/split', (req, res) => {
+  res.sendFile(splitCheckoutPage)
 })
 
 app.post('/checkout/sessions', async (req, res) => {

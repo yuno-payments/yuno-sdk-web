@@ -717,7 +717,92 @@ interface Yuno {
   initialize(publicApiKey: string): YunoInstance;
 }
 
-export { type ButtonTextCard, type CardConfig, type Language, type LoadingType, type MountCheckoutArgs, type MountCheckoutLiteArgs, type MountEnrollmentLiteArgs, type RenderMode, type SecureFieldsArgs, type StartCheckoutArgs, type TextsCustom, type Yuno, type YunoConfig, type mountFraudArgs };
+/**
+ * Split/Combo Payments Types
+ */
+
+/** Allocation mode for split payments */
+type SplitAllocationMode = 'CUSTOMER_DEFINED' | 'MERCHANT_DEFINED';
+
+/** Configuration for a split/combo payment session */
+interface SplitConfig {
+  /** Whether split payments are enabled for this session */
+  enabled: boolean;
+  /** Maximum number of payment methods allowed */
+  max_methods: number;
+  /** Total session amount in minor units */
+  session_total: number;
+  /** Currency code (e.g. 'USD', 'COP') */
+  currency: string;
+  /** How amounts are allocated across methods */
+  allocation_mode: SplitAllocationMode;
+  /** Pre-defined allocations for MERCHANT_DEFINED mode */
+  merchant_allocations?: SplitMethodAllocation[];
+}
+
+/** A single method allocation within a split payment */
+interface SplitMethodAllocation {
+  /** One-time token for this payment method */
+  one_time_token: string;
+  /** Amount allocated to this method in minor units */
+  amount: number;
+  /** Payment method type (e.g. 'CARD', 'PIX', 'NEQUI') */
+  payment_method_type: string;
+}
+
+/** Composite OTT v2 token packaging multiple method OTTs */
+interface CompositeOTT {
+  /** Composite token version */
+  version: 2;
+  /** Unique composite token identifier */
+  composite_token: string;
+  /** Individual method allocations */
+  allocations: SplitMethodAllocation[];
+  /** Total amount (sum of all allocations) */
+  total_amount: number;
+  /** Currency code */
+  currency: string;
+  /** Timestamp of token creation */
+  created_at: string;
+}
+
+/** Status of an individual transaction within a split payment */
+type SplitTransactionStatus =
+  | 'PENDING'
+  | 'AUTHORIZED'
+  | 'PENDING_ASYNC'
+  | 'CAPTURED'
+  | 'FAILED'
+  | 'CANCELLED'
+  | 'REFUNDED';
+
+/** Per-transaction status entry for split payment tracking */
+interface TransactionStatusEntry {
+  /** One-time token for this transaction */
+  one_time_token: string;
+  /** Payment method type */
+  payment_method_type: string;
+  /** Amount for this transaction */
+  amount: number;
+  /** Current transaction status */
+  status: SplitTransactionStatus;
+  /** QR code data URL for PENDING_ASYNC with QR-based methods */
+  qr_code_data?: string;
+  /** Timestamp of last status update */
+  updated_at: string;
+}
+
+/** Aggregated status for a split payment */
+interface SplitPaymentStatus {
+  /** Checkout session ID */
+  checkout_session: string;
+  /** Overall split payment status */
+  overall_status: SplitTransactionStatus;
+  /** Per-transaction statuses */
+  transactions: TransactionStatusEntry[];
+}
+
+export { type ButtonTextCard, type CardConfig, type CompositeOTT, type Language, type LoadingType, type MountCheckoutArgs, type MountCheckoutLiteArgs, type MountEnrollmentLiteArgs, type RenderMode, type SecureFieldsArgs, type SplitAllocationMode, type SplitConfig, type SplitMethodAllocation, type SplitPaymentStatus, type SplitTransactionStatus, type StartCheckoutArgs, type TextsCustom, type TransactionStatusEntry, type Yuno, type YunoConfig, type mountFraudArgs };
 
 declare global {
   interface Window {
