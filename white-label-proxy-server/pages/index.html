@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acme Pay — White-Label Proxy</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main>
+    <header class="partner">
+      <span class="badge">Partner</span>
+      <strong>Acme Pay</strong>
+    </header>
+
+    <h1>White-label SDK proxy</h1>
+    <p>
+      The SDK is loaded from <code>this</code> origin (no <code>*.y.uno</code>
+      hostname). Point your partner pages at <code>http://localhost:9090</code>
+      to verify PR
+      <a href="https://github.com/yuno-payments/sdk-web/pull/2086" target="_blank" rel="noreferrer">sdk-web#2086</a>:
+      <code>window.SdkPayments</code>, <code>sdk-payments-ready</code> event, and
+      no <code>yuno-*</code> DOM tokens leaked to the merchant page.
+    </p>
+
+    <section class="wl-panel">
+      <h2>Proxy configuration</h2>
+      <pre id="proxy-info">loading…</pre>
+      <p class="proxy-info">
+        Set <code>SDK_UPSTREAM</code> in <code>.env</code> to wherever the
+        PR #2086 build is hosted. Every SDK asset request below is forwarded
+        from this origin to that upstream — partner pages never talk to a
+        <code>*.y.uno</code> host directly.
+      </p>
+    </section>
+  </main>
+
+  <script type="module">
+    import { getProxyInfo } from '/static/api.js'
+    const el = document.getElementById('proxy-info')
+    try {
+      el.textContent = JSON.stringify(await getProxyInfo(), null, 2)
+    } catch (e) {
+      el.textContent = `failed to load: ${e.message}`
+    }
+  </script>
+</body>
+</html>
