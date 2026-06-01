@@ -18,7 +18,14 @@ exercises the white-label code paths end-to-end.
 | `/v1/*`, `/v2/*` (HTTP + WS)                           | `BACKEND_URL` / `BACKEND_WS_URL`       |
 | `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/(challenge\|redirect\|session-id\|validate-url)*` | `SDK_3DS_UPSTREAM` |
 | `/v<semver>/pages/*`, `/v<semver>/assets/*`            | `SDK_CARD_UPSTREAM`                    |
+| `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*`            | `SDK_STATIC_UPSTREAM` (`sdk.prod.y.uno`)  |
+| `/sdk-web/*`, `/flags/*`, bare brand images (`/Visa.png`, …) | `SDK_ICONS_UPSTREAM` (`icons.prod.y.uno`) |
 | Everything else (GET/HEAD)                             | `SDK_UPSTREAM`                         |
+
+> **Static assets (CORECM-17664):** the SDK used to load icons/logos/fonts directly from `icons.prod.y.uno` /
+> `sdk.prod.y.uno`, bypassing the white-label host. It now host-swaps them to this proxy (path preserved), so the
+> proxy forwards them by path prefix to the two asset CDNs. Requires an SDK build that includes the fix
+> (sdk-web + `@yuno/sdk-web-core` ≥ 7.1.0) and a partner page that inits with `{ apiUrl: '<this proxy origin>' }`.
 
 Additional behaviour worth knowing:
 
@@ -62,6 +69,8 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 | `SDK_UPSTREAM`       | Main SDK bundle                               | `https://sdk-web.y.uno`          | `https://sdk-web.staging.y.uno`          | `https://sdk-web.dev.y.uno`          |
 | `SDK_CARD_UPSTREAM`  | Card-form / secure-fields micro-app           | `https://sdk-web-card.y.uno`     | `https://sdk-web-card.staging.y.uno`     | `https://sdk-web-card.dev.y.uno`     |
 | `SDK_3DS_UPSTREAM`   | 3DS challenge / redirect / session-id pages   | `https://sdk-3ds.y.uno`          | `https://sdk-3ds.staging.y.uno`          | `https://sdk-3ds.dev.y.uno`          |
+| `SDK_STATIC_UPSTREAM`| Static assets (`/icons`, `/css`, `/brands`, `/c2p`) | `https://sdk.prod.y.uno`   | `https://sdk.prod.y.uno`                 | `https://sdk.prod.y.uno`             |
+| `SDK_ICONS_UPSTREAM` | Icon assets (`/sdk-web`, `/flags`, `/*.png`)  | `https://icons.prod.y.uno`       | `https://icons.prod.y.uno`               | `https://icons.prod.y.uno`           |
 | `BACKEND_URL`        | SDK API (`/v1/*`, `/v2/*`)                    | `https://api.y.uno`              | `https://api-staging.y.uno`              | `https://api-dev.y.uno`              |
 | `BACKEND_WS_URL`     | WebSocket upgrades                            | `https://y.uno`                  | `https://staging.y.uno`                  | `https://dev.y.uno`                  |
 | `SDK_MAIN_JS`        | Pin a specific SDK version                    | `/v1.7.4/main.js`                | `/v1.7.4/main.js`                        | `/v1.7.4/main.js`                    |

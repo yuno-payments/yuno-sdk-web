@@ -17,6 +17,14 @@ const SDK_CARD_UPSTREAM = (process.env.SDK_CARD_UPSTREAM || SDK_UPSTREAM).replac
 // 3DS micro-app (challenge / redirect / session-id pages) is also published
 // separately. Defaults to SDK_UPSTREAM when unset.
 const SDK_3DS_UPSTREAM = (process.env.SDK_3DS_UPSTREAM || SDK_UPSTREAM).replace(/\/$/, '')
+// Static asset CDNs. Since CORECM-17664 the SDK routes its icons/logos/fonts
+// through the configured white-label host (host-swap, path preserved), so they
+// now arrive here and must be forwarded to the real asset hosts. These are
+// always `*.prod.y.uno` in the SDK regardless of environment.
+//   sdk.prod.y.uno   → /icons, /css, /brands, /c2p
+//   icons.prod.y.uno → /sdk-web, /flags, bare brand images (/Visa.png, …)
+const SDK_STATIC_UPSTREAM = (process.env.SDK_STATIC_UPSTREAM || 'https://sdk.prod.y.uno').replace(/\/$/, '')
+const SDK_ICONS_UPSTREAM = (process.env.SDK_ICONS_UPSTREAM || 'https://icons.prod.y.uno').replace(/\/$/, '')
 
 // Matches /v<version>/(pages|assets)/... where <version> is any dot-separated
 // number sequence (v1.7, v1.84.1, v2.0.0-rc.1, …).
@@ -28,10 +36,18 @@ const SDK_3DS_PATHS = new Set(['/challenge.html', '/redirect.html', '/session-id
 // 3DS hashed assets emitted by the build live under /assets/ with these
 // prefixes (e.g. /assets/challenge-DeAdBeEf.js, /assets/validate-url.js).
 const SDK_3DS_ASSET_RE = /^\/assets\/(?:challenge|redirect|session-id|validate-url)/
+// Host-swapped static-asset paths (CORECM-17664).
+const SDK_STATIC_RE = /^\/(?:icons|css|brands|c2p)\//
+const SDK_ICONS_RE = /^\/(?:sdk-web|flags)\//
+// Bare brand images at the root (e.g. /Visa.png, /boleto_logosimbolo.png) live
+// on icons.prod.y.uno. `?react` and other queries are tolerated.
+const ROOT_IMAGE_RE = /^\/[^/]+\.(?:png|svg|jpe?g|gif|webp)(?:\?.*)?$/i
 
 function pickSdkUpstream(reqPath) {
   if (SDK_3DS_PATHS.has(reqPath) || SDK_3DS_ASSET_RE.test(reqPath)) return SDK_3DS_UPSTREAM
   if (CARD_ASSET_RE.test(reqPath)) return SDK_CARD_UPSTREAM
+  if (SDK_STATIC_RE.test(reqPath)) return SDK_STATIC_UPSTREAM
+  if (SDK_ICONS_RE.test(reqPath) || ROOT_IMAGE_RE.test(reqPath)) return SDK_ICONS_UPSTREAM
   return SDK_UPSTREAM
 }
 
@@ -109,6 +125,8 @@ app.get('/whitelabel-info', (_req, res) => {
     sdkUpstream: SDK_UPSTREAM,
     sdkCardUpstream: SDK_CARD_UPSTREAM,
     sdk3dsUpstream: SDK_3DS_UPSTREAM,
+    sdkStaticUpstream: SDK_STATIC_UPSTREAM,
+    sdkIconsUpstream: SDK_ICONS_UPSTREAM,
     sdkMainJsPath,
   })
 })
@@ -189,6 +207,8 @@ app.use((req, res, next) => {
 function labelForUpstream(upstreamBase) {
   if (upstreamBase === SDK_3DS_UPSTREAM && SDK_3DS_UPSTREAM !== SDK_UPSTREAM) return '3ds'
   if (upstreamBase === SDK_CARD_UPSTREAM && SDK_CARD_UPSTREAM !== SDK_UPSTREAM) return 'card'
+  if (upstreamBase === SDK_STATIC_UPSTREAM) return 'static'
+  if (upstreamBase === SDK_ICONS_UPSTREAM) return 'icons'
   return 'sdk'
 }
 
@@ -273,6 +293,8 @@ detectSdkMainJs().finally(() => {
     console.log(` SDK upstream    : ${SDK_UPSTREAM}`)
     console.log(` SDK card upstream: ${SDK_CARD_UPSTREAM}${SDK_CARD_UPSTREAM === SDK_UPSTREAM ? ' (same as SDK upstream)' : ''}`)
     console.log(` SDK 3DS upstream: ${SDK_3DS_UPSTREAM}${SDK_3DS_UPSTREAM === SDK_UPSTREAM ? ' (same as SDK upstream)' : ''}`)
+    console.log(` SDK static asset: ${SDK_STATIC_UPSTREAM}  (/icons, /css, /brands, /c2p)`)
+    console.log(` SDK icons asset : ${SDK_ICONS_UPSTREAM}  (/sdk-web, /flags, /*.png)`)
     console.log(` SDK main.js     : ${sdkMainJsPath}`)
     console.log(` Backend (API)   : ${BACKEND_URL}`)
     console.log(` Backend (WS)    : ${BACKEND_WS_URL}${BACKEND_WS_URL === BACKEND_URL ? ' (same as backend)' : ''}`)
