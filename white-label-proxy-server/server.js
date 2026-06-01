@@ -177,6 +177,13 @@ async function forwardToBackend(req, res) {
   const targetUrl = `${BACKEND_URL}${req.originalUrl}`
   try {
     const headers = pickRequestHeaders(req)
+    // Don't forward the partner page's browser cookies to the Yuno API. They
+    // belong to this (localhost) origin — WorkOS `wos-session`, analytics,
+    // `spage`, etc. — and a real cross-origin call to api.y.uno would never
+    // carry them. The API authenticates via public-api-key; forwarding these
+    // only risks the upstream WAF rejecting the request (URL-valued cookies
+    // like `spage` trigger a 403).
+    delete headers.cookie
     const init = { method: req.method, headers }
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       // express.json() consumed the original body; re-serialize. SDK API and
