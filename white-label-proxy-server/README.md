@@ -20,6 +20,7 @@ exercises the white-label code paths end-to-end.
 | `/v<semver>/pages/*`, `/v<semver>/assets/*`            | `SDK_CARD_UPSTREAM`                    |
 | `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*`            | `SDK_STATIC_UPSTREAM` (`sdk.prod.y.uno`)  |
 | `/sdk-web/*`, `/flags/*`, bare brand images (`/Visa.png`, …) | `SDK_ICONS_UPSTREAM` (`icons.prod.y.uno`) |
+| `/terms-and-conditions/*`, `/privacy-policy/*`         | `SDK_WWW_UPSTREAM` (`www.y.uno`)       |
 | Everything else (GET/HEAD)                             | `SDK_UPSTREAM`                         |
 
 > **Static assets (CORECM-17664):** the SDK used to load icons/logos/fonts directly from `icons.prod.y.uno` /
@@ -71,6 +72,7 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 | `SDK_3DS_UPSTREAM`   | 3DS challenge / redirect / session-id pages   | `https://sdk-3ds.y.uno`          | `https://sdk-3ds.staging.y.uno`          | `https://sdk-3ds.dev.y.uno`          |
 | `SDK_STATIC_UPSTREAM`| Static assets (`/icons`, `/css`, `/brands`, `/c2p`) | `https://sdk.prod.y.uno`   | `https://sdk.prod.y.uno`                 | `https://sdk.prod.y.uno`             |
 | `SDK_ICONS_UPSTREAM` | Icon assets (`/sdk-web`, `/flags`, `/*.png`)  | `https://icons.prod.y.uno`       | `https://icons.prod.y.uno`               | `https://icons.prod.y.uno`           |
+| `SDK_WWW_UPSTREAM`   | Legal pages (`/terms-and-conditions`, `/privacy-policy`) | `https://www.y.uno`   | `https://www.y.uno`                      | `https://www.y.uno`                  |
 | `BACKEND_URL`        | SDK API (`/v1/*`, `/v2/*`)                    | `https://api.y.uno`              | `https://api-staging.y.uno`              | `https://api-dev.y.uno`              |
 | `BACKEND_WS_URL`     | WebSocket upgrades                            | `https://y.uno`                  | `https://staging.y.uno`                  | `https://dev.y.uno`                  |
 | `SDK_MAIN_JS`        | Pin a specific SDK version                    | `/v1.7.4/main.js`                | `/v1.7.4/main.js`                        | `/v1.7.4/main.js`                    |

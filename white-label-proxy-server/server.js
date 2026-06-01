@@ -25,6 +25,11 @@ const SDK_3DS_UPSTREAM = (process.env.SDK_3DS_UPSTREAM || SDK_UPSTREAM).replace(
 //   icons.prod.y.uno → /sdk-web, /flags, bare brand images (/Visa.png, …)
 const SDK_STATIC_UPSTREAM = (process.env.SDK_STATIC_UPSTREAM || 'https://sdk.prod.y.uno').replace(/\/$/, '')
 const SDK_ICONS_UPSTREAM = (process.env.SDK_ICONS_UPSTREAM || 'https://icons.prod.y.uno').replace(/\/$/, '')
+// Yuno marketing/legal site (www.y.uno) — terms & conditions / privacy /
+// data-privacy-policy pages the SDK links to (and renders in an iframe on
+// mobile). Since CORECM-17664 these are host-swapped to the white-label host,
+// so the proxy forwards their paths here.
+const SDK_WWW_UPSTREAM = (process.env.SDK_WWW_UPSTREAM || 'https://www.y.uno').replace(/\/$/, '')
 
 // Matches /v<version>/(pages|assets)/... where <version> is any dot-separated
 // number sequence (v1.7, v1.84.1, v2.0.0-rc.1, …).
@@ -42,12 +47,15 @@ const SDK_ICONS_RE = /^\/(?:sdk-web|flags)\//
 // Bare brand images at the root (e.g. /Visa.png, /boleto_logosimbolo.png) live
 // on icons.prod.y.uno. `?react` and other queries are tolerated.
 const ROOT_IMAGE_RE = /^\/[^/]+\.(?:png|svg|jpe?g|gif|webp)(?:\?.*)?$/i
+// Yuno legal/marketing pages (terms & conditions / privacy policy) on www.y.uno.
+const SDK_WWW_RE = /^\/(?:terms-and-conditions|privacy-policy)/
 
 function pickSdkUpstream(reqPath) {
   if (SDK_3DS_PATHS.has(reqPath) || SDK_3DS_ASSET_RE.test(reqPath)) return SDK_3DS_UPSTREAM
   if (CARD_ASSET_RE.test(reqPath)) return SDK_CARD_UPSTREAM
   if (SDK_STATIC_RE.test(reqPath)) return SDK_STATIC_UPSTREAM
   if (SDK_ICONS_RE.test(reqPath) || ROOT_IMAGE_RE.test(reqPath)) return SDK_ICONS_UPSTREAM
+  if (SDK_WWW_RE.test(reqPath)) return SDK_WWW_UPSTREAM
   return SDK_UPSTREAM
 }
 
@@ -127,6 +135,7 @@ app.get('/whitelabel-info', (_req, res) => {
     sdk3dsUpstream: SDK_3DS_UPSTREAM,
     sdkStaticUpstream: SDK_STATIC_UPSTREAM,
     sdkIconsUpstream: SDK_ICONS_UPSTREAM,
+    sdkWwwUpstream: SDK_WWW_UPSTREAM,
     sdkMainJsPath,
   })
 })
@@ -209,6 +218,7 @@ function labelForUpstream(upstreamBase) {
   if (upstreamBase === SDK_CARD_UPSTREAM && SDK_CARD_UPSTREAM !== SDK_UPSTREAM) return 'card'
   if (upstreamBase === SDK_STATIC_UPSTREAM) return 'static'
   if (upstreamBase === SDK_ICONS_UPSTREAM) return 'icons'
+  if (upstreamBase === SDK_WWW_UPSTREAM) return 'www'
   return 'sdk'
 }
 
@@ -295,6 +305,7 @@ detectSdkMainJs().finally(() => {
     console.log(` SDK 3DS upstream: ${SDK_3DS_UPSTREAM}${SDK_3DS_UPSTREAM === SDK_UPSTREAM ? ' (same as SDK upstream)' : ''}`)
     console.log(` SDK static asset: ${SDK_STATIC_UPSTREAM}  (/icons, /css, /brands, /c2p)`)
     console.log(` SDK icons asset : ${SDK_ICONS_UPSTREAM}  (/sdk-web, /flags, /*.png)`)
+    console.log(` SDK www/legal   : ${SDK_WWW_UPSTREAM}  (/terms-and-conditions, /privacy-policy)`)
     console.log(` SDK main.js     : ${sdkMainJsPath}`)
     console.log(` Backend (API)   : ${BACKEND_URL}`)
     console.log(` Backend (WS)    : ${BACKEND_WS_URL}${BACKEND_WS_URL === BACKEND_URL ? ' (same as backend)' : ''}`)
