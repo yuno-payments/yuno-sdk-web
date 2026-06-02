@@ -223,9 +223,9 @@ app.use((req, res, next) => {
 function labelForUpstream(upstreamBase) {
   if (upstreamBase === SDK_3DS_UPSTREAM && SDK_3DS_UPSTREAM !== SDK_UPSTREAM) return '3ds'
   if (upstreamBase === SDK_CARD_UPSTREAM && SDK_CARD_UPSTREAM !== SDK_UPSTREAM) return 'card'
-  if (upstreamBase === SDK_STATIC_UPSTREAM) return 'static'
-  if (upstreamBase === SDK_ICONS_UPSTREAM) return 'icons'
-  if (upstreamBase === SDK_WWW_UPSTREAM) return 'www'
+  if (upstreamBase === SDK_STATIC_UPSTREAM && SDK_STATIC_UPSTREAM !== SDK_UPSTREAM) return 'static'
+  if (upstreamBase === SDK_ICONS_UPSTREAM && SDK_ICONS_UPSTREAM !== SDK_UPSTREAM) return 'icons'
+  if (upstreamBase === SDK_WWW_UPSTREAM && SDK_WWW_UPSTREAM !== SDK_UPSTREAM) return 'www'
   return 'sdk'
 }
 
