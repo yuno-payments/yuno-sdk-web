@@ -22,10 +22,12 @@ Single file: `server.js`. Routes are registered in this order (order matters):
 2. Local routes: `/` (landing), `/static/*`, `/whitelabel-info`.
 3. **Backend pass-through**: `app.all('/v1/*' | '/v2/*', forwardToBackend)` → `BACKEND_URL`.
    Uses `node-fetch`; re-serializes the body (since `express.json()` consumed it).
-4. **SDK upstream catch-all** (GET/HEAD): `proxyToUpstream` picks one of three upstreams:
+4. **SDK upstream catch-all** (GET/HEAD): `proxyToUpstream` picks one upstream via `pickSdkUpstream`:
    - `SDK_3DS_UPSTREAM` for `/challenge.html`, `/redirect.html`, `/session-id.html`, and
      `/assets/(challenge|redirect|session-id|validate-url)*`.
    - `SDK_CARD_UPSTREAM` for `/v<semver>/pages/*` and `/v<semver>/assets/*`.
+   - `SDK_STATIC_UPSTREAM` for `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*`.
+   - `SDK_ICONS_UPSTREAM` for `/sdk-web/*`, `/flags/*`, and bare root brand images (`/Visa.png`, …).
    - `SDK_UPSTREAM` otherwise.
    For the main SDK upstream, the version segment is normalized to whatever `versions.json` says is `latest`,
    so partners can request any `/v<x>/main.js` and still hit the published build.
