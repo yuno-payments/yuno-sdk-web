@@ -386,7 +386,7 @@ type RenderMode = {
 }
 type LoadingType = 'DOCUMENT' | 'ONE_TIME_TOKEN';
 type Language = 'es' | 'en' | 'pt';
-type YunoConfig = {
+type SdkPaymentsConfig = {
   /**
    * Check the {@link https://docs.y.uno/reference/get-your-api-credentials | Get your API credentials} guide.
    * @type {String}
@@ -474,13 +474,13 @@ type YunoConfig = {
    * @param { OneTimeToken } tokenWithInformation 
    * @returns void
    */
-  yunoCreatePayment?: (oneTimeToken: string, tokenWithInformation: OneTimeToken) => void;
+  createPayment?: (oneTimeToken: string, tokenWithInformation: OneTimeToken) => void;
   /**
    * Callback is called when user selects a payment method.
    * @param {{ type: string, name: string }} args 
    * @optional
    */
-  yunoPaymentMethodSelected?: (args: {
+  paymentMethodSelected?: (args: {
       type: string;
       name: string;
   }) => void;
@@ -489,14 +489,14 @@ type YunoConfig = {
    * @param {Status} status
    * @optional
    */
-  yunoPaymentResult?: (status: Status) => void;
+  paymentResult?: (status: Status) => void;
   /**
    * If this is called the SDK should be mounted again
    * @param {String} message
    * @param {String?} data
    * @optional
    */
-  yunoError?: (message: string, data?: string) => void;
+  error?: (message: string, data?: string) => void;
   /**
    * @optional
    */
@@ -510,7 +510,7 @@ type YunoConfig = {
    * callback called after the enrollment process has ended.
    * @param {{ status: EnrollmentStatus, vaultedToken?: string }} args
    */
-  yunoEnrollmentStatus?(args: {
+  enrollmentStatus?(args: {
     status: EnrollmentStatus;
     vaultedToken?: string;
   }): void;
@@ -542,16 +542,16 @@ type YunoConfig = {
   automaticallyUnmount?: boolean;
 }
 
-type StartCheckoutArgs = Pick<YunoConfig,
+type StartCheckoutArgs = Pick<SdkPaymentsConfig,
     | 'elementSelector'
     | 'checkoutSession'
     | 'language'
     | 'countryCode'
     | 'renderMode'
-    | 'yunoCreatePayment'
-    | 'yunoPaymentMethodSelected'
-    | 'yunoPaymentResult'
-    | 'yunoError'
+    | 'createPayment'
+    | 'paymentMethodSelected'
+    | 'paymentResult'
+    | 'error'
     | 'card'
     | 'showLoading'
     | 'onLoading'
@@ -600,11 +600,11 @@ type MountCheckoutLiteArgs = {
   vaultedToken?: string;
 }
 
-type MountEnrollmentLiteArgs = Pick<YunoConfig, 'language' | 'countryCode' | 'renderMode' | 'yunoEnrollmentStatus' | 'yunoError' | 'showLoading' | 'onRendered' | 'onOneTimeTokenCreationStart' | 'onLoading'>;
+type MountEnrollmentLiteArgs = Pick<SdkPaymentsConfig, 'language' | 'countryCode' | 'renderMode' | 'enrollmentStatus' | 'error' | 'showLoading' | 'onRendered' | 'onOneTimeTokenCreationStart' | 'onLoading'>;
 
-type mountFraudArgs = Pick<YunoConfig, 'yunoCreatePayment' | 'yunoError' | 'language' | 'checkoutSession'>;
+type mountFraudArgs = Pick<SdkPaymentsConfig, 'createPayment' | 'error' | 'language' | 'checkoutSession'>;
 
-type MountStatusPaymentArgs = Pick<YunoConfig, 'checkoutSession' | 'language' | 'countryCode' | 'yunoPaymentResult' | 'yunoError'>
+type MountStatusPaymentArgs = Pick<SdkPaymentsConfig, 'checkoutSession' | 'language' | 'countryCode' | 'paymentResult' | 'error'>
 
 type SecureFieldsArgs = {
   /**
@@ -645,7 +645,7 @@ type SecureFieldsArgs = {
   enableV2?: boolean;
 }
 
-type YunoInstance = {
+type SdkPaymentsInstance = {
   /**
    * Will start the checkout process.
    * @param {StartCheckoutArgs} args
@@ -701,7 +701,7 @@ type YunoInstance = {
    * Wil return payment status. This function wont render anything.
    * @type {Status}
    */
-  yunoPaymentResult(): Status;
+  paymentResult(): Status;
   /**
    * Will create `secure fields` instance
    * @param {SecureFieldsArgs} args 
@@ -709,19 +709,19 @@ type YunoInstance = {
   secureFields({ countryCode, checkoutSession, installmentEnable, customerSession }: SecureFieldsArgs): SecureFields;
 }
 
-interface Yuno {
+interface SdkPayments {
   /**
-   * Create an instance of the `Yuno` class by providing a valid **PUBLIC_API_KEY**.
+   * Create an instance of the `SdkPayments` class by providing a valid **PUBLIC_API_KEY**.
    * @param publicApiKey Check the {@link https://docs.y.uno/reference/get-your-api-credentials | Get your API credentials} guide.
    */
-  initialize(publicApiKey: string): YunoInstance;
+  initialize(publicApiKey: string): SdkPaymentsInstance;
 }
 
-export { type ButtonTextCard, type CardConfig, type Language, type LoadingType, type MountCheckoutArgs, type MountCheckoutLiteArgs, type MountEnrollmentLiteArgs, type RenderMode, type SecureFieldsArgs, type StartCheckoutArgs, type TextsCustom, type Yuno, type YunoConfig, type mountFraudArgs };
+export { type ButtonTextCard, type CardConfig, type Language, type LoadingType, type MountCheckoutArgs, type MountCheckoutLiteArgs, type MountEnrollmentLiteArgs, type RenderMode, type SecureFieldsArgs, type StartCheckoutArgs, type TextsCustom, type SdkPayments, type SdkPaymentsConfig, type mountFraudArgs };
 
 declare global {
   interface Window {
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    Yuno: Yuno
+    SdkPayments: SdkPayments
   }
 }

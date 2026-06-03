@@ -11,7 +11,7 @@ async function initEnrollmentLite() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = await Yuno.initialize(publicApiKey)
+  const yuno = await SdkPayments.initialize(publicApiKey)
 
   yuno.mountEnrollmentLite({
     customerSession,
@@ -66,7 +66,7 @@ async function initEnrollmentLite() {
     /**
      * @param { error: 'CANCELED_BY_USER' | any }
      */
-    yunoError: (error) => {
+    error: (error) => {
       console.log('There was an error', error)
     },
     /**
@@ -86,10 +86,10 @@ async function initEnrollmentLite() {
      *  vaultedToken: string,
      * }}
      */
-    yunoEnrollmentStatus: ({ status, vaultedToken }) => {
+    enrollmentStatus: ({ status, vaultedToken }) => {
       console.log('status', { status, vaultedToken })
     },
   });
 }
 
-window.addEventListener('yuno-sdk-ready', initEnrollmentLite)
+window.addEventListener('sdk-payments-ready', initEnrollmentLite)

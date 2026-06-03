@@ -10,7 +10,7 @@ async function initCheckoutSeamlessLite() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  yuno = await window.Yuno.initialize(publicApiKey)
+  yuno = await window.SdkPayments.initialize(publicApiKey)
   /**
    * checkout configuration
    */
@@ -47,13 +47,13 @@ async function initCheckoutSeamlessLite() {
      * 
      * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
      */
-    yunoPaymentResult(data) {
-      console.log('yunoPaymentResult', data)
+    paymentResult(data) {
+      console.log('paymentResult', data)
     },
     /**
      * @param { error: 'CANCELED_BY_USER' | any }
      */
-    yunoError: (error) => {
+    error: (error) => {
       console.log('There was an error', error)
     },
     onLoading: (data) => {
@@ -69,7 +69,7 @@ async function initCheckoutSeamlessLite() {
      * callback is called when user selects a payment method
      * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO', name: string} } data
      */
-    yunoPaymentMethodSelected(data) {
+    paymentMethodSelected(data) {
       console.log('onPaymentMethodSelected', data)
     },
   })
@@ -191,4 +191,4 @@ document.getElementById('mount-google-pay').addEventListener('click', mountGoogl
 document.getElementById('unmount-paypal-enrollment').addEventListener('click', unmountPaypalEnrollment)
 document.getElementById('mount-paypal-enrollment').addEventListener('click', mountPaypalEnrollment)
 
-window.addEventListener('yuno-sdk-ready', initCheckoutSeamlessLite)
+window.addEventListener('sdk-payments-ready', initCheckoutSeamlessLite)

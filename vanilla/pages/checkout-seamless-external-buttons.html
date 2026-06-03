@@ -16,8 +16,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <script>
-    window.addEventListener('yuno-sdk-ready', () => {
-      console.log('Yuno SDK is ready', window.Yuno)
+    window.addEventListener('sdk-payments-ready', () => {
+      console.log('Yuno SDK is ready', window.SdkPayments)
     })
   </script>
   <script type="module" src="/static/checkout-seamless-external-buttons.js"></script>
@@ -45,7 +45,7 @@
   <button id="mount-paypal-enrollment">Mount PayPal Enrollment</button>
   <button id="mount-apple-pay">Mount Apple Pay</button>
   <button id="mount-google-pay">Mount Google Pay</button>
-  <script src="https://sdk-web.y.uno/v1.5/main.js" defer></script>
+  <script src="https://sdk-web.y.uno/v1.9/main.js" defer></script>
 </body>
 
 </html>

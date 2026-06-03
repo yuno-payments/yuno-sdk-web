@@ -15,7 +15,7 @@ async function initSeamlessCheckoutLite() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = await Yuno.initialize(publicApiKey)
+  const yuno = await SdkPayments.initialize(publicApiKey)
   /**
    * checkout configuration
    */
@@ -34,18 +34,18 @@ async function initSeamlessCheckoutLite() {
     /**
      * Empty function.  Won't be called, 
      */
-    async yunoCreatePayment() { },
+    async createPayment() { },
     /**
      * 
      * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
      */
-    yunoPaymentResult(data) {
-      console.log('yunoPaymentResult', data)
+    paymentResult(data) {
+      console.log('paymentResult', data)
     },
     /**
      * @param { error: 'CANCELED_BY_USER' | any }
      */
-    yunoError: (error) => {
+    error: (error) => {
       console.log('There was an error', error)
     },
     /**
@@ -67,4 +67,4 @@ async function initSeamlessCheckoutLite() {
   })
 }
 
-window.addEventListener('yuno-sdk-ready', initSeamlessCheckoutLite)
+window.addEventListener('sdk-payments-ready', initSeamlessCheckoutLite)

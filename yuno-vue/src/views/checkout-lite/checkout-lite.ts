@@ -14,7 +14,7 @@ export const startPayment = async () => {
     elementSelector: "#yuno-root",
     countryCode: "CO",
     language: "es",
-    async yunoCreatePayment(oneTimeToken, tokenWithInformation) {
+    async createPayment(oneTimeToken, tokenWithInformation) {
       alert(`Token: ${oneTimeToken}`);
       console.log("token", oneTimeToken, tokenWithInformation);
     },

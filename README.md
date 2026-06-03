@@ -33,13 +33,13 @@
 To use checkout seamless you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.5/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = await Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await SdkPayments.initialize(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
@@ -206,13 +206,13 @@ await yuno.startSeamlessCheckout({
   /**
    * Empty function.  Won't be called, but should be implemented
    */
-  async yunoCreatePayment() {},
+  async createPayment() {},
   /**
    * Callback is called when user selects a payment method
    * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY', name: string} } data 
    * @optional
    */
-  yunoPaymentMethodSelected(data) {
+  paymentMethodSelected(data) {
     console.log('onPaymentMethodSelected', data)
   },
   /**
@@ -220,8 +220,8 @@ await yuno.startSeamlessCheckout({
    * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
    * @optional
    */
-  yunoPaymentResult(data) {
-    console.log('yunoPaymentResult', data)
+  paymentResult(data) {
+    console.log('paymentResult', data)
     /**
      * call if you want to hide the loader 
      */
@@ -232,7 +232,7 @@ await yuno.startSeamlessCheckout({
    * @param { error: 'CANCELED_BY_USER' | string, data?: { cause: USER_CANCEL_ON_PROVIDER | string, provider: PAYPAL | string } }
    * @optional
    */
-  yunoError: (error, data) => {
+  error: (error, data) => {
     console.log('There was an error', error)
     /**
      * call if you want to hide the loader 
@@ -275,13 +275,13 @@ After it is mounted, it will start the desired flow
 To use checkout seamless you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.5/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = await Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await SdkPayments.initialize(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
@@ -448,13 +448,13 @@ await yuno.startCheckout({
   /**
    * Empty function.  Won't be called, but should be implemented
    */
-  async yunoCreatePayment() {},
+  async createPayment() {},
   /**
    * Callback is called when user selects a payment method
    * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY', name: string} } data 
    * @optional
    */
-  yunoPaymentMethodSelected(data) {
+  paymentMethodSelected(data) {
     console.log('onPaymentMethodSelected', data)
   },
   /**
@@ -462,8 +462,8 @@ await yuno.startCheckout({
    * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
    * @optional
    */
-  yunoPaymentResult(data) {
-    console.log('yunoPaymentResult', data)
+  paymentResult(data) {
+    console.log('paymentResult', data)
     /**
      * call if you want to hide the loader 
      */
@@ -474,7 +474,7 @@ await yuno.startCheckout({
    * @param { error: 'CANCELED_BY_USER' | string, data?: { cause: USER_CANCEL_ON_PROVIDER | string, provider: PAYPAL | string } }
    * @optional
    */
-  yunoError: (error, data) => {
+  error: (error, data) => {
     console.log('There was an error', error)
     /**
      * call if you want to hide the loader 
@@ -511,13 +511,13 @@ After it is mounted, it will start the desired flow
 To use checkout seamless you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.5/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = await Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await SdkPayments.initialize(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
@@ -559,13 +559,13 @@ Then create a configuration object
      * 
      * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
      */
-    yunoPaymentResult(data) {
-      console.log('yunoPaymentResult', data)
+    paymentResult(data) {
+      console.log('paymentResult', data)
     },
     /**
      * @param { error: 'CANCELED_BY_USER' | any }
      */
-    yunoError: (error) => {
+    error: (error) => {
       console.log('There was an error', error)
     },
     onLoading: (data) => {
@@ -581,7 +581,7 @@ Then create a configuration object
      * callback is called when user selects a payment method
      * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO', name: string} } data
      */
-    yunoPaymentMethodSelected(data) {
+    paymentMethodSelected(data) {
       console.log('onPaymentMethodSelected', data)
     },
   })
@@ -621,13 +621,13 @@ After it is mounted, it will start the desired flow
 To use full checkout you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.5/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = await Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await SdkPayments.initialize(PUBLIC_API_KEY)
 ```
 
 Then start checkout with configuration
@@ -796,7 +796,7 @@ await yuno.startCheckout({
    * Merchant should create payment back to back
    * @param { oneTimeToken: string, tokenWithInformation: object } data 
    */
-  async yunoCreatePayment(oneTimeToken, tokenWithInformation) {
+  async createPayment(oneTimeToken, tokenWithInformation) {
     /**
      * Merchant's function to call its backend to create 
      * the payment into Yuno.
@@ -822,7 +822,7 @@ await yuno.startCheckout({
    * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY', name: string} } data 
    * @optional
    */
-  yunoPaymentMethodSelected(data) {
+  paymentMethodSelected(data) {
     console.log('onPaymentMethodSelected', data)
   },
   /**
@@ -830,8 +830,8 @@ await yuno.startCheckout({
    * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
    * @optional
    */
-  yunoPaymentResult(data) {
-    console.log('yunoPaymentResult', data)
+  paymentResult(data) {
+    console.log('paymentResult', data)
 
     /**
      * call if you want to hide the loader 
@@ -843,7 +843,7 @@ await yuno.startCheckout({
    * @param { error: 'CANCELED_BY_USER' | string, data?: { cause: USER_CANCEL_ON_PROVIDER | string, provider: PAYPAL | string } }
    * @optional
    */
-  yunoError: (error, data) => {
+  error: (error, data) => {
     console.log('There was an error', error)
     /**
      * call if you want to hide the loader 
@@ -908,13 +908,13 @@ PayButton.addEventListener('click', () => {
 To use checkout lite you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.5/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = await Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await SdkPayments.initialize(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
@@ -1083,7 +1083,7 @@ await yuno.startCheckout({
    * Merchant should create payment back to back
    * @param { oneTimeToken: string, tokenWithInformation: object } data 
    */
-  async yunoCreatePayment(oneTimeToken, tokenWithInformation) {
+  async createPayment(oneTimeToken, tokenWithInformation) {
     /**
      * Merchant's function to call its backend to create 
      * the payment into Yuno.
@@ -1101,7 +1101,7 @@ await yuno.startCheckout({
    * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY', name: string} } data 
    * @optional
    */
-  yunoPaymentMethodSelected(data) {
+  paymentMethodSelected(data) {
     console.log('onPaymentMethodSelected', data)
   },
   /**
@@ -1109,8 +1109,8 @@ await yuno.startCheckout({
    * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
    * @optional
    */
-  yunoPaymentResult(data) {
-    console.log('yunoPaymentResult', data)
+  paymentResult(data) {
+    console.log('paymentResult', data)
     /**
      * call if you want to hide the loader 
      */
@@ -1121,7 +1121,7 @@ await yuno.startCheckout({
    * @param { error: 'CANCELED_BY_USER' | string, data?: { cause: USER_CANCEL_ON_PROVIDER | string, provider: PAYPAL | string } }
    * @optional
    */
-  yunoError: (error, data) => {
+  error: (error, data) => {
     console.log('There was an error', error)
     /**
      * call if you want to hide the loader 
@@ -1192,13 +1192,13 @@ await yuno.clearApiCache()
 To use checkout secure fields you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.5/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = await Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await SdkPayments.initialize(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
@@ -1621,8 +1621,8 @@ if (payment.checkout.sdk_action_required) {
     /**
      * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
      */
-    yunoPaymentResult(data) {
-      console.log('yunoPaymentResult', data)
+    paymentResult(data) {
+      console.log('paymentResult', data)
     },
   })
 }
@@ -1636,13 +1636,13 @@ if (payment.checkout.sdk_action_required) {
 To use status you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.5/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = await Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await SdkPayments.initialize(PUBLIC_API_KEY)
 ```
 
 Finally mount the **SDK** in a `html` element, you can use any valid css selector (`#`, `.`, `[data-*]`).
@@ -1664,8 +1664,8 @@ await yuno.mountStatusPayment({
   /**
    * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
    */
-  yunoPaymentResult(data) {
-    console.log('yunoPaymentResult', data)
+  paymentResult(data) {
+    console.log('paymentResult', data)
   }
 })
 ```
@@ -1678,16 +1678,16 @@ await yuno.mountStatusPayment({
 To use status lite you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.5/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = await Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await SdkPayments.initialize(PUBLIC_API_KEY)
 ```
 
-Finally call the **SDK** `yunoPaymentResult` method.
+Finally call the **SDK** `paymentResult` method.
 
 ```javascript
 /**
@@ -1695,7 +1695,7 @@ Finally call the **SDK** `yunoPaymentResult` method.
  * 
  * @return {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'}
  */
-const status = await yuno.yunoPaymentResult(checkoutSession)
+const status = await yuno.paymentResult(checkoutSession)
 ```
 [Status Lite demo html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/pages/status-lite.html)  
 [Status Lite demo js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/static/status-lite.js)
@@ -1705,13 +1705,13 @@ const status = await yuno.yunoPaymentResult(checkoutSession)
 To use enrollment lite you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.5/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = await Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await SdkPayments.initialize(PUBLIC_API_KEY)
 ```
 
 Finally call the **SDK** `mountEnrollmentLite` method.
@@ -1855,7 +1855,7 @@ await yuno.mountEnrollmentLite({
    *  vaultedToken: string,
    * }}
    */
-  yunoEnrollmentStatus: ({ status, vaultedToken}) => {
+  enrollmentStatus: ({ status, vaultedToken}) => {
     console.log('status', { status, vaultedToken})
   },
   /**
@@ -1863,7 +1863,7 @@ await yuno.mountEnrollmentLite({
    * @param { error: 'CANCELED_BY_USER' | string, data?: { cause: USER_CANCEL_ON_PROVIDER | string, provider: PAYPAL | string } }
    * @optional
    */
-  yunoError: (error, data) => {
+  error: (error, data) => {
     console.log('There was an error', error)
     /**
      * call if you want to hide the loader 
@@ -1881,13 +1881,13 @@ await yuno.mountEnrollmentLite({
 To use enrollment with secure fields you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.5/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
 
 ```javascript
-const yuno = await Yuno.initialize(PUBLIC_API_KEY)
+const yuno = await SdkPayments.initialize(PUBLIC_API_KEY)
 ```
 
 Then create a configuration object
@@ -2225,9 +2225,9 @@ Include Type in tsconfig.js or tsconfig.json
 how to use types in your code
 
 ```javascript
-import { YunoInstance } from '@yuno-payments/sdk-web-types'
+import { SdkPaymentsInstance } from '@yuno-payments/sdk-web-types'
 
-const yunoInstance: YunoInstance = await Yuno.initialize('publicApiKey')
+const yunoInstance: SdkPaymentsInstance = await SdkPayments.initialize('publicApiKey')
 ```
 
 ## Example

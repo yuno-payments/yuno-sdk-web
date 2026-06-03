@@ -17,7 +17,7 @@ export const ApmLite: React.FC<{
         elementSelector: "#root-apm-yuno",
         countryCode,
         language: 'es',
-        yunoCreatePayment: async (token) => {
+        createPayment: async (token) => {
           console.log('token ----->', token)
           try {
             await yunoInstance.continuePayment()
@@ -26,7 +26,7 @@ export const ApmLite: React.FC<{
             onClose()
           }
         },
-        yunoError: (err) => {
+        error: (err) => {
           if (err === 'CANCELED_BY_USER') {
             onClose()
           }

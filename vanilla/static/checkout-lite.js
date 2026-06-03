@@ -15,7 +15,7 @@ async function initCheckoutLite() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = await Yuno.initialize(publicApiKey)
+  const yuno = await SdkPayments.initialize(publicApiKey)
   /**
    * checkout configuration
    */
@@ -36,7 +36,7 @@ async function initCheckoutLite() {
      * merchant should create payment back to back
      * @param { oneTimeToken: string } data 
      */
-    async yunoCreatePayment(oneTimeToken) {
+    async createPayment(oneTimeToken) {
       await createPayment({ oneTimeToken, checkoutSession })
 
       /**
@@ -48,13 +48,13 @@ async function initCheckoutLite() {
      * 
      * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
      */
-    yunoPaymentResult(data) {
-      console.log('yunoPaymentResult', data)
+    paymentResult(data) {
+      console.log('paymentResult', data)
     },
     /**
      * @param { error: 'CANCELED_BY_USER' | any }
      */
-    yunoError: (error) => {
+    error: (error) => {
       console.log('There was an error', error)
     },
     /**
@@ -79,4 +79,4 @@ async function initCheckoutLite() {
   })
 }
 
-window.addEventListener('yuno-sdk-ready', initCheckoutLite)
+window.addEventListener('sdk-payments-ready', initCheckoutLite)

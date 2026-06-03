@@ -6,7 +6,7 @@ async function initCheckout() {
   const publicApiKey = await getPublicApiKey()
   const paymentMethodsList = await getPaymentMethods(checkoutSession)
 
-  const yunoInstance = await Yuno.initialize(publicApiKey)
+  const yunoInstance = await SdkPayments.initialize(publicApiKey)
 
   const loadChekoutLite = async (paymentMethod, optionId) => {
     resetStateList(paymentMethodsList)
@@ -19,7 +19,7 @@ async function initCheckout() {
       language: 'en',
       showLoading: false,
       showPayButton: false,
-      yunoCreatePayment: async (oneTimeToken) => {
+      createPayment: async (oneTimeToken) => {
         try {
           const response = await createPayment({ oneTimeToken, checkoutSession })
           //verify if the payment method requires an action
@@ -31,7 +31,7 @@ async function initCheckout() {
               checkoutSession,
               language: 'en',
               countryCode,
-              yunoPaymentResult: async (data) => {
+              paymentResult: async (data) => {
                 //When closing the screen, if the user wants to retry, a new checkout session must be created because the previous one has already been used
                 resetStateList(paymentMethodsList)
               }
@@ -85,4 +85,4 @@ async function initCheckout() {
   })
 }
 
-window.addEventListener('yuno-sdk-ready', initCheckout)
+window.addEventListener('sdk-payments-ready', initCheckout)
