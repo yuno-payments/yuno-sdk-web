@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { loadScript } from '@yuno-payments/sdk-web';
-import { YunoInstance } from '@yuno-payments/sdk-web-types';
+import { SdkPaymentsInstance } from '@yuno-payments/sdk-web-types';
 
 const PUBLIC_API_KEY = '';
 const CHECKOUT_SESSION = '';
@@ -12,7 +12,7 @@ const CHECKOUT_SESSION = '';
   styleUrl: './sdk-full.component.scss',
 })
 export class SdkFullComponent implements OnInit {
-  yunoInstance?: YunoInstance;
+  yunoInstance?: SdkPaymentsInstance;
   async ngOnInit() {
     const yuno = await loadScript();
     this.yunoInstance = await yuno.initialize(PUBLIC_API_KEY);
@@ -21,7 +21,7 @@ export class SdkFullComponent implements OnInit {
       countryCode: 'CO',
       language: 'es',
       elementSelector: '#sdk-root',
-      yunoCreatePayment: (oneTimeToken, tokenWithInformation) => {
+      createPayment: (oneTimeToken, tokenWithInformation) => {
         console.log('tokenWithInformation', tokenWithInformation);
         console.log('oneTimeToken', oneTimeToken);
         // you create payment with token

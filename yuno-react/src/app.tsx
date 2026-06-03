@@ -3,14 +3,14 @@ import { router } from "./routes";
 import { AppContext } from "./context/app-context";
 import { useRef, useEffect, useState } from "react";
 import { loadScript } from "@yuno-payments/sdk-web";
-import type { YunoInstance } from "@yuno-payments/sdk-web-types";
+import type { SdkPaymentsInstance } from "@yuno-payments/sdk-web-types";
 
 const PUBLIC_API_KEY = "";
 const CHECKOUT_SESSION = "";
 
 export const App = () => {
   const instanceFlag = useRef(0);
-  const [yunoInstance, setYunoInstance] = useState<YunoInstance | null>(null);
+  const [yunoInstance, setYunoInstance] = useState<SdkPaymentsInstance | null>(null);
 
   useEffect(() => {
     const createYunoInstance = async () => {

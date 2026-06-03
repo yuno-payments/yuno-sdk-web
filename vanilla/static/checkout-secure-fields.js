@@ -37,7 +37,7 @@ async function initCheckoutSecureFields() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = await Yuno.initialize(publicApiKey)
+  const yuno = await SdkPayments.initialize(publicApiKey)
   /**
    * checkout configuration
    */
@@ -263,11 +263,11 @@ async function initCheckoutSecureFields() {
       /**
        * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
        */
-      yunoPaymentResult(data) {
-        console.log('yunoPaymentResult', data)
+      paymentResult(data) {
+        console.log('paymentResult', data)
       },
     })
   })
 }
 
-window.addEventListener('yuno-sdk-ready', initCheckoutSecureFields)
+window.addEventListener('sdk-payments-ready', initCheckoutSecureFields)

@@ -8,7 +8,7 @@ async function initCheckout() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = await Yuno.initialize(publicApiKey)
+  const yuno = await SdkPayments.initialize(publicApiKey)
   /**
    * checkout configuration
    */
@@ -110,7 +110,7 @@ async function initCheckout() {
      * merchant should create payment back to back
      * @param { oneTimeToken: string } data 
      */
-    async yunoCreatePayment(oneTimeToken) {
+    async createPayment(oneTimeToken) {
       loader.style.display = 'block'
       isPaying = true
 
@@ -125,15 +125,15 @@ async function initCheckout() {
      * callback is called when user selects a payment method
      * @param { {type: 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO', name: string} } data 
      */
-    yunoPaymentMethodSelected(data) {
+    paymentMethodSelected(data) {
       console.log('onPaymentMethodSelected', data)
     },
     /**
      * 
      * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
      */
-    yunoPaymentResult(data) {
-      console.log('yunoPaymentResult', data)
+    paymentResult(data) {
+      console.log('paymentResult', data)
       /**
        * call if you set `keepLoader = true` and you want to hide the loader 
        */
@@ -142,7 +142,7 @@ async function initCheckout() {
     /**
      * @param { error: 'CANCELED_BY_USER' | any }
      */
-    yunoError: (error) => {
+    error: (error) => {
       console.log('There was an error', error)
       /**
        * call if you set `keepLoader = true` and you want to hide the loader 
@@ -165,4 +165,4 @@ async function initCheckout() {
   })
 }
 
-window.addEventListener('yuno-sdk-ready', initCheckout)
+window.addEventListener('sdk-payments-ready', initCheckout)

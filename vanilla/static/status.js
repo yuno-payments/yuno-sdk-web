@@ -5,7 +5,7 @@ async function initStatus() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = await Yuno.initialize(publicApiKey)
+  const yuno = await SdkPayments.initialize(publicApiKey)
   /**
    * Mount status in the DOM
    */
@@ -23,10 +23,10 @@ async function initStatus() {
      * 
      * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
      */
-    yunoPaymentResult(data) {
-      console.log('yunoPaymentResult', data)
+    paymentResult(data) {
+      console.log('paymentResult', data)
     }
   })
 }
 
-window.addEventListener('yuno-sdk-ready', initStatus)
+window.addEventListener('sdk-payments-ready', initStatus)

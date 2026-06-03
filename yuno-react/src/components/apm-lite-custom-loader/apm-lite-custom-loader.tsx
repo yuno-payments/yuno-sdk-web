@@ -20,7 +20,7 @@ export const ApmLiteCustomLoader: React.FC<{
           countryCode,
           language: 'es',
           showLoading: false,
-          yunoCreatePayment: async (token) => {
+          createPayment: async (token) => {
             console.log('token ----->', token)
             try {
               await yunoInstance.continuePayment()
@@ -30,7 +30,7 @@ export const ApmLiteCustomLoader: React.FC<{
               setShowLoader(false)
             }
           },
-          yunoError: (err) => {
+          error: (err) => {
             if (err === 'CANCELED_BY_USER') {
               onClose()
             }
