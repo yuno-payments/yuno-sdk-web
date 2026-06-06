@@ -64,9 +64,8 @@ await yuno.startSeamlessCheckout({
    */
   countryCode: country,
   /**
-  * Language can be one of es, en, pt
-  * Default is browser language
-  */
+   * Language for payment forms. Example: en. Defaults to browser language when available.
+   */
   language: 'es',
   /**
    * Hide or show the Yuno loading/spinner page
@@ -306,9 +305,8 @@ await yuno.startCheckout({
    */
   countryCode: country,
   /**
-  * Language can be one of es, en, pt
-  * Default is browser language
-  */
+   * Language for payment forms. Example: en. Defaults to browser language when available.
+   */
   language: 'es',
   /**
    * Hide or show the Yuno loading/spinner page
@@ -535,8 +533,8 @@ Then create a configuration object
      */
     countryCode,
     /**
-      * language can be one of es, en, pt
-      */
+     * Language for payment forms. Example: en. Defaults to browser language when available.
+     */
     language: 'es',
     /**
      * Where the forms a shown
@@ -652,9 +650,8 @@ await yuno.startCheckout({
    */
   countryCode: country,
   /**
-  * Language can be one of es, en, pt
-  * Default is browser language
-  */
+   * Language for payment forms. Example: en. Defaults to browser language when available.
+   */
   language: 'es',
   /**
    * Hide or show the Yuno loading/spinner page
@@ -939,9 +936,8 @@ await yuno.startCheckout({
    */
   countryCode: country,
   /**
-  * Language can be one of es, en, pt
-  * Default is browser language
-  */
+   * Language for payment forms. Example: en. Defaults to browser language when available.
+   */
   language: 'es',
   /**
    * Hide or show the Yuno loading/spinner page
@@ -1615,7 +1611,7 @@ if (payment.checkout.sdk_action_required) {
      */
     countryCode: 'CO',
     /**
-     * Language can be one of es, en, pt
+     * Language for payment forms. Example: en. Defaults to browser language when available.
      */
     language: 'en',
     /**
@@ -1658,8 +1654,8 @@ await yuno.mountStatusPayment({
    */
   countryCode: 'CO',
   /**
-  * Language can be one of es, en, pt
-  */
+   * Language for payment forms. Example: en. Defaults to browser language when available.
+   */
   language: 'es',
   /**
    * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
@@ -1727,9 +1723,8 @@ await yuno.mountEnrollmentLite({
    */
   countryCode: country,
   /**
-  * Language can be one of es, en, pt
-  * Default is browser language
-  */
+   * Language for payment forms. Example: en. Defaults to browser language when available.
+   */
   language: 'es',
   /**
    * Hide or show the Yuno loading/spinner page
