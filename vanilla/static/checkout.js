@@ -1,5 +1,17 @@
 import { getCheckoutSession, createPayment, getPublicApiKey } from "./api.js"
 
+// White-label sub-path repro (CORECM-17664): the SDK is hosted behind a proxy
+// mounted under this base path, mirroring a partner gateway like Zuora's
+// .../orchestrator. The proxy strips BASE_PATH before routing (see
+// white-label-proxy-server). apiUrl/assetUrl carry the full base so every
+// asset/API request stays under it.
+const WHITELABEL_BASE = 'http://localhost:9090/hosted-payment-methods/hosted-payment-form/orchestrator'
+
+const options = {
+  apiUrl: WHITELABEL_BASE,
+  assetUrl: WHITELABEL_BASE,
+}
+
 async function initCheckout() {
   // get checkout session from merchan back
   const { checkout_session: checkoutSession, country: countryCode } = await getCheckoutSession()
@@ -8,7 +20,11 @@ async function initCheckout() {
   const publicApiKey = await getPublicApiKey()
 
   // start Yuno SDK
-  const yuno = await SdkPayments.initialize(publicApiKey)
+  const yuno = await SdkPayments.initialize(
+    publicApiKey,
+    undefined,
+    options,
+  )
   /**
    * checkout configuration
    */
