@@ -9,7 +9,7 @@ const WHITELABEL_BASE = 'http://localhost:9090/hosted-payment-methods/hosted-pay
 
 const options = {
   apiUrl: WHITELABEL_BASE,
-  assetUrl: WHITELABEL_BASE,
+  assetUrl: WHITELABEL_BASE+'/v1.0',
 }
 
 async function initCheckout() {
@@ -23,7 +23,7 @@ async function initCheckout() {
   const yuno = await SdkPayments.initialize(
     publicApiKey,
     undefined,
-    options,
+    // options,
   )
   /**
    * checkout configuration
