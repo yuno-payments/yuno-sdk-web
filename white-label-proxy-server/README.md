@@ -25,7 +25,32 @@ exercises the white-label code paths end-to-end.
 > **Static assets (CORECM-17664):** the SDK used to load icons/logos/fonts directly from `icons.prod.y.uno` /
 > `sdk.prod.y.uno`, bypassing the white-label host. It now host-swaps them to this proxy (path preserved), so the
 > proxy forwards them by path prefix to the two asset CDNs. Requires an SDK build that includes the fix
-> (sdk-web + `@yuno/sdk-web-core` ≥ 7.1.0) and a partner page that inits with `{ apiUrl: '<this proxy origin>' }`.
+> (sdk-web + `@yuno/sdk-web-core` ≥ 7.5.0) and a partner page that inits with `{ apiUrl: '<this proxy origin>' }`.
+
+### Sub-path mounting (`BASE_PATH`)
+
+A partner gateway is often **mounted under a sub-path** rather than at the origin root — e.g. Zuora serves the
+SDK from `https://host/hosted-payment-methods/hosted-payment-form/orchestrator`. Since CORECM-17664 the SDK
+preserves that prefix on **every** asset/API/WS request (it carries `apiUrl`/`assetUrl`), so the proxy must strip
+it before routing.
+
+Set `BASE_PATH` to emulate this. The proxy strips it from every incoming request (local routes, `/v1`–`/v2`
+backend, the asset catch-all, and WebSocket upgrades) so the existing root-level routing matches. Empty = root
+mount (default, unchanged). When set, the partner page must:
+
+- load the SDK from `http://localhost:9090<BASE_PATH>/v<ver>/main.js`, and
+- initialize with `apiUrl`/`assetUrl` = `http://localhost:9090<BASE_PATH>`.
+
+```bash
+BASE_PATH=/hosted-payment-methods/hosted-payment-form/orchestrator
+# icon → http://localhost:9090/hosted-payment-methods/.../orchestrator/sdk-web/foo.svg
+#      → strip BASE_PATH → /sdk-web/foo.svg → SDK_ICONS_UPSTREAM
+```
+
+> **Versioned `assetUrl`:** you can pin a bundle version on `assetUrl`
+> (`…/orchestrator/v1.0`). The SDK uses that path for the JS chunks but **strips the trailing `/v<semver>`** when
+> resolving host-swapped CDN assets (icons/fonts aren't versioned), so both `assetUrl = …/orchestrator` and
+> `assetUrl = …/orchestrator/v1.0` route icons correctly. Needs `@yuno/sdk-web-core` ≥ 7.5.0.
 
 Additional behaviour worth knowing:
 
@@ -66,6 +91,7 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 | Var                  | Purpose                                       | Production                       | Staging                                  | Dev                                  |
 | -------------------- | --------------------------------------------- | -------------------------------- | ---------------------------------------- | ------------------------------------ |
 | `PORT`               | Proxy listen port                             | `9090`                           | `9090`                                   | `9090`                               |
+| `BASE_PATH`          | Sub-path the proxy is mounted under (stripped before routing); empty = root | _(empty)_ | _(empty)_ | `/hosted-payment-methods/.../orchestrator` |
 | `SDK_UPSTREAM`       | Main SDK bundle                               | `https://sdk-web.y.uno`          | `https://sdk-web.staging.y.uno`          | `https://sdk-web.dev.y.uno`          |
 | `SDK_CARD_UPSTREAM`  | Card-form / secure-fields micro-app           | `https://sdk-web-card.y.uno`     | `https://sdk-web-card.staging.y.uno`     | `https://sdk-web-card.dev.y.uno`     |
 | `SDK_3DS_UPSTREAM`   | 3DS challenge / redirect / session-id pages   | `https://sdk-3ds.y.uno`          | `https://sdk-3ds.staging.y.uno`          | `https://sdk-3ds.dev.y.uno`          |
