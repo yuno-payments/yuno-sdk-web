@@ -18,6 +18,11 @@ dependencies. Do not try to share modules with the parent.
 
 Single file: `server.js`. Routes are registered in this order (order matters):
 
+0. **`BASE_PATH` strip** (only when set): a top middleware that strips the configured sub-path from
+   `req.url`/`req.originalUrl` so every downstream match and forward sees root-relative paths. Emulates a partner
+   gateway mounted under a sub-path (e.g. `…/orchestrator`); the SDK preserves that prefix on all asset/API/WS
+   requests since CORECM-17664. Empty = root mount. Applied to WS upgrades too. The injected `__SDK_MAIN_JS__` is
+   prefixed with `BASE_PATH`.
 1. JSON body parser + permissive CORS middleware (echoes caller origin, strips upstream CORS).
 2. Local routes: `/` (landing), `/static/*`, `/whitelabel-info`.
 3. **Backend pass-through**: `app.all('/v1/*' | '/v2/*', forwardToBackend)` → `BACKEND_URL`.

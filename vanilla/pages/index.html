@@ -24,6 +24,9 @@
 
   <script src="../static/loader.js"></script>
   <script type="module" src="../static/checkout.js"></script>
-  <script src="https://sdk-web.y.uno/v1.9/main.js" defer></script>
+  <!-- White-label sub-path repro (CORECM-17664): load the bundle from the proxy
+       under the same base path the SDK is initialized with. -->
+  <script src="http://localhost:9090/hosted-payment-methods/hosted-payment-form/orchestrator/v1.0/main.js" defer></script>
+  <!-- <script src="https://sdk-web.y.uno/v1.9/main.js" defer></script> -->
 </body>
 </html>

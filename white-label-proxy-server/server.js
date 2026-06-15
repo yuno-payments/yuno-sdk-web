@@ -25,6 +25,22 @@ const SDK_3DS_UPSTREAM = (process.env.SDK_3DS_UPSTREAM || SDK_UPSTREAM).replace(
 //   icons.prod.y.uno → /sdk-web, /flags, bare brand images (/Visa.png, …)
 const SDK_STATIC_UPSTREAM = (process.env.SDK_STATIC_UPSTREAM || 'https://sdk.prod.y.uno').replace(/\/$/, '')
 const SDK_ICONS_UPSTREAM = (process.env.SDK_ICONS_UPSTREAM || 'https://icons.prod.y.uno').replace(/\/$/, '')
+// Optional sub-path this proxy is "mounted" under, mirroring a partner gateway
+// served from e.g. https://host/hosted-payment-methods/hosted-payment-form/orchestrator.
+// Since CORECM-17664 the SDK preserves this prefix on every asset/API/WS request
+// (apiUrl/assetUrl carry it), so we strip it here before routing. Empty = root
+// mount (default, current behavior unchanged).
+const BASE_PATH = (process.env.BASE_PATH || '').replace(/\/+$/, '')
+
+// True when `url` (path, with optional query) sits under BASE_PATH.
+function underBasePath(url) {
+  return url === BASE_PATH || url.startsWith(`${BASE_PATH}/`) || url.startsWith(`${BASE_PATH}?`)
+}
+
+// Strip BASE_PATH from a path+query, keeping it root-relative.
+function stripBasePath(url) {
+  return url.slice(BASE_PATH.length) || '/'
+}
 
 // Matches /v<version>/(pages|assets)/... where <version> is any dot-separated
 // number sequence (v1.7, v1.84.1, v2.0.0-rc.1, …).
@@ -77,6 +93,19 @@ const app = express()
 const pagesDir = path.join(__dirname, 'pages')
 const staticDir = path.join(__dirname, 'static')
 
+// Strip the configured base path first so every downstream route match and
+// upstream forward operates on root-relative paths. No-op when BASE_PATH is
+// unset (root mount).
+if (BASE_PATH) {
+  app.use((req, _res, next) => {
+    if (underBasePath(req.url)) {
+      req.url = stripBasePath(req.url)
+      req.originalUrl = stripBasePath(req.originalUrl)
+    }
+    next()
+  })
+}
+
 app.use(express.json({ limit: '5mb' }))
 
 // Permissive CORS: echo the caller's origin (so credentialed requests work)
@@ -112,7 +141,7 @@ function sendPage(name, res) {
     htmlCache.set(name, html)
   }
   res.set('content-type', 'text/html; charset=utf-8')
-  res.send(html.replace(/__SDK_MAIN_JS__/g, sdkMainJsPath))
+  res.send(html.replace(/__SDK_MAIN_JS__/g, `${BASE_PATH}${sdkMainJsPath}`))
 }
 
 app.get('/', (_req, res) => sendPage('index.html', res))
@@ -121,6 +150,7 @@ app.use('/static', express.static(staticDir))
 app.get('/whitelabel-info', (_req, res) => {
   res.json({
     proxyPort: PORT,
+    basePath: BASE_PATH || null,
     backend: BACKEND_URL,
     sdkUpstream: SDK_UPSTREAM,
     sdkCardUpstream: SDK_CARD_UPSTREAM,
@@ -297,6 +327,7 @@ detectSdkMainJs().finally(() => {
     console.log(' white-label-proxy-server')
     console.log('----------------------------------------------------------------')
     console.log(` Listening on    : http://localhost:${PORT}`)
+    console.log(` Base path       : ${BASE_PATH || '(root)'}`)
     console.log(` SDK upstream    : ${SDK_UPSTREAM}`)
     console.log(` SDK card upstream: ${SDK_CARD_UPSTREAM}${SDK_CARD_UPSTREAM === SDK_UPSTREAM ? ' (same as SDK upstream)' : ''}`)
     console.log(` SDK 3DS upstream: ${SDK_3DS_UPSTREAM}${SDK_3DS_UPSTREAM === SDK_UPSTREAM ? ' (same as SDK upstream)' : ''}`)
@@ -312,6 +343,9 @@ detectSdkMainJs().finally(() => {
   })
 
   server.on('upgrade', (req, socket, head) => {
+    if (BASE_PATH && underBasePath(req.url)) {
+      req.url = stripBasePath(req.url)
+    }
     const target = pickWsTarget(req.url)
     wsProxy.ws(req, socket, head, { target })
   })
