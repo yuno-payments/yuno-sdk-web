@@ -1,22 +1,36 @@
 /**
- * URL que abrirá el WebView. Apunta a la página de `sdk-web-demo` desplegada en
- * staging, donde se monta el SDK Headless de VTEX.
+ * Configuración del WebView para la PoC.
  *
- * Para la PoC se prueba SIEMPRE contra staging (no local).
+ * La app construye la URL al hacer click (ver buildWebViewUrl), pasando el payload
+ * del SDK Headless de VTEX por el query param `payload` (urlencoded). Así se cambia
+ * el caso de prueba editando `payload.ts`, sin redesplegar la página web.
  *
- * La página /vtex-webview acepta la configuración por QUERY PARAMS:
- *   ?payload=<JSON urlencoded>   -> payload del SDK (string JSON)
- *   &language=<pt|es|en>         -> opcional
- *   &domainVTEX=<url>            -> opcional
+ * Hay dos métodos: 'google' (Google Pay) y 'apple' (Apple Pay), cada uno con su payload.
  *
- * - Si abres la URL base (sin `payload`), la página usa el payload por defecto
- *   definido en sdk-web-demo/src/app/vtex-webview/payload.config.ts (cómodo para probar).
- * - Para cambiar los datos sin redesplegar, construye la URL con el param `payload`:
- *
- *     const json = JSON.stringify(miPayload)
- *     const url  = `https://demo.staging.y.uno/vtex-webview?payload=${encodeURIComponent(json)}`
- *
- *   ⚠️ Usa SIEMPRE encodeURIComponent (el payload contiene '+' y demás caracteres
- *      que deben ir escapados). El payload de ejemplo genera una URL de ~6.7 KB.
+ * Los payloads viven en ./payload.ts
  */
-export const WEBVIEW_URL = 'https://demo.staging.y.uno/vtex-webview'
+import { applePayPayload, googlePayPayload } from './payload'
+
+/** Método de wallet a probar. */
+export type WalletMethod = 'google' | 'apple'
+
+/** URL base de la página (sdk-web-demo) desplegada en staging. */
+export const BASE_URL = 'https://demo.staging.y.uno/vtex-webview'
+
+/** Idioma de la UI del SDK ('pt' | 'es' | 'en'). null/'' para no enviarlo (usa el default de la página). */
+export const LANGUAGE: string | null = 'pt'
+
+/**
+ * Construye la URL del WebView con el payload (y opcionalmente el idioma) como query params.
+ * Usa encodeURIComponent (vía URLSearchParams) porque el payload contiene caracteres como
+ * '+' que deben escaparse.
+ */
+export function buildWebViewUrl(method: WalletMethod): string {
+  const payload = method === 'apple' ? applePayPayload : googlePayPayload
+  const params = new URLSearchParams()
+  params.set('payload', JSON.stringify(payload))
+  if (LANGUAGE) {
+    params.set('language', LANGUAGE)
+  }
+  return `${BASE_URL}?${params.toString()}`
+}

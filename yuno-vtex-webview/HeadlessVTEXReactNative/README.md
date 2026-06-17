@@ -1,19 +1,26 @@
-# HeadlessVTEXReactNative — PoC Google Pay vía WebView
+# HeadlessVTEXReactNative — PoC Wallets (Google Pay / Apple Pay) vía WebView
 
 App de ejemplo en **React Native (Expo SDK 56)** que abre un **WebView** apuntando a la
 página de `sdk-web-demo` desplegada en staging, donde se monta el **SDK Headless de VTEX**
-para procesar un pago con **Google Pay**. Cuando el pago termina, la página web envía el
-resultado a esta app y la app cierra el WebView y muestra el resultado.
+para procesar un pago con wallet. Tiene **dos botones** (Google Pay y Apple Pay), cada uno
+con su propio payload. Cuando el pago termina, la página web envía el resultado a esta app
+y la app cierra el WebView y muestra el resultado.
 
 ```
-[Botón "Pagar con VTEX"] → WebView(https://demo.staging.y.uno/vtex-webview)
+[Botón "Pagar con VTEX"] → la app construye la URL con el payload como query param
+        → WebView(https://demo.staging.y.uno/vtex-webview?payload=<JSON urlencoded>)
         → SDK Headless de VTEX monta botón Google Pay → procesa pago
         → window.ReactNativeWebView.postMessage(resultado)
         → onMessage() → cierra WebView + Alert con el resultado
 ```
 
 - Pantalla y lógica: [`App.tsx`](./App.tsx)
-- URL del WebView: [`config.ts`](./config.ts)
+- URL base + builder (`buildWebViewUrl`): [`config.ts`](./config.ts)
+- Payload del SDK (editable): [`payload.ts`](./payload.ts)
+
+> La app envía el payload por el query param `?payload=`. Para cambiar el caso de prueba,
+> edita `payload.ts` (no necesitas tocar el repo de la página web). El idioma se controla
+> con `LANGUAGE` en `config.ts`. La URL resultante pesa ~7 KB.
 
 ---
 
@@ -71,11 +78,18 @@ Requiere el SDK de Android bien configurado (Android Studio).
 
 ## 4. Probar el flujo
 
-1. En la app, presiona **"Pagar con VTEX"**.
-2. Se abre el WebView y carga la página de staging; el SDK monta el botón **Google Pay**.
-3. Presiona el botón de Google Pay y completa el flujo (con la tarjeta de prueba del emulador).
+La app tiene **dos botones**: **"Pagar con Google Pay"** y **"Pagar con Apple Pay"**. Cada uno
+abre el WebView con su propio payload (`paymentType` `GOOGLE_PAY` / `APPLE_PAY`).
+
+1. En la app, presiona **"Pagar con Google Pay"** (o Apple Pay).
+2. Se abre el WebView y carga la página de staging; el SDK monta el botón del wallet.
+3. Presiona el botón del wallet y completa el flujo (con la tarjeta de prueba del emulador).
 4. Al finalizar, la app **cierra el WebView** y muestra un **Alert** + un cuadro con el resultado
    (`success` y los `payments`), o el error si algo falla.
+
+> ⚠️ **Apple Pay no procesa en Android.** El botón existe para ejercitar el payload `APPLE_PAY`
+> de extremo a extremo, pero Apple Pay requiere iOS (WKWebView + puente nativo PassKit), fuera del
+> alcance de esta PoC en Android. En Android es esperable que el SDK no ofrezca Apple Pay.
 
 ---
 

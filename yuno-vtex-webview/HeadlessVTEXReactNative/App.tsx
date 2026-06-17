@@ -26,20 +26,30 @@ import {
   View,
 } from 'react-native'
 import { WebView, type WebViewMessageEvent } from 'react-native-webview'
-import { WEBVIEW_URL } from './config'
+import { buildWebViewUrl, type WalletMethod } from './config'
 
 type PaymentResult =
   | { type: 'paymentDone'; paymentData: { success?: boolean; payments?: unknown[] } }
   | { type: 'error'; message: string; error?: unknown }
 
+const METHOD_LABEL: Record<WalletMethod, string> = {
+  google: 'Google Pay',
+  apple: 'Apple Pay',
+}
+
 export default function App() {
   const [showWebView, setShowWebView] = useState(false)
+  const [webViewUrl, setWebViewUrl] = useState('')
+  const [method, setMethod] = useState<WalletMethod>('google')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<PaymentResult | null>(null)
   const webRef = useRef<WebView>(null)
 
-  function startPayment() {
+  function startPayment(walletMethod: WalletMethod) {
     setResult(null)
+    setMethod(walletMethod)
+    // Construye la URL con el payload del método elegido (query param) al hacer click.
+    setWebViewUrl(buildWebViewUrl(walletMethod))
     setShowWebView(true)
   }
 
@@ -78,14 +88,14 @@ export default function App() {
       <SafeAreaView style={styles.flex}>
         <StatusBar barStyle="dark-content" />
         <View style={styles.webHeader}>
-          <Text style={styles.webHeaderTitle}>Pago VTEX</Text>
+          <Text style={styles.webHeaderTitle}>Pago VTEX · {METHOD_LABEL[method]}</Text>
           <TouchableOpacity onPress={() => setShowWebView(false)}>
             <Text style={styles.closeBtn}>Cerrar ✕</Text>
           </TouchableOpacity>
         </View>
         <WebView
           ref={webRef}
-          source={{ uri: WEBVIEW_URL }}
+          source={{ uri: webViewUrl }}
           originWhitelist={['*']}
           javaScriptEnabled
           domStorageEnabled
@@ -112,11 +122,21 @@ export default function App() {
     <SafeAreaView style={styles.flex}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.center}>
-        <Text style={styles.title}>PoC VTEX Headless · Google Pay</Text>
+        <Text style={styles.title}>PoC VTEX Headless · Wallets</Text>
         <Text style={styles.subtitle}>WebView → SDK Headless de VTEX (staging)</Text>
 
-        <TouchableOpacity style={styles.payBtn} onPress={startPayment}>
-          <Text style={styles.payBtnText}>Pagar con VTEX</Text>
+        <TouchableOpacity
+          style={styles.payBtn}
+          onPress={() => startPayment('google')}
+        >
+          <Text style={styles.payBtnText}>Pagar con Google Pay</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.payBtn, styles.payBtnApple]}
+          onPress={() => startPayment('apple')}
+        >
+          <Text style={styles.payBtnText}>Pagar con Apple Pay</Text>
         </TouchableOpacity>
 
         {result && (
@@ -150,7 +170,11 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 12,
+    marginBottom: 12,
+    width: '100%',
+    alignItems: 'center',
   },
+  payBtnApple: { backgroundColor: '#000' },
   payBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
   resultBox: {
     marginTop: 32,
