@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Yuno SDK Example</string>
+
+    <!--
+      Yuno PUBLIC (publishable) API key for the affiliation. It is NOT secret.
+      Android requires the SDK to be initialized at startup (MainApplication) before
+      registerYunoCallbacks, so the publishable key is provided here as app config.
+      This does NOT replace the runtime preflight call, which still creates a fresh
+      checkoutSession on every purchase. A merchant replaces this with their own key.
+    -->
+    <string name="yuno_public_api_key" translatable="false">staging_gAAAAABpi6mQ0kfCygDwJ0CdBi0ZUPECfbIRGjoGD84H2PTDsmpYliRVd9QL8cDwjVfZXlcYjsArdGUzQTcPLKKIJWmanLCrB2oOqPxx3jozqqM7SKEv0bzFHUA2AkV0M9SfSfSStZAZbUUrWb7Rrn3tQOTgUeNjah-IGyOq_ccijC2MQmX3ZYcma4Fm3fcxYfoEN9dhV4-G5NFV72TDFv4SadFkJZrvp6FE8dM5E1pI0g9eDA794kdLxtvTo_Dog6tI6QWsTQFd</string>
+    <string name="yuno_language" translatable="false">pt</string>
+</resources>

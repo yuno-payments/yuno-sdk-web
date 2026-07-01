@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Yuno Official Light Mode Colors -->
+    
+    <!-- Neutral Colors -->
+    <color name="neutral_b">#282A30</color>
+    <color name="neutral_w">#FFFFFF</color>
+    
+    <!-- Grey Scale -->
+    <color name="grey_5">#6C6F75</color>
+    <color name="grey_4">#92959B</color>
+    <color name="grey_3">#BFC2C7</color>
+    <color name="grey_2">#ECEFF2</color>
+    <color name="grey_1">#F6F7FA</color>
+    <color name="grey_0">#FCFCFF</color>
+    
+    <!-- Primary Colors -->
+    <color name="primary_1">#3E4FE0</color>
+    <color name="primary_2">#29D99A</color>
+    <color name="primary_3">#FDB600</color>
+    <color name="primary_4">#F13F5E</color>
+    <color name="primary_5">#086BFF</color>
+    
+    <!-- Secondary Colors -->
+    <color name="secondary_1">#E3EEFF</color>
+    <color name="secondary_2">#DEFFF3</color>
+    <color name="secondary_3">#FFF6DB</color>
+    <color name="secondary_4">#FFDFE3</color>
+    <color name="secondary_5">#E9E8FF</color>
+    <color name="secondary_6">#FEEBE1</color>
+    
+    <!-- Tertiary Colors -->
+    <color name="tertiary_1">#12823B</color>
+    <color name="tertiary_2">#E5A424</color>
+    <color name="tertiary_3">#E02E4D</color>
+    <color name="tertiary_4">#F6610C</color>
+    
+    <!-- Semantic Colors (mapped to Yuno palette) -->
+    <color name="yuno_primary">@color/primary_1</color>
+    <color name="button_background">@color/neutral_b</color>
+    <color name="button_text">@color/neutral_w</color>
+    <color name="header_background">@color/neutral_w</color>
+    <color name="header_text">@color/neutral_b</color>
+    <color name="background_light">@color/grey_1</color>
+    <color name="surface_light">@color/neutral_w</color>
+    <color name="surface_variant">@color/grey_0</color>
+    <color name="text_primary">@color/neutral_b</color>
+    <color name="text_secondary">@color/grey_5</color>
+    <color name="text_tertiary">@color/grey_4</color>
+    <color name="text_on_primary">@color/neutral_w</color>
+    <color name="border">@color/grey_3</color>
+    <color name="border_light">@color/grey_2</color>
+    <color name="info_background">@color/secondary_1</color>
+    <color name="info_border">@color/primary_5</color>
+    <color name="info_text">@color/primary_1</color>
+    <color name="input_background">@color/grey_0</color>
+    <color name="input_border">@color/grey_2</color>
+    <color name="input_text">@color/neutral_b</color>
+    <color name="input_hint">@color/grey_4</color>
+</resources>

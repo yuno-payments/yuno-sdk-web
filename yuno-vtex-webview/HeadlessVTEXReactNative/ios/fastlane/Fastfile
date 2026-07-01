@@ -1,0 +1,256 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+require "json"
+
+platform :ios do
+  ENV["APP_BUNDLE"] ||= "org.reactjs.native.example.YunoSDKExample"
+  ENV["APP_SCHEME"] ||= "YunoSDKExample"
+  ENV["APP_TARGET"] ||= "YunoSDKExample"
+  ENV["APP_PROJECT"] ||= "YunoSDKExample.xcodeproj"
+  ENV["APP_WORKSPACE"] ||= "YunoSDKExample.xcworkspace"
+
+  desc "Prepare iOS dependencies (Pods) for build lanes"
+  lane :prepare_ios do
+    cocoapods(
+      clean_install: true,
+      repo_update: false
+    )
+  end
+
+  desc "Load ASC API Key information to use in subsequent lanes"
+  lane :get_asc_key_information do
+    app_store_connect_api_key(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key_content: ENV["ASC_KEY_64"],
+      is_key_content_base64: true,
+      in_house: false
+    )
+  end
+
+  desc "Get certificates (match)"
+  lane :get_app_certificates do |options|
+    app_bundle = options[:app_bundle]
+    dist_type = options[:dist_type]
+
+    require_env!("MATCH_GIT_AUTHORIZATION")
+
+    sync_code_signing(
+      type: dist_type,
+      app_identifier: app_bundle,
+      force_for_new_devices: true,
+      readonly: true,
+      git_basic_authorization: ENV["MATCH_GIT_AUTHORIZATION"],
+      verbose: true,
+      git_url: "https://github.com/yuno-payments/yuno-ios-certificates",
+      git_branch: "ExampleCerts"
+    )
+  end
+
+  desc "Sign app for TestFlight (ASC + App Store certificates)"
+  lane :sign_sdk_testflight do
+    get_asc_key_information
+
+    get_app_certificates(
+      app_bundle: ENV["APP_BUNDLE"],
+      dist_type: "appstore"
+    )
+  end
+
+  desc "Sign app for device farm (Development certificates)"
+  lane :sign_sdk_farm do
+    get_app_certificates(
+      app_bundle: ENV["APP_BUNDLE"],
+      dist_type: "development"
+    )
+  end
+
+  desc "Bump build number based on most recent TestFlight build number"
+  lane :fetch_and_increment_build_number do
+    latest_build_number = get_latest_testflight_build_number
+    increment_build_number(build_number: (latest_build_number + 1))
+  end
+
+  desc "Upload a new build to TestFlight)"
+  lane :upload_to_testflight_version do
+    sign_sdk_testflight
+    fetch_and_increment_build_number
+    prepare_ios
+
+    build_ios_app(
+      workspace: ENV["APP_WORKSPACE"],
+      scheme: ENV["APP_SCHEME"],
+      configuration: ENV["TESTFLIGHT_CONFIGURATION"] || "Release",
+      export_method: "app-store",
+      export_options: {
+        manageAppVersionAndBuildNumber: true
+      }
+    )
+
+    upload_to_testflight(
+      app_identifier: ENV["APP_BUNDLE"],
+      skip_submission: true,
+      skip_waiting_for_build_processing: true
+    )
+
+  end
+
+  desc "Build an IPA for device farms and upload it"
+  lane :build_farm_version do
+    sign_sdk_farm
+    prepare_ios
+
+    output_name = "SDK-iOS-React-native.ipa"
+
+    build_app(
+      workspace: ENV["APP_WORKSPACE"],
+      scheme: ENV["APP_SCHEME"],
+      configuration: "Debug",
+      export_method: "development",
+      include_bitcode: false,
+      output_directory: lane_context[SharedValues::IPA_OUTPUT_PATH],
+      output_name: output_name
+    )
+
+    upload_farm_version()
+  end
+
+  desc "Upload IPA to the device farm (LambdaTest)"
+  lane :upload_farm_version do
+    version_data = get_version_and_build_number
+    apk_path = lane_context[SharedValues::IPA_OUTPUT_PATH]
+    sh <<-EOF
+    curl -u "yuno_ios:N1SJKpMcukk80JLrbnanJHixmBez49m0DUaNilujOgcIxj2LzO" \
+    -X POST "https://manual-api.lambdatest.com/app/upload/realDevice" \
+    -F "appFile=@#{apk_path}" \
+    -F "name=#{version_data[:version]} (#{version_data[:build_number]})" \
+    -F "visibility=team"
+    EOF
+
+    upload_to_slack
+  end
+
+  desc "Slack message for TestFlight upload"
+  lane :slack_message do
+    require_env!("IOS_BUILDS_SLACK_TOKEN")
+
+    version_data = get_version_and_build_number
+    slack_channel = "core-mobile-versions"
+    git_branch = `git rev-parse --abbrev-ref HEAD`.strip
+
+    message = "Example App version #{version_data[:version]} (#{version_data[:build_number]}) successfully uploaded to TestFlight"
+
+    sh("
+    curl -X POST https://slack.com/api/chat.postMessage \
+         -H 'Authorization: Bearer #{ENV["IOS_BUILDS_SLACK_TOKEN"]}' \
+         -H 'Content-type: application/json' \
+         --data '{
+           \"channel\": \"#{slack_channel}\",
+           \"text\": \"#{message}\",
+           \"attachments\": [
+             {
+               \"title\": \"Version Details\",
+               \"fields\": [
+                 {
+                   \"title\": \"Version Number\",
+                   \"value\": \"#{version_data[:version]} (#{version_data[:build_number]})\",
+                   \"short\": true
+                 },
+                 {
+                  \"title\": \"Git Branch\",
+                  \"value\": \"#{git_branch}\",
+                  \"short\": true
+                }
+               ],
+               \"color\": \"#36a64f\"
+             }
+           ]
+         }'
+  ")
+  end
+
+  desc "Upload ipa to Slack channel"
+  lane :upload_to_slack do
+    require_env!("IOS_BUILDS_SLACK_TOKEN")
+
+    version_data = get_version_and_build_number
+    comment = ":ahhhhhh Lambdatest:\n Ipa file React Native Example - version: #{version_data[:version]} (#{version_data[:build_number]})"
+    file_path = lane_context[SharedValues::IPA_OUTPUT_PATH]
+    UI.user_error!("Missing IPA output path from build") if file_path.to_s.strip.empty?
+
+    file_name = file_path.gsub(/\/.*\//, "")
+    access_token = ENV["IOS_BUILDS_SLACK_TOKEN"]
+    channel_id = "C0742E1QCQG"
+
+    file_size = File.size(file_path)
+
+    upload_response = sh("curl -s --location 'https://slack.com/api/files.getUploadURLExternal' \
+      --header 'Authorization: Bearer #{access_token}' \
+      --form 'filename=\"#{file_name}\"' \
+      --form 'length=\"#{file_size}\"'", log: false)
+
+    upload_data = JSON.parse(upload_response)
+    UI.user_error!("Failed to get upload URL from Slack: #{upload_data["error"]}") unless upload_data["ok"]
+
+    upload_url = upload_data["upload_url"]
+    file_id = upload_data["file_id"]
+
+    sh("curl -s --location '#{upload_url}' \
+      --request POST \
+      --form 'file=@#{file_path}'", log: false)
+
+    sh("curl -s --location 'https://slack.com/api/files.completeUploadExternal' \
+      --header 'Authorization: Bearer #{access_token}' \
+      --form 'files=\"[{\\\"title\\\":\\\"#{file_name}\\\", \\\"id\\\":\\\"#{file_id}\\\"}]\"' \
+      --form 'channel_id=\"#{channel_id}\"' \
+      --form 'initial_comment=\"#{comment}\"'", log: false)
+  end
+
+  def get_version_and_build_number
+    version = get_version_number_app
+    build_number = get_build_number(
+      xcodeproj: ENV["APP_PROJECT"]
+    )
+
+    {
+      version: version,
+      build_number: build_number
+    }
+  end
+
+  def get_latest_testflight_build_number
+    version = get_version_number_app
+    latest_testflight_build_number(
+      version: version,
+      app_identifier: ENV["APP_BUNDLE"]
+    )
+  end
+
+  def get_version_number_app
+    get_version_number(
+      xcodeproj: ENV["APP_PROJECT"],
+      target: ENV["APP_TARGET"]
+    )
+  end
+
+  def require_env!(key)
+    value = ENV[key]
+    UI.user_error!("Missing #{key} environment variable") if value.to_s.strip.empty?
+    value
+  end
+end

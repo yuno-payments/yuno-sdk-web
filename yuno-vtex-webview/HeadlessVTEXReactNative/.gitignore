@@ -1,0 +1,157 @@
+# ================================
+# OSX
+# ================================
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ================================
+# Node
+# ================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ================================
+# React Native / Metro
+# ================================
+.metro-health-check*
+.metro
+
+# ================================
+# Android
+# ================================
+# Build outputs
+android/app/build/
+android/build/
+android/.gradle/
+android/captures/
+android/local.properties
+
+# Generated bundles
+android/app/src/main/assets/*.bundle
+android/app/src/main/assets/*.jsbundle
+android/app/src/main/res/drawable-*/
+android/app/src/main/res/raw/
+
+# APK files
+*.apk
+*.aab
+
+# IntelliJ
+*.iml
+.idea/
+.gradle/
+
+# Keystore files
+*.keystore
+!debug.keystore
+
+# Android profiling
+*.hprof
+
+# External native build
+.cxx/
+.externalNativeBuild/
+
+# ================================
+# iOS / Xcode
+# ================================
+# Xcode
+ios/build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+ios/xcuserdata/
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# CocoaPods
+ios/Pods/
+ios/Podfile.lock
+
+# Xcode workspace
+ios/*.xcworkspace
+!ios/*.xcworkspace/contents.xcworkspacedata
+!ios/*.xcworkspace/xcshareddata/
+
+# Xcode environment
+**/.xcode.env.local
+
+# Bundle artifacts
+*.jsbundle
+
+# ================================
+# Ruby / Fastlane
+# ================================
+vendor/bundle/
+.bundle/
+
+# Fastlane
+ios/fastlane/report.xml
+ios/fastlane/Preview.html
+ios/fastlane/screenshots/
+ios/fastlane/test_output/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# ================================
+# Environment
+# ================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ================================
+# Testing
+# ================================
+coverage/
+.nyc_output/
+
+# ================================
+# IDEs
+# ================================
+.vscode/
+.idea/
+
+# ================================
+# Logs
+# ================================
+logs/
+*.log
+
+# ================================
+# Yarn
+# ================================
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# ================================
+# Temporary files
+# ================================
+*.tmp
+.tmp/
+temp/
+tmp/
+google-services.json

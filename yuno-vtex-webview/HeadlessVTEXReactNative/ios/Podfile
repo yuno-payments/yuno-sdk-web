@@ -1,0 +1,96 @@
+require_relative '../node_modules/react-native/scripts/react_native_pods'
+
+platform :ios, '15.1'
+prepare_react_native_project!
+
+# YunoSDK requires frameworks to be enabled
+use_frameworks! :linkage => :static
+
+target 'YunoSDKExample' do
+  config = use_native_modules!
+
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # An absolute path to your application root.
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  # Note: YunoSDK dependency is managed by the @yuno-payments/yuno-sdk-react-native module
+  # It's specified in yuno-sdk-react-native/ios/YunoSdk.podspec
+  
+  # Manually add YunoSdk React Native module
+  pod 'YunoSdk', :path => '../node_modules/@yuno-payments/yuno-sdk-react-native'
+
+  # target 'YunoSDKExampleTests' do
+  #   inherit! :complete
+  #   # Pods for testing
+  # end
+
+  post_install do |installer|
+    # Create YunoSdk.podspec.json to fix Podfile.lock generation
+    system("pod ipc spec ../node_modules/@yuno-payments/yuno-sdk-react-native/YunoSdk.podspec > Pods/Local\\ Podspecs/YunoSdk.podspec.json")
+    
+    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false
+    )
+    
+    # Fix for Xcode 15+ linker issues and Swift configuration
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386'
+        config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
+        config.build_settings['REACT_NATIVE_PATH'] = '${PODS_ROOT}/../../node_modules/react-native'
+        config.build_settings['USE_HERMES'] = 'true'
+        # Ensure Swift is properly configured
+        config.build_settings['SWIFT_VERSION'] = '5.0'
+        config.build_settings['CLANG_ENABLE_MODULES'] = 'YES'
+        
+        # Fix for Hermes dSYM generation
+        if target.name == 'hermes-engine' || target.name.include?('hermes')
+          config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
+          config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
+        end
+      end
+    end
+    
+    # Configure main project for Swift
+    installer.aggregate_targets.each do |aggregate_target|
+      aggregate_target.user_project.targets.each do |target|
+        target.build_configurations.each do |config|
+          config.build_settings['SWIFT_VERSION'] = '5.0'
+          config.build_settings['CLANG_ENABLE_MODULES'] = 'YES'
+          config.build_settings['SWIFT_OBJC_BRIDGING_HEADER'] = ''
+          config.build_settings['DEFINES_MODULE'] = 'YES'
+          
+          # Ensure dSYM generation for Release builds
+          if config.name == 'Release'
+            config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
+            config.build_settings['STRIP_INSTALLED_PRODUCT'] = 'YES'
+            config.build_settings['COPY_PHASE_STRIP'] = 'NO'
+          end
+        end
+      end
+    end
+    
+    # Apply settings to the main project as well
+    installer.aggregate_targets.each do |target|
+      target.xcconfigs.each do |config_name, config_file|
+        xcconfig_path = target.client_root + target.xcconfig_relative_path(config_name)
+        File.open(xcconfig_path, 'a') do |file|
+          file.puts "\n// Custom build settings for Xcode 15+ compatibility"
+          file.puts 'EXCLUDED_ARCHS[sdk=iphonesimulator*] = i386'
+          file.puts 'OTHER_LDFLAGS = $(inherited)'
+          file.puts 'REACT_NATIVE_PATH = ${PODS_ROOT}/../../node_modules/react-native'
+          file.puts 'USE_HERMES = true'
+          file.puts 'SWIFT_VERSION = 5.0'
+          file.puts 'CLANG_ENABLE_MODULES = YES'
+          file.puts 'DEFINES_MODULE = YES'
+        end
+      end
+    end
+  end
+end
+
