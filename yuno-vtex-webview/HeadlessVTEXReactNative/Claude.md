@@ -8,7 +8,10 @@ re-purposed for the headless VTEX mobile flow. See `README.md` for run instructi
 ## What this app does
 
 `preflight` → `YunoSdk.initialize(publicApiKey)` → `<YunoPaymentMethods>` → wallet OTT
-(`onOneTimeToken`) → `preflight/payments` → `YunoSdk.continuePayment` → `onPaymentStatus`.
+(`onOneTimeToken`) → `preflight/payments` (`createPaymentInAuth: true`).
+
+The payment is **always** created during the VTEX authorization phase (deferred),
+so the app only stores the OTT and does not resume the SDK (`continuePayment`).
 
 ## Architecture
 

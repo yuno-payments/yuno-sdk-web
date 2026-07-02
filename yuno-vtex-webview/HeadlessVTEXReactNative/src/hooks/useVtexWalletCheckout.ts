@@ -2,14 +2,16 @@
  * Orchestrates the VTEX-preflight + Yuno wallet flow (application layer):
  *
  *   preflight -> initialize SDK -> render wallet -> OTT
- *     -> /preflight/payments -> continuePayment -> payment status
+ *     -> /preflight/payments (createPaymentInAuth) -> deferred
+ *
+ * The payment is always created during the VTEX authorization phase, so the OTT
+ * is only stored here; there is no payment to resume in the app.
  *
  * UI components consume this hook; they never touch the SDK or the API directly.
  */
 
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {createPreflightSession, createPreflightPayment} from '../api';
-import type {PreflightPaymentResponse} from '../api';
 import {yunoService} from '../services/YunoService';
 import {useYunoEvents} from './useYunoEvents';
 import {useAppStateForeground} from './useAppStateForeground';
@@ -21,8 +23,7 @@ export type CheckoutPhase =
   | 'idle'
   | 'creatingSession'
   | 'ready' // session created + SDK initialized; wallet can be shown
-  | 'processingPayment' // OTT received, creating payment in Yuno
-  | 'continuing' // payment created, SDK resuming
+  | 'processingPayment' // OTT received, storing it for deferred creation
   | 'deferred' // OTT stored; payment will be created at VTEX authorization
   | 'done'
   | 'error';
@@ -30,7 +31,6 @@ export type CheckoutPhase =
 export interface StartSessionParams {
   amount: number;
   orderFormId: string;
-  createPaymentInAuth: boolean;
 }
 
 export interface CheckoutState {
@@ -38,7 +38,6 @@ export interface CheckoutState {
   orderFormId: string | null;
   amount: number | null;
   checkoutSession: string | null;
-  paymentResult: PreflightPaymentResponse | null;
   paymentStatus: string | null;
   errorMessage: string | null;
 }
@@ -48,7 +47,6 @@ const INITIAL_STATE: CheckoutState = {
   orderFormId: null,
   amount: null,
   checkoutSession: null,
-  paymentResult: null,
   paymentStatus: null,
   errorMessage: null,
 };
@@ -64,7 +62,6 @@ export function useVtexWalletCheckout() {
   // must use identical values (connector fingerprint), so we hold them in refs.
   const orderFormIdRef = useRef<string | null>(null);
   const amountRef = useRef<number>(CHECKOUT.defaultAmount);
-  const createPaymentInAuthRef = useRef<boolean>(false);
 
   const patch = useCallback((next: Partial<CheckoutState>) => {
     setState(prev => ({...prev, ...next}));
@@ -72,7 +69,7 @@ export function useVtexWalletCheckout() {
 
   /** Step 1-2: create the preflight session and initialize the SDK. */
   const startSession = useCallback(
-    async ({amount, orderFormId, createPaymentInAuth}: StartSessionParams) => {
+    async ({amount, orderFormId}: StartSessionParams) => {
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
@@ -81,14 +78,12 @@ export function useVtexWalletCheckout() {
       ottInfoRef.current = null;
       orderFormIdRef.current = orderFormId;
       amountRef.current = amount;
-      createPaymentInAuthRef.current = createPaymentInAuth;
 
       patch({
         phase: 'creatingSession',
         orderFormId,
         amount,
         errorMessage: null,
-        paymentResult: null,
         paymentStatus: null,
       });
       logger.info('flow: startSession', {
@@ -97,7 +92,6 @@ export function useVtexWalletCheckout() {
         currency: CHECKOUT.currency,
         country: CHECKOUT.country,
         wallet: ACTIVE_WALLET_TYPE,
-        createPaymentInAuth,
       });
 
       try {
@@ -146,7 +140,7 @@ export function useVtexWalletCheckout() {
     }
   }, [patch]);
 
-  /** Step 5-6: with the OTT, create the payment via the connector, then resume the SDK. */
+  /** Step 5: store the OTT via the connector; the payment is created at VTEX authorization. */
   const processToken = useCallback(
     async (token: string) => {
       if (processingRef.current) {
@@ -161,7 +155,7 @@ export function useVtexWalletCheckout() {
       const controller = new AbortController();
       abortRef.current = controller;
       patch({phase: 'processingPayment'});
-      logger.info('flow: OTT received → creating payment', {
+      logger.info('flow: OTT received → storing for deferred creation', {
         token: mask(token),
         ottInfoType: ottInfoRef.current?.type ?? null,
       });
@@ -169,7 +163,7 @@ export function useVtexWalletCheckout() {
       try {
         const paymentMethodType = ottInfoRef.current?.type ?? ACTIVE_WALLET_TYPE;
 
-        const payment = await createPreflightPayment(
+        await createPreflightPayment(
           {
             orderFormId: orderFormIdRef.current ?? '',
             checkoutSession,
@@ -179,23 +173,15 @@ export function useVtexWalletCheckout() {
             currency: CHECKOUT.currency,
             country: CHECKOUT.country,
             affiliationName: CHECKOUT.affiliationName,
-            createPaymentInAuth: createPaymentInAuthRef.current,
+            createPaymentInAuth: true,
           },
           controller.signal,
         );
 
-        // Deferred: no payment exists yet (it is created at VTEX authorization),
-        // so there is nothing for the SDK to continue — stop here.
-        if (createPaymentInAuthRef.current) {
-          logger.info('flow: deferred — payment will be created at VTEX authorization');
-          patch({phase: 'deferred'});
-          return;
-        }
-
-        patch({phase: 'continuing', paymentResult: payment});
-
-        logger.info('flow: continuePayment');
-        await yunoService.continuePayment(checkoutSession, YUNO.countryCode, false);
+        // The payment is created during VTEX authorization, so there is nothing
+        // for the SDK to continue — stop here.
+        logger.info('flow: deferred — payment will be created at VTEX authorization');
+        patch({phase: 'deferred'});
       } catch (error) {
         if ((error as Error).name === 'AbortError') {
           return;

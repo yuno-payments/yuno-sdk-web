@@ -8,7 +8,6 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -34,7 +33,6 @@ export function CheckoutScreen(): React.JSX.Element {
   const {state, startSession, presentWallet, reset} = useVtexWalletCheckout();
   const [amountText, setAmountText] = useState(CHECKOUT.defaultAmount.toFixed(2));
   const [orderFormId, setOrderFormId] = useState(() => generateOrderFormId());
-  const [createPaymentInAuth, setCreatePaymentInAuth] = useState(false);
   const [methodSelected, setMethodSelected] = useState(false);
 
   const isIdle = state.phase === 'idle';
@@ -51,8 +49,8 @@ export function CheckoutScreen(): React.JSX.Element {
       return;
     }
     setMethodSelected(false);
-    void startSession({amount, orderFormId: id, createPaymentInAuth});
-  }, [amountText, orderFormId, createPaymentInAuth, startSession]);
+    void startSession({amount, orderFormId: id});
+  }, [amountText, orderFormId, startSession]);
 
   const handleReset = useCallback(() => {
     setMethodSelected(false);
@@ -60,9 +58,7 @@ export function CheckoutScreen(): React.JSX.Element {
   }, [reset]);
 
   const isBusy =
-    state.phase === 'creatingSession' ||
-    state.phase === 'processingPayment' ||
-    state.phase === 'continuing';
+    state.phase === 'creatingSession' || state.phase === 'processingPayment';
 
   return (
     <ScrollView
@@ -122,21 +118,6 @@ export function CheckoutScreen(): React.JSX.Element {
       </Card>
 
       {isIdle && (
-        <Card>
-          <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>
-              Create payment in the authorization phase
-            </Text>
-            <Switch
-              testID="create-in-auth-switch"
-              value={createPaymentInAuth}
-              onValueChange={setCreatePaymentInAuth}
-            />
-          </View>
-        </Card>
-      )}
-
-      {isIdle && (
         <Button title="Start payment" onPress={handleStart} testID="start-checkout" />
       )}
 
@@ -167,7 +148,7 @@ export function CheckoutScreen(): React.JSX.Element {
         </Card>
       )}
 
-      {(state.phase === 'processingPayment' || state.phase === 'continuing') && (
+      {state.phase === 'processingPayment' && (
         <Button title="Processing payment…" onPress={() => {}} loading disabled />
       )}
 
@@ -178,13 +159,6 @@ export function CheckoutScreen(): React.JSX.Element {
             Place the order in VTEX using this orderFormId:
           </Text>
           <Row label="orderFormId" value={state.orderFormId ?? orderFormId} />
-        </Card>
-      )}
-
-      {state.paymentResult && (
-        <Card title="Payment created in Yuno">
-          <Row label="Payment ID" value={state.paymentResult.id ?? '—'} />
-          <Row label="Status (Yuno)" value={state.paymentResult.status ?? '—'} emphasize />
         </Card>
       )}
 
@@ -289,11 +263,5 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       paddingVertical: spacing.xs,
       textAlign: 'right',
     },
-    switchRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    switchLabel: {...typography.body, color: colors.text, flexShrink: 1, marginRight: spacing.md},
     errorText: {...typography.body, color: colors.error},
   });

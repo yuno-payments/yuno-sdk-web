@@ -10,14 +10,18 @@ Ticket: **CORECM-17894**. Full plan: `../../../IMPLEMENTATION_PLAN_CORECM-17894.
 ## Flow
 
 ```
-[App] POST /session/preflight            ─▶ { checkoutSession, publicApiKey }
+[App] POST /session/preflight                          ─▶ { checkoutSession, publicApiKey }
 [App] YunoSdk.initialize(publicApiKey)
-[App] <YunoPaymentMethods checkoutSession> ─▶ user taps wallet, approves sheet
+[App] <YunoPaymentMethods checkoutSession>              ─▶ user taps wallet, approves sheet
 [SDK] onOneTimeToken(ott)
-[App] POST /session/preflight/payments    ─▶ { id, status }   (token + GOOGLE_PAY/APPLE_PAY)
-[App] YunoSdk.continuePayment(checkoutSession)
-[SDK] onPaymentStatus(status)
+[App] POST /session/preflight/payments                 ─▶ { deferred: true }
+      (token + GOOGLE_PAY/APPLE_PAY, createPaymentInAuth: true)
 ```
+
+The payment is **always** created during the VTEX authorization phase (deferred):
+`/preflight/payments` only stores the OTT and returns `{ deferred: true }`, so the
+app does not resume the SDK. The Yuno payment is created when the VTEX order is
+authorized, guaranteeing a payment is never created without an order behind it.
 
 The amount/currency/country sent to both preflight calls must be identical
 (the connector fingerprints them).
