@@ -30,10 +30,9 @@ const parseAmount = (text: string): number => Number(text.trim().replace(',', '.
 export function CheckoutScreen(): React.JSX.Element {
   const {colors} = useTheme();
   const styles = createStyles(colors);
-  const {state, startSession, presentWallet, reset} = useVtexWalletCheckout();
+  const {state, startSession, presentWalletLite, reset} = useVtexWalletCheckout();
   const [amountText, setAmountText] = useState(CHECKOUT.defaultAmount.toFixed(2));
   const [orderFormId, setOrderFormId] = useState(() => generateOrderFormId());
-  const [methodSelected, setMethodSelected] = useState(false);
 
   const isIdle = state.phase === 'idle';
 
@@ -48,12 +47,10 @@ export function CheckoutScreen(): React.JSX.Element {
       Alert.alert('orderFormId required', 'Enter or generate an orderFormId.');
       return;
     }
-    setMethodSelected(false);
     void startSession({amount, orderFormId: id});
   }, [amountText, orderFormId, startSession]);
 
   const handleReset = useCallback(() => {
-    setMethodSelected(false);
     reset();
   }, [reset]);
 
@@ -128,21 +125,18 @@ export function CheckoutScreen(): React.JSX.Element {
       {state.phase === 'ready' && (
         <Card title="Payment method">
           <Text style={styles.hint}>
-            Select the wallet (Google Pay / Apple Pay) and tap Pay.
+            Tap Pay to open the wallet (Google Pay / Apple Pay).
           </Text>
           <YunoPaymentMethods
             testID="yuno-payment-methods"
             checkoutSession={state.checkoutSession ?? ''}
             countryCode={YUNO.countryCode}
-            onPaymentMethodSelected={({isSelected}) => setMethodSelected(isSelected)}
-            onPaymentMethodError={() => setMethodSelected(false)}
             style={styles.paymentMethods}
           />
           <Button
             title="Pay"
             variant="success"
-            onPress={() => void presentWallet()}
-            disabled={!methodSelected}
+            onPress={() => void presentWalletLite()}
             testID="pay-button"
           />
         </Card>

@@ -140,6 +140,31 @@ export function useVtexWalletCheckout() {
     }
   }, [patch]);
 
+  /**
+   * Step 3 (lite): present the active wallet directly with it pre-selected,
+   * without relying on the mounted list's selection event. Works for both
+   * Google Pay and Apple Pay.
+   */
+  const presentWalletLite = useCallback(async () => {
+    const checkoutSession = checkoutSessionRef.current;
+    if (!checkoutSession) {
+      logger.error('flow: presentWalletLite called without a checkout session');
+      return;
+    }
+    logger.info('flow: presentWalletLite (startPaymentLite)', {wallet: ACTIVE_WALLET_TYPE});
+    try {
+      await yunoService.startPaymentLite({
+        checkoutSession,
+        paymentMethodType: ACTIVE_WALLET_TYPE,
+        countryCode: YUNO.countryCode,
+        showPaymentStatus: false,
+      });
+    } catch (error) {
+      logger.error('flow: presentWalletLite failed', {message: (error as Error).message});
+      patch({phase: 'error', errorMessage: (error as Error).message});
+    }
+  }, [patch]);
+
   /** Step 5: store the OTT via the connector; the payment is created at VTEX authorization. */
   const processToken = useCallback(
     async (token: string) => {
@@ -247,5 +272,5 @@ export function useVtexWalletCheckout() {
     };
   }, []);
 
-  return {state, startSession, presentWallet, reset};
+  return {state, startSession, presentWallet, presentWalletLite, reset};
 }
