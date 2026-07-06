@@ -132,9 +132,9 @@ declare module '@yuno-payments/yuno-sdk-react-native' {
     paymentMethod: PaymentMethod;
   }
 
-  export interface ThreeDSecureChallengeResponse {
-    type: string;
-    data: string;
+  export interface CardPaymentResult {
+    paymentState: string;
+    paymentSubState?: string | null;
   }
 
   export interface HeadlessTokenResponse {
@@ -236,10 +236,11 @@ declare module '@yuno-payments/yuno-sdk-react-native' {
       checkoutSession: string,
       countryCode?: string,
     ): Promise<HeadlessTokenResponse>;
-    static getThreeDSecureChallenge(
+    static continueCardPayment(
       checkoutSession: string,
       countryCode?: string,
-    ): Promise<ThreeDSecureChallengeResponse>;
+      showPaymentStatus?: boolean,
+    ): Promise<CardPaymentResult>;
     static continueEnrollment(
       enrollmentCollectedData: EnrollmentCollectedData,
       customerSession: string,
