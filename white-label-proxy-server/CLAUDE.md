@@ -25,9 +25,20 @@ Single file: `server.js`. Routes are registered in this order (order matters):
    prefixed with `BASE_PATH`.
 1. JSON body parser + permissive CORS middleware (echoes caller origin, strips upstream CORS).
 2. Local routes: `/` (landing), `/static/*`, `/whitelabel-info`.
-3. **Backend pass-through**: `app.all('/v1/*' | '/v2/*', forwardToBackend)` → `BACKEND_URL`.
-   Uses `node-fetch`; re-serializes the body (since `express.json()` consumed it).
-4. **SDK upstream catch-all** (GET/HEAD): `proxyToUpstream` picks one upstream via `pickSdkUpstream`:
+3. **Backend pass-through**: `app.all('/v1/*' | '/v2/*', forwardToBackend)` → `BACKEND_URL`, and
+   `app.all('/checkout-bff/*', forwardToCheckoutBff)` → `CHECKOUT_BFF_UPSTREAM`. Both share `forwardHttp`
+   (node-fetch, re-serializes the body since `express.json()` consumed it, strips `cookie`).
+   The checkout BFF is what the sdk-checkout app hits via its white-labeled `apiUrl`
+   (`host/<BASE_PATH>/checkout-bff/v1/{checkout-info/{session},checkout/payment}`).
+4. **Checkout SPA routes** (GET, before the SDK catch-all): `app.get(CHECKOUT_ROUTE_RE, proxyCheckoutHtml)`
+   for `/payment`, `/payment/status`, `/enroll` → fetches `CHECKOUT_UPSTREAM/index.html` and rewrites the
+   absolute `PUBLIC_URL` origin (`checkout.<env>.y.uno`) to `BASE_PATH` so the bundle/favicon/manifest load
+   back through this proxy instead of leaking to the Yuno host. react-router resolves the actual route
+   client-side from `window.location`.
+5. **SDK/asset upstream catch-all** (GET/HEAD): `proxyToUpstream` picks one upstream via `pickSdkUpstream`:
+   - `CHECKOUT_UPSTREAM` for the checkout CRA bundle (`/static/(js|css|media)/*`) and root public files
+     (`/favicon.ico`, `/manifest.json`, `/robots.txt`, `/asset-manifest.json`) — checked first so they don't
+     fall through to the SDK icon upstream.
    - `SDK_3DS_UPSTREAM` for `/challenge.html`, `/redirect.html`, `/session-id.html`, and
      `/assets/(challenge|redirect|session-id|validate-url)*`.
    - `SDK_CARD_UPSTREAM` for `/v<semver>/pages/*` and `/v<semver>/assets/*`.
@@ -36,8 +47,8 @@ Single file: `server.js`. Routes are registered in this order (order matters):
    - `SDK_UPSTREAM` otherwise.
    For the main SDK upstream, the version segment is normalized to whatever `versions.json` says is `latest`,
    so partners can request any `/v<x>/main.js` and still hit the published build.
-5. 404 fallback.
-6. WebSocket upgrades on the underlying `http.Server` (Express middleware never sees `Upgrade`).
+6. 404 fallback.
+7. WebSocket upgrades on the underlying `http.Server` (Express middleware never sees `Upgrade`).
    Uses `http-proxy`. `/checkout-websocket-notification-ms/ws/{payment,enrollment}` → `BACKEND_WS_URL`;
    everything else follows the same SDK/card/3DS split as HTTP.
 
