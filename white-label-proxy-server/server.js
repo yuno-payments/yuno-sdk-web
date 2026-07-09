@@ -25,6 +25,17 @@ const SDK_3DS_UPSTREAM = (process.env.SDK_3DS_UPSTREAM || SDK_UPSTREAM).replace(
 //   icons.prod.y.uno → /sdk-web, /flags, bare brand images (/Visa.png, …)
 const SDK_STATIC_UPSTREAM = (process.env.SDK_STATIC_UPSTREAM || 'https://sdk.prod.y.uno').replace(/\/$/, '')
 const SDK_ICONS_UPSTREAM = (process.env.SDK_ICONS_UPSTREAM || 'https://icons.prod.y.uno').replace(/\/$/, '')
+// sdk-checkout app shell (the React checkout hosted at checkout.<env>.y.uno).
+// Serves the SPA routes (/payment, /payment/status, /enroll) plus its CRA
+// bundle (/static/*) and root public files (favicon, manifest, robots). This
+// is what a merchant white-labels when they map checkout.y.uno/payment?session=
+// onto their own host/<base-path>/payment?session=.
+const CHECKOUT_UPSTREAM = (process.env.CHECKOUT_UPSTREAM || 'https://checkout.sandbox.y.uno').replace(/\/$/, '')
+// Checkout BFF that the sdk-checkout app calls. Its axios baseURL is the
+// white-labeled apiUrl, i.e. https://host/<base-path>/checkout-bff/v1, so after
+// the BASE_PATH strip the proxy sees /checkout-bff/* and forwards it here.
+// Always `<env>.y.uno` (no `api-` prefix): sandbox.y.uno, prod.y.uno, …
+const CHECKOUT_BFF_UPSTREAM = (process.env.CHECKOUT_BFF_UPSTREAM || 'https://sandbox.y.uno').replace(/\/$/, '')
 // Optional sub-path this proxy is "mounted" under, mirroring a partner gateway
 // served from e.g. https://host/hosted-payment-methods/hosted-payment-form/orchestrator.
 // Since CORECM-17664 the SDK preserves this prefix on every asset/API/WS request
@@ -58,8 +69,23 @@ const SDK_ICONS_RE = /^\/(?:sdk-web|flags)\//
 // Bare brand images at the root (e.g. /Visa.png, /boleto_logosimbolo.png) live
 // on icons.prod.y.uno. `?react` and other queries are tolerated.
 const ROOT_IMAGE_RE = /^\/[^/]+\.(?:png|svg|jpe?g|gif|webp)(?:\?.*)?$/i
+// sdk-checkout react-router routes (all serve the SPA index.html): /payment,
+// /payment/status, /enroll.
+const CHECKOUT_ROUTE_RE = /^\/(?:payment|enroll)(?:\/[^?]*)?$/
+// sdk-checkout CRA bundle. Root public files (favicon/manifest/robots) are
+// matched separately so they don't collide with the SDK's bare-image rule.
+const CHECKOUT_ASSET_RE = /^\/static\/(?:js|css|media)\//
+const CHECKOUT_ROOT_FILES = new Set(['/favicon.ico', '/manifest.json', '/robots.txt', '/asset-manifest.json'])
+
+// True for the checkout app's own assets (bundle + root public files) — routed
+// to CHECKOUT_UPSTREAM. Checked before the SDK split so /favicon.ico etc. don't
+// fall through to the SDK icon upstream.
+function isCheckoutAsset(reqPath) {
+  return CHECKOUT_ASSET_RE.test(reqPath) || CHECKOUT_ROOT_FILES.has(reqPath)
+}
 
 function pickSdkUpstream(reqPath) {
+  if (isCheckoutAsset(reqPath)) return CHECKOUT_UPSTREAM
   if (SDK_3DS_PATHS.has(reqPath) || SDK_3DS_ASSET_RE.test(reqPath)) return SDK_3DS_UPSTREAM
   if (CARD_ASSET_RE.test(reqPath)) return SDK_CARD_UPSTREAM
   if (SDK_STATIC_RE.test(reqPath)) return SDK_STATIC_UPSTREAM
@@ -152,6 +178,8 @@ app.get('/whitelabel-info', (_req, res) => {
     proxyPort: PORT,
     basePath: BASE_PATH || null,
     backend: BACKEND_URL,
+    checkoutUpstream: CHECKOUT_UPSTREAM,
+    checkoutBffUpstream: CHECKOUT_BFF_UPSTREAM,
     sdkUpstream: SDK_UPSTREAM,
     sdkCardUpstream: SDK_CARD_UPSTREAM,
     sdk3dsUpstream: SDK_3DS_UPSTREAM,
@@ -170,6 +198,15 @@ app.get('/whitelabel-info', (_req, res) => {
 
 app.all('/v1/*', forwardToBackend)
 app.all('/v2/*', forwardToBackend)
+
+// ---- checkout BFF pass-through (to CHECKOUT_BFF_UPSTREAM) -----------------
+//
+// The sdk-checkout app calls its BFF via the white-labeled apiUrl, which resolves
+// to https://host/<base-path>/checkout-bff/v1/*. After the BASE_PATH strip the
+// proxy sees /checkout-bff/* and forwards it to the real BFF host. Endpoints:
+//   GET  /checkout-bff/v1/checkout-info/{session}
+//   POST /checkout-bff/v1/checkout/payment
+app.all('/checkout-bff/*', forwardToCheckoutBff)
 
 // Headers that must not be copied across a hop (RFC 7230 §6.1) plus a few we
 // recompute or that node-fetch sets itself.
@@ -194,8 +231,16 @@ function pickRequestHeaders(req) {
   return out
 }
 
-async function forwardToBackend(req, res) {
-  const targetUrl = `${BACKEND_URL}${req.originalUrl}`
+function forwardToBackend(req, res) {
+  return forwardHttp(req, res, BACKEND_URL, 'backend')
+}
+
+function forwardToCheckoutBff(req, res) {
+  return forwardHttp(req, res, CHECKOUT_BFF_UPSTREAM, 'checkout-bff')
+}
+
+async function forwardHttp(req, res, base, label) {
+  const targetUrl = `${base}${req.originalUrl}`
   try {
     const headers = pickRequestHeaders(req)
     // Don't forward the partner page's browser cookies to the Yuno API. They
@@ -221,20 +266,59 @@ async function forwardToBackend(req, res) {
       if (lk.startsWith('access-control-')) continue
       res.set(k, v)
     }
-    res.set('x-white-label-proxy', 'backend')
+    res.set('x-white-label-proxy', label)
     const body = await upstream.text()
     res.send(body)
   } catch (err) {
-    console.error(`[backend-proxy] ${req.method} ${targetUrl} →`, err.message)
-    res.status(502).json({ error: 'backend_unreachable', target: targetUrl, detail: err.message })
+    console.error(`[${label}-proxy] ${req.method} ${targetUrl} →`, err.message)
+    res.status(502).json({ error: 'upstream_unreachable', target: targetUrl, detail: err.message })
   }
 }
+
+// ---- checkout app shell (SPA routes) -------------------------------------
+//
+// /payment, /payment/status and /enroll all resolve to the checkout SPA's
+// index.html (react-router does the rest client-side from window.location).
+// The served HTML's CRA bundle links are absolute (PUBLIC_URL=checkout.<env>
+// .y.uno), so we rewrite that origin to BASE_PATH to keep every follow-up
+// request (/static/*, favicon, …) on this proxy origin instead of leaking back
+// to the Yuno host. Registered before the SDK catch-all so it wins for /payment.
+
+async function proxyCheckoutHtml(req, res, next) {
+  const targetUrl = `${CHECKOUT_UPSTREAM}/index.html`
+  try {
+    const upstream = await fetch(targetUrl, {
+      method: 'GET',
+      redirect: 'follow',
+      headers: {
+        accept: req.headers.accept || 'text/html',
+        'user-agent': req.headers['user-agent'] || 'white-label-proxy',
+      },
+    })
+    if (!upstream.ok) return next()
+    let html = await upstream.text()
+    // Same-origin the bundle: https://checkout.<env>.y.uno/static/... → <BASE_PATH>/static/...
+    html = html.split(new URL(CHECKOUT_UPSTREAM).origin).join(BASE_PATH)
+    res.status(upstream.status)
+    res.set('content-type', 'text/html; charset=utf-8')
+    res.set('cache-control', 'no-store')
+    res.set('x-white-label-proxy', 'checkout')
+    res.send(html)
+  } catch (err) {
+    console.error(`[checkout-proxy] GET ${targetUrl} →`, err.message)
+    res.status(502).send(`Checkout upstream error: ${err.message}`)
+  }
+}
+
+app.get(CHECKOUT_ROUTE_RE, proxyCheckoutHtml)
 
 // ---- SDK assets (white-label host) ---------------------------------------
 //
 // The whole point of the proxy: the SDK is loaded from THIS origin, not from
 // sdk-web.y.uno. Every GET that didn't match a route above is transparently
 // forwarded to SDK_UPSTREAM. Registered last so it doesn't shadow / or /static.
+// Also serves the checkout CRA bundle + root files (pickSdkUpstream routes
+// /static/*, /favicon.ico, … to CHECKOUT_UPSTREAM).
 
 app.use((req, res, next) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') return next()
@@ -242,6 +326,7 @@ app.use((req, res, next) => {
 })
 
 function labelForUpstream(upstreamBase) {
+  if (upstreamBase === CHECKOUT_UPSTREAM) return 'checkout'
   if (upstreamBase === SDK_3DS_UPSTREAM && SDK_3DS_UPSTREAM !== SDK_UPSTREAM) return '3ds'
   if (upstreamBase === SDK_CARD_UPSTREAM && SDK_CARD_UPSTREAM !== SDK_UPSTREAM) return 'card'
   if (upstreamBase === SDK_STATIC_UPSTREAM && SDK_STATIC_UPSTREAM !== SDK_UPSTREAM) return 'static'
@@ -334,6 +419,8 @@ detectSdkMainJs().finally(() => {
     console.log(` SDK static asset: ${SDK_STATIC_UPSTREAM}  (/icons, /css, /brands, /c2p)`)
     console.log(` SDK icons asset : ${SDK_ICONS_UPSTREAM}  (/sdk-web, /flags, /*.png)`)
     console.log(` SDK main.js     : ${sdkMainJsPath}`)
+    console.log(` Checkout app    : ${CHECKOUT_UPSTREAM}  (/payment, /enroll, /static)`)
+    console.log(` Checkout BFF    : ${CHECKOUT_BFF_UPSTREAM}  (/checkout-bff/*)`)
     console.log(` Backend (API)   : ${BACKEND_URL}`)
     console.log(` Backend (WS)    : ${BACKEND_WS_URL}${BACKEND_WS_URL === BACKEND_URL ? ' (same as backend)' : ''}`)
     console.log('----------------------------------------------------------------')
