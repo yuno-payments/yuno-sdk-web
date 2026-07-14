@@ -13,6 +13,14 @@ async function initEnrollmentLite() {
   // start Yuno SDK
   const yuno = await SdkPayments.initialize(publicApiKey)
 
+  // expose instance for canary toggle
+  window.yunoInstance = yuno
+
+  // apply persisted canary preference
+  if (localStorage.getItem('canary-mode') === 'true') {
+    yuno.setCanaryMode(true)
+  }
+
   yuno.mountEnrollmentLite({
     customerSession,
     /**

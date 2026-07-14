@@ -5,6 +5,14 @@ type AppContextType = {
   checkoutSession: string
   countryCode: string
   yunoInstance: SdkPaymentsInstance
+  canaryMode: boolean
+  setCanaryMode: (enabled: boolean) => void
 }
 
-export const AppContext = createContext<AppContextType>({ checkoutSession: '', countryCode: '', yunoInstance: {} as SdkPaymentsInstance })
+export const AppContext = createContext<AppContextType>({
+  checkoutSession: '',
+  countryCode: '',
+  yunoInstance: {} as SdkPaymentsInstance,
+  canaryMode: false,
+  setCanaryMode: () => {},
+})

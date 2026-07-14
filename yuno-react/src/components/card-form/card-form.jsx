@@ -7,12 +7,14 @@ export const CardForm = () => {
   const { checkoutSession, countryCode, yunoInstance } = useContext(AppContext)
   const renderedFlag = useRef(0)
 
-  const secureFieldsInstance = useMemo(() => yunoInstance.secureFields({
+  // secureFields() resolves asynchronously on current SDK versions
+  const secureFieldsPromise = useMemo(() => yunoInstance.secureFields({
     countryCode,
     checkoutSession
   }), [])
 
-  const generateOTT = () => {
+  const generateOTT = async () => {
+    const secureFieldsInstance = await secureFieldsPromise
     secureFieldsInstance.generateToken({
       cardHolderName: 'Name Test',
       customer: {
@@ -32,6 +34,7 @@ export const CardForm = () => {
     }
     renderedFlag.current = 1
 
+    secureFieldsPromise.then((secureFieldsInstance) => {
     const panFields = secureFieldsInstance.create({
       name: 'pan',
       options: {
@@ -59,6 +62,7 @@ export const CardForm = () => {
     panFields.render('#pan')
     expirationFields.render('#expiration')
     cvvFields.render('#cvv')
+    })
   }, [])
 
   return <ContentForm>
