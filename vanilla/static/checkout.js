@@ -25,6 +25,15 @@ async function initCheckout() {
     undefined,
     // options,
   )
+
+  // expose instance for canary toggle
+  window.yunoInstance = yuno
+
+  // apply persisted canary preference
+  if (localStorage.getItem('canary-mode') === 'true') {
+    yuno.setCanaryMode(true)
+  }
+
   /**
    * checkout configuration
    */
