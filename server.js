@@ -529,7 +529,11 @@ app.listen(SERVER_PORT, async () => {
 
   CUSTOMER_ID = await createCustomer().then(({ id }) => id)
 
-  await open(`http://localhost:${SERVER_PORT}`);
+  try {
+    await open(`http://localhost:${SERVER_PORT}`);
+  } catch (error) {
+    console.log(`could not open browser automatically, visit http://localhost:${SERVER_PORT}`);
+  }
 })
 
 const ApiKeyPrefixToEnvironmentSuffix = {

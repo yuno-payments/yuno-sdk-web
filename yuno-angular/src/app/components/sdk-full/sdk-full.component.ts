@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { loadScript } from '@yuno-payments/sdk-web';
 import { SdkPaymentsInstance } from '@yuno-payments/sdk-web-types';
 
@@ -10,7 +10,7 @@ type YunoInstanceWithCanary = SdkPaymentsInstance & { setCanaryMode: (enabled: b
 
 @Component({
   selector: 'app-sdk-full',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './sdk-full.component.html',
   styleUrl: './sdk-full.component.scss',
 })
