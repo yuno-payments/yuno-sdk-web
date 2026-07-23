@@ -10,14 +10,14 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^19.2.19",
-    "@angular/common": "^19.2.19",
-    "@angular/compiler": "^19.2.19",
-    "@angular/core": "^19.2.19",
-    "@angular/forms": "^19.2.19",
-    "@angular/platform-browser": "^19.2.19",
-    "@angular/platform-browser-dynamic": "^19.2.19",
-    "@angular/router": "^19.2.19",
+    "@angular/animations": "^19.2.25",
+    "@angular/common": "^19.2.25",
+    "@angular/compiler": "^19.2.25",
+    "@angular/core": "^19.2.25",
+    "@angular/forms": "^19.2.25",
+    "@angular/platform-browser": "^19.2.25",
+    "@angular/platform-browser-dynamic": "^19.2.25",
+    "@angular/router": "^19.2.25",
     "@yuno-payments/sdk-web": "^7.1.0",
     "@yuno-payments/sdk-web-types": "^5.5.0",
     "rxjs": "~7.8.0",
@@ -39,7 +39,7 @@
   },
   "overrides": {
     "vite": ">=6.4.1",
-    "tar": ">=7.5.8",
+    "tar": ">=7.5.16",
     "rollup": ">=4.59.0",
     "serialize-javascript": ">=7.0.3"
   }
