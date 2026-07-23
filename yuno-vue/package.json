@@ -25,6 +25,7 @@
   "overrides": {
     "tar": ">=7.5.8",
     "rollup": ">=4.59.0",
-    "minimatch": ">=9.0.7"
+    "minimatch": ">=9.0.7",
+    "postcss": ">=8.5.12"
   }
 }

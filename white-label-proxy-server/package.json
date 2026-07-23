@@ -1,7 +1,7 @@
 {
   "name": "white-label-proxy-server",
   "version": "1.0.0",
-  "description": "Proxy server to test sdk-web PR #2086 — serves the SDK from a non-Yuno host so the white-label rename (window.SdkPayments / sdk-payments-ready / sdk-payments-* DOM tokens) can be exercised end-to-end.",
+  "description": "Proxy server to test sdk-web PR #2086 \u2014 serves the SDK from a non-Yuno host so the white-label rename (window.SdkPayments / sdk-payments-ready / sdk-payments-* DOM tokens) can be exercised end-to-end.",
   "private": true,
   "main": "server.js",
   "scripts": {
@@ -13,5 +13,8 @@
     "express": "^4.21.2",
     "http-proxy": "^1.18.1",
     "node-fetch": "^2.6.7"
+  },
+  "overrides": {
+    "body-parser": "^1.20.6"
   }
 }
