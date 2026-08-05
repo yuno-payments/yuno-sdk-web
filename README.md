@@ -862,27 +862,6 @@ Finally mount the **SDK** in a `html` element, you can use any valid css selecto
 await yuno.mountCheckout()
 ```
 
-If you need to select a payment method by default, mount it using
-
-```javascript
-/**
- * Mount checkout in browser DOM with a payment method selected by default
- * @optional
- */
-await yuno.mountCheckout({
-  /**
-   * Optional, only needed if you would like this method type selected by default
-   * Can be one of 'BANCOLOMBIA_TRANSFER' | 'PIX' | 'ADDI' | 'NU_PAY' | 'MERCADO_PAGO_CHECKOUT_PRO
-   */
-  paymentMethodType: PAYMENT_METHOD_TYPE,
-  /**
-   * Optional
-   * Vaulted token related to payment method type
-   */
-  vaultedToken: VAULTED_TOKEN,
-})
-```
-
 Remember you need to call 
 ```javascript
 yuno.startPayment()
