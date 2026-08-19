@@ -100,7 +100,7 @@ function getResolvedSdkVersion() {
 
 // Normalize the version segment of an SDK upstream path so partners can
 // reference any version they like (e.g. /v1.100/main.js) and still get the
-// build the upstream actually publishes (e.g. /v1.7/main.js). Card paths are
+// build the upstream actually publishes (e.g. /v1.10/main.js). Card paths are
 // left alone since the card upstream has its own versioning.
 function normalizeSdkPath(originalUrl) {
   if (CARD_ASSET_RE.test(originalUrl)) return originalUrl
@@ -112,7 +112,7 @@ function normalizeSdkPath(originalUrl) {
 
 // Resolved at boot. SDK_MAIN_JS env override wins; otherwise we fetch the
 // upstream's versions.json and use `latest.version`. Falls back to /v1.7.
-let sdkMainJsPath = process.env.SDK_MAIN_JS || '/v1.7/main.js'
+let sdkMainJsPath = process.env.SDK_MAIN_JS || '/v1.10/main.js'
 
 const app = express()
 

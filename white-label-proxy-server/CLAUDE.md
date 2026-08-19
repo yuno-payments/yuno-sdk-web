@@ -55,7 +55,7 @@ Single file: `server.js`. Routes are registered in this order (order matters):
 The injected `main.js` path is resolved once at boot:
 - If `process.env.SDK_MAIN_JS` is set, use it.
 - Else fetch `<SDK_UPSTREAM>/versions.json` and use `latest.version` (`/v<x.y.z>/main.js`).
-- Else fall back to `/v1.7/main.js`.
+- Else fall back to `/v1.10/main.js`.
 
 Template tag `__SDK_MAIN_JS__` in `pages/index.html` is replaced server-side per request, in case a future
 landing page wants to embed the resolved main.js path. There are no checkout test pages here anymore — point

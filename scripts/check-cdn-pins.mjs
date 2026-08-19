@@ -17,7 +17,17 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
-const PIN = /sdk-web\.y\.uno\/v([^/"'\s]+)\/main\.js/g;
+// Matches the version segment of any main.js reference, with or without a host.
+// The host-less form matters: the white-label proxy takes its path through
+// SDK_MAIN_JS (e.g. /v1.10/main.js), and an exact version there freezes the
+// proxy just as hard as one in a script tag.
+const PIN = /\/v([^/"'\s]+)\/main\.js/g;
+
+// A literal version, as opposed to a documentation placeholder (`/v<semver>/`)
+// or a template expression (`/v${v}/`). Only literals are pins; the others are
+// describing the shape of a path, not committing to one.
+const LITERAL_VERSION = /^\d+(?:\.\d+)*$/;
+
 const GLOBAL_PIN = /^\d+\.\d+$/;
 
 // This file documents the bad pattern in prose and builds it in template
@@ -38,11 +48,12 @@ for (const file of files) {
   } catch {
     continue;
   }
-  if (!content.includes("sdk-web.y.uno")) continue;
+  if (!content.includes("/main.js")) continue;
 
   const lines = content.split("\n");
   lines.forEach((line, index) => {
     for (const match of line.matchAll(PIN)) {
+      if (!LITERAL_VERSION.test(match[1])) continue;
       if (!GLOBAL_PIN.test(match[1])) {
         offenders.push({ file, line: index + 1, pin: match[1] });
       }
@@ -55,8 +66,8 @@ if (offenders.length > 0) {
   for (const { file, line, pin } of offenders) {
     const suggested = pin.split(".").slice(0, 2).join(".");
     console.error(`  ${file}:${line}`);
-    console.error(`    found:  https://sdk-web.y.uno/v${pin}/main.js`);
-    console.error(`    use:    https://sdk-web.y.uno/v${suggested}/main.js\n`);
+    console.error(`    found:  /v${pin}/main.js`);
+    console.error(`    use:    /v${suggested}/main.js\n`);
   }
   console.error(`${offenders.length} exact pin${offenders.length === 1 ? "" : "s"} must be changed before merging.\n`);
   process.exit(1);
