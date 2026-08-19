@@ -96,7 +96,7 @@ BASE_PATH=/hosted-payment-methods/hosted-payment-form/orchestrator
 Additional behaviour worth knowing:
 
 - The injected `main.js` path is resolved at boot from `<SDK_UPSTREAM>/versions.json` (`latest.version`).
-  Override with `SDK_MAIN_JS=/v1.7/main.js` in `.env`.
+  Override with `SDK_MAIN_JS=/v1.10/main.js` in `.env`.
 - Partners can reference any version (e.g. `/v1.100/main.js`); requests are normalized to the version the
   upstream actually publishes.
 - Permissive CORS — caller origin is echoed back, upstream CORS headers are stripped so they can't override.
@@ -122,7 +122,7 @@ Then open http://localhost:9090/ for the landing page (shows current proxy confi
   `CHECKOUT_UPSTREAM`/`CHECKOUT_BFF_UPSTREAM` set to the session's environment. The checkout SPA renders under the
   non-Yuno origin and calls the BFF back through the proxy.
 - **SDK:** point your own partner test pages at `http://localhost:9090` — e.g. load the SDK via
-  `<script src="http://localhost:9090/v1.7/main.js">` — and the proxy fetches it from `SDK_UPSTREAM` on your
+  `<script src="http://localhost:9090/v1.10/main.js">` — and the proxy fetches it from `SDK_UPSTREAM` on your
   behalf so the SDK runs against a non-Yuno origin.
 
 ## Environment variables
@@ -146,14 +146,14 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 | `SDK_ICONS_UPSTREAM` | Icon assets (`/sdk-web`, `/flags`, `/*.png`)  | `https://icons.prod.y.uno`       | `https://icons.prod.y.uno`               | `https://icons.prod.y.uno`           |
 | `BACKEND_URL`        | SDK API (`/v1/*`, `/v2/*`)                    | `https://api.y.uno`              | `https://api-staging.y.uno`              | `https://api-dev.y.uno`              |
 | `BACKEND_WS_URL`     | WebSocket upgrades                            | `https://y.uno`                  | `https://staging.y.uno`                  | `https://dev.y.uno`                  |
-| `SDK_MAIN_JS`        | Pin a specific SDK version                    | `/v1.7.4/main.js`                | `/v1.7.4/main.js`                        | `/v1.7.4/main.js`                    |
+| `SDK_MAIN_JS`        | Override the injected main.js path (leave unset) | `/v1.10/main.js`              | `/v1.10/main.js`                         | `/v1.10/main.js`                     |
 
 Defaults:
 
 - `SDK_CARD_UPSTREAM`, `SDK_3DS_UPSTREAM`, `BACKEND_WS_URL` fall back to `SDK_UPSTREAM` / `BACKEND_URL` when unset.
 - `CHECKOUT_UPSTREAM` and `CHECKOUT_BFF_UPSTREAM` default to sandbox (`https://checkout.sandbox.y.uno`,
   `https://sandbox.y.uno`) — set both to the environment matching your checkout session.
-- `SDK_MAIN_JS` is auto-resolved from `<SDK_UPSTREAM>/versions.json` (`latest.version`), falling back to `/v1.7/main.js`.
+- `SDK_MAIN_JS` is auto-resolved from `<SDK_UPSTREAM>/versions.json` (`latest.version`), falling back to `/v1.10/main.js`.
 - `BACKEND_URL` can also point at a local backend (`http://localhost:8080`) — run `cd .. && npm run start:dev`.
 
 ## Layout
