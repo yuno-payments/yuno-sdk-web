@@ -33,7 +33,7 @@
 To use checkout seamless you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -275,7 +275,7 @@ After it is mounted, it will start the desired flow
 To use checkout seamless you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -511,7 +511,7 @@ After it is mounted, it will start the desired flow
 To use checkout seamless you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -621,7 +621,7 @@ After it is mounted, it will start the desired flow
 To use full checkout you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -887,7 +887,7 @@ PayButton.addEventListener('click', () => {
 To use checkout lite you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -1171,7 +1171,7 @@ await yuno.clearApiCache()
 To use checkout secure fields you should include our **SDK** file in your page before close your `</body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -1615,7 +1615,7 @@ if (payment.checkout.sdk_action_required) {
 To use status you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -1657,7 +1657,7 @@ await yuno.mountStatusPayment({
 To use status lite you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -1684,7 +1684,7 @@ const status = await yuno.paymentResult(checkoutSession)
 To use enrollment lite you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -1860,7 +1860,7 @@ await yuno.mountEnrollmentLite({
 To use enrollment with secure fields you should include our **SDK** file in your page before close your `<body>` tag
 
 ```html
-<script src="https://sdk-web.y.uno/v1.9/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 ```
 
 Get a `Yuno` instance class in your `JS` app with a valid **PUBLIC_API_KEY**
@@ -2225,10 +2225,10 @@ To use v1.1, update your SDK import URL:
 
 ```html
 <!-- Old v1.5 URL -->
-<script src="https://sdk-web.y.uno/v1.5/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 
 <!-- New v1.5 URL -->
-<script src="https://sdk-web.y.uno/v1.5/main.js"></script>
+<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 ```
 
 ### Asynchronous Methods
@@ -2417,7 +2417,7 @@ For this to work correctly, you must:
   <script type="module" src="/static/your-app.js"></script>
   
   <!-- Then load the SDK script as the last element before closing body tag -->
-  <script src="https://sdk-web.y.uno/v1.5/main.js" defer></script>
+  <script src="https://sdk-web.y.uno/v1.10/main.js" defer></script>
 </body>
 ```
 
