@@ -2138,7 +2138,7 @@ const vaultedTokenWithInformation = await secureFields.generateVaultedTokenWithI
 > npm start
 ```
 
-You need to create a `.env` file in the root folder with your test keys and server port
+You need to create a `.env` file in the root folder with your test keys (copy `.env.example` and fill in the values — never commit `.env`)
 
 ```sh
 ACCOUNT_CODE=abc
