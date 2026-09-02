@@ -16,7 +16,15 @@ dependencies. Do not try to share modules with the parent.
 
 ## Architecture
 
-Single file: `server.js`. Routes are registered in this order (order matters):
+`server.js` wires up Express; the URL logic it depends on lives in two side-effect-free modules so it can be
+unit-tested without booting the server:
+
+- `lib/upstream-router.js` — which upstream a path belongs to (`pickUpstream`), its response label
+  (`labelFor`), and SDK version normalization (`normalizeSdkPath`).
+- `lib/html-rewrite.js` — `createHtmlRewriter(basePath)` strips absolute `*.y.uno` origins and re-anchors
+  root-relative `src`/`href`/`action` URLs under `BASE_PATH`; `findYunoUrls` reports anything that survived.
+
+Routes are registered in this order (order matters):
 
 0. **`BASE_PATH` strip** (only when set): a top middleware that strips the configured sub-path from
    `req.url`/`req.originalUrl` so every downstream match and forward sees root-relative paths. Emulates a partner
@@ -31,16 +39,16 @@ Single file: `server.js`. Routes are registered in this order (order matters):
    The checkout BFF is what the sdk-checkout app hits via its white-labeled `apiUrl`
    (`host/<BASE_PATH>/checkout-bff/v1/{checkout-info/{session},checkout/payment}`).
 4. **Checkout SPA routes** (GET, before the SDK catch-all): `app.get(CHECKOUT_ROUTE_RE, proxyCheckoutHtml)`
-   for `/payment`, `/payment/status`, `/enroll` → fetches `CHECKOUT_UPSTREAM/index.html` and rewrites the
-   absolute `PUBLIC_URL` origin (`checkout.<env>.y.uno`) to `BASE_PATH` so the bundle/favicon/manifest load
-   back through this proxy instead of leaking to the Yuno host. react-router resolves the actual route
-   client-side from `window.location`.
+   for `/payment`, `/payment/status`, `/enroll` → fetches `CHECKOUT_UPSTREAM/index.html` and runs it through
+   the shared HTML rewriter so the bundle/favicon/manifest load back through this proxy instead of leaking to
+   the Yuno host. react-router resolves the actual route client-side from `window.location`.
 5. **SDK/asset upstream catch-all** (GET/HEAD): `proxyToUpstream` picks one upstream via `pickSdkUpstream`:
    - `CHECKOUT_UPSTREAM` for the checkout CRA bundle (`/static/(js|css|media)/*`) and root public files
      (`/favicon.ico`, `/manifest.json`, `/robots.txt`, `/asset-manifest.json`) — checked first so they don't
      fall through to the SDK icon upstream.
-   - `SDK_3DS_UPSTREAM` for `/challenge.html`, `/redirect.html`, `/session-id.html`, and
-     `/assets/(challenge|redirect|session-id|validate-url)*`.
+   - `SDK_3DS_UPSTREAM` for `/challenge.html`, `/redirect.html`, `/session-id.html`, and all of `/assets/*`
+     (root-level `/assets/*` can only be 3DS: the SDK bundle is `/v<semver>/*` and the card app
+     `/v<semver>/assets/*`, so an entry-name allowlist stranded the build's shared chunks on the SDK upstream).
    - `SDK_CARD_UPSTREAM` for `/v<semver>/pages/*` and `/v<semver>/assets/*`.
    - `SDK_STATIC_UPSTREAM` for `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*`.
    - `SDK_ICONS_UPSTREAM` for `/sdk-web/*`, `/flags/*`, and bare root brand images (`/Visa.png`, …).
@@ -82,6 +90,10 @@ npm start    # → http://localhost:9090
   `access-control-*` from upstream responses (`server.js:166-170`) for the same reason — don't pass them through.
 - **`HOP_BY_HOP` headers** (`server.js:130-141`) are filtered both ways. Don't add `content-length` to a manual
   copy without re-stripping it — node-fetch sets it itself.
+- **Every HTML response must go through `rewriteHtml`.** A white-labeled page rendering any `*.y.uno` URL is
+  the bug this proxy exists to prevent (ZPY-490/ZPY-758). If you add a route that serves upstream HTML, rewrite
+  it — streaming it straight through leaks the Yuno origin and drops the `BASE_PATH` prefix. Non-HTML responses
+  stay streamed; don't buffer binary assets.
 - **The version normalizer** only touches `SDK_UPSTREAM` paths. Card and 3DS upstreams handle their own
   versioning (or don't version at all). If you broaden it, make sure card paths still resolve.
 - **WebSocket auth** is whatever `http-proxy` sees in the upstream-bound request headers. Do not strip
@@ -91,7 +103,9 @@ npm start    # → http://localhost:9090
 ## Out of scope for this server
 
 - No build step — plain Node + ES modules in the browser. Don't introduce a bundler.
-- No tests yet. If you add some, they should hit real upstream HTML/JS responses (mocking the proxy defeats its
-  purpose).
+- Tests live in `test/` and run on the Node built-in runner (`npm test`, no extra dependency). They boot the
+  real `server.js` as a child process against local stub upstreams — the proxy itself is never mocked, which
+  would defeat the purpose — so route order and env resolution are genuinely exercised. Stub upstreams (rather
+  than live `*.y.uno` hosts) keep the suite hermetic and runnable without credentials or network egress.
 - Don't add backwards-compat shims for `window.Yuno` here — that's the SDK's responsibility (and it already
   exposes it as a legacy alias).

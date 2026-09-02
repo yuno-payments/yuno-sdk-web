@@ -4,6 +4,9 @@ const fs = require('fs')
 const fetch = require('node-fetch')
 const httpProxy = require('http-proxy')
 
+const { createUpstreamRouter, CHECKOUT_ROUTE_RE } = require('./lib/upstream-router')
+const { createHtmlRewriter, findYunoUrls, isHtmlContentType } = require('./lib/html-rewrite')
+
 require('dotenv').config()
 
 const PORT = Number(process.env.PORT) || 9090
@@ -53,44 +56,22 @@ function stripBasePath(url) {
   return url.slice(BASE_PATH.length) || '/'
 }
 
-// Matches /v<version>/(pages|assets)/... where <version> is any dot-separated
-// number sequence (v1.7, v1.84.1, v2.0.0-rc.1, …).
-const CARD_ASSET_RE = /^\/v[\d.]+(?:-[\w.]+)?\/(?:pages|assets)\//
-// Matches /v<version>/<rest> generally (used for version normalization).
-const SDK_VERSION_RE = /^\/v[\d.]+(?:-[\w.]+)?\//
-// 3DS top-level pages routed to SDK_3DS_UPSTREAM.
-const SDK_3DS_PATHS = new Set(['/challenge.html', '/redirect.html', '/session-id.html'])
-// 3DS hashed assets emitted by the build live under /assets/ with these
-// prefixes (e.g. /assets/challenge-DeAdBeEf.js, /assets/validate-url.js).
-const SDK_3DS_ASSET_RE = /^\/assets\/(?:challenge|redirect|session-id|validate-url)/
-// Host-swapped static-asset paths (CORECM-17664).
-const SDK_STATIC_RE = /^\/(?:icons|css|brands|c2p)\//
-const SDK_ICONS_RE = /^\/(?:sdk-web|flags)\//
-// Bare brand images at the root (e.g. /Visa.png, /boleto_logosimbolo.png) live
-// on icons.prod.y.uno. `?react` and other queries are tolerated.
-const ROOT_IMAGE_RE = /^\/[^/]+\.(?:png|svg|jpe?g|gif|webp)(?:\?.*)?$/i
-// sdk-checkout react-router routes (all serve the SPA index.html): /payment,
-// /payment/status, /enroll.
-const CHECKOUT_ROUTE_RE = /^\/(?:payment|enroll)(?:\/[^?]*)?$/
-// sdk-checkout CRA bundle. Root public files (favicon/manifest/robots) are
-// matched separately so they don't collide with the SDK's bare-image rule.
-const CHECKOUT_ASSET_RE = /^\/static\/(?:js|css|media)\//
-const CHECKOUT_ROOT_FILES = new Set(['/favicon.ico', '/manifest.json', '/robots.txt', '/asset-manifest.json'])
+const upstreamRouter = createUpstreamRouter({
+  sdk: SDK_UPSTREAM,
+  card: SDK_CARD_UPSTREAM,
+  threeDs: SDK_3DS_UPSTREAM,
+  static: SDK_STATIC_UPSTREAM,
+  icons: SDK_ICONS_UPSTREAM,
+  checkout: CHECKOUT_UPSTREAM,
+})
 
-// True for the checkout app's own assets (bundle + root public files) — routed
-// to CHECKOUT_UPSTREAM. Checked before the SDK split so /favicon.ico etc. don't
-// fall through to the SDK icon upstream.
-function isCheckoutAsset(reqPath) {
-  return CHECKOUT_ASSET_RE.test(reqPath) || CHECKOUT_ROOT_FILES.has(reqPath)
-}
+// Rewrites every HTML document served through this proxy onto the white-label
+// origin: absolute Yuno origins are stripped to root-relative paths and
+// root-relative URLs are re-anchored under BASE_PATH.
+const rewriteHtml = createHtmlRewriter(BASE_PATH)
 
 function pickSdkUpstream(reqPath) {
-  if (isCheckoutAsset(reqPath)) return CHECKOUT_UPSTREAM
-  if (SDK_3DS_PATHS.has(reqPath) || SDK_3DS_ASSET_RE.test(reqPath)) return SDK_3DS_UPSTREAM
-  if (CARD_ASSET_RE.test(reqPath)) return SDK_CARD_UPSTREAM
-  if (SDK_STATIC_RE.test(reqPath)) return SDK_STATIC_UPSTREAM
-  if (SDK_ICONS_RE.test(reqPath) || ROOT_IMAGE_RE.test(reqPath)) return SDK_ICONS_UPSTREAM
-  return SDK_UPSTREAM
+  return upstreamRouter.pickUpstream(reqPath)
 }
 
 function getResolvedSdkVersion() {
@@ -98,16 +79,8 @@ function getResolvedSdkVersion() {
   return m ? m[1] : null
 }
 
-// Normalize the version segment of an SDK upstream path so partners can
-// reference any version they like (e.g. /v1.100/main.js) and still get the
-// build the upstream actually publishes (e.g. /v1.10/main.js). Card paths are
-// left alone since the card upstream has its own versioning.
 function normalizeSdkPath(originalUrl) {
-  if (CARD_ASSET_RE.test(originalUrl)) return originalUrl
-  if (!SDK_VERSION_RE.test(originalUrl)) return originalUrl
-  const resolved = getResolvedSdkVersion()
-  if (!resolved) return originalUrl
-  return originalUrl.replace(SDK_VERSION_RE, `/v${resolved}/`)
+  return upstreamRouter.normalizeSdkPath(originalUrl, getResolvedSdkVersion())
 }
 
 // Resolved at boot. SDK_MAIN_JS env override wins; otherwise we fetch the
@@ -296,9 +269,13 @@ async function proxyCheckoutHtml(req, res, next) {
       },
     })
     if (!upstream.ok) return next()
-    let html = await upstream.text()
-    // Same-origin the bundle: https://checkout.<env>.y.uno/static/... → <BASE_PATH>/static/...
-    html = html.split(new URL(CHECKOUT_UPSTREAM).origin).join(BASE_PATH)
+    const original = await upstream.text()
+    // Same-origin every asset the shell references. The upstream index.html
+    // hard-codes its own PUBLIC_URL origin (checkout.<env>.y.uno) *and* can
+    // reference other Yuno hosts (sdk-web, sdk.prod, icons.prod); all of them
+    // must be stripped or the merchant's page renders Yuno-hosted URLs.
+    const html = rewriteHtml(original)
+    warnOnYunoLeak(html, req.originalUrl, 'checkout')
     res.status(upstream.status)
     res.set('content-type', 'text/html; charset=utf-8')
     res.set('cache-control', 'no-store')
@@ -326,12 +303,17 @@ app.use((req, res, next) => {
 })
 
 function labelForUpstream(upstreamBase) {
-  if (upstreamBase === CHECKOUT_UPSTREAM) return 'checkout'
-  if (upstreamBase === SDK_3DS_UPSTREAM && SDK_3DS_UPSTREAM !== SDK_UPSTREAM) return '3ds'
-  if (upstreamBase === SDK_CARD_UPSTREAM && SDK_CARD_UPSTREAM !== SDK_UPSTREAM) return 'card'
-  if (upstreamBase === SDK_STATIC_UPSTREAM && SDK_STATIC_UPSTREAM !== SDK_UPSTREAM) return 'static'
-  if (upstreamBase === SDK_ICONS_UPSTREAM && SDK_ICONS_UPSTREAM !== SDK_UPSTREAM) return 'icons'
-  return 'sdk'
+  return upstreamRouter.labelFor(upstreamBase)
+}
+
+// A leaked Yuno URL is the exact failure this proxy exists to prevent, and it
+// is invisible in a 200 response. Log it with the path so it is diagnosable
+// from the proxy's output instead of only in a browser network tab.
+function warnOnYunoLeak(html, requestUrl, label) {
+  const leaked = findYunoUrls(html)
+  if (leaked.length === 0) return
+  const unique = [...new Set(leaked)]
+  console.warn(`[${label}-proxy] white-label leak: ${requestUrl} still references ${unique.join(', ')}`)
 }
 
 async function proxyToUpstream(req, res, next) {
@@ -353,12 +335,26 @@ async function proxyToUpstream(req, res, next) {
     })
     if (upstream.status === 404) return next()
     res.status(upstream.status)
+    const contentType = upstream.headers.get('content-type')
     const passthroughHeaders = ['content-type', 'cache-control', 'etag', 'last-modified']
     for (const h of passthroughHeaders) {
       const v = upstream.headers.get(h)
       if (v) res.set(h, v)
     }
     res.set('x-white-label-proxy', upstreamLabel)
+    // HTML documents (notably the 3DS challenge/redirect/session-id pages) are
+    // buffered and rewritten so their absolute Yuno origins are stripped and
+    // their root-relative asset URLs keep the BASE_PATH prefix. Anything else
+    // streams through untouched. `etag`/`last-modified` describe the upstream
+    // body, so they are dropped once the body is rewritten.
+    if (isHtmlContentType(contentType)) {
+      const html = rewriteHtml(await upstream.text())
+      warnOnYunoLeak(html, req.originalUrl, upstreamLabel)
+      res.removeHeader('etag')
+      res.removeHeader('last-modified')
+      res.send(html)
+      return
+    }
     upstream.body.pipe(res)
   } catch (err) {
     console.error(`[${upstreamLabel}-proxy] GET ${targetUrl} →`, err.message)

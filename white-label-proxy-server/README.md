@@ -29,7 +29,7 @@ traffic upstream, which is what exercises the white-label code paths end-to-end.
 | `/checkout-bff/*` (HTTP)                               | `CHECKOUT_BFF_UPSTREAM`                |
 | `/checkout-websocket-notification-ms/ws/{payment,enrollment}` (WS) | `BACKEND_WS_URL`          |
 | `/v1/*`, `/v2/*` (HTTP + WS)                           | `BACKEND_URL` / `BACKEND_WS_URL`       |
-| `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/(challenge\|redirect\|session-id\|validate-url)*` | `SDK_3DS_UPSTREAM` |
+| `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/*` | `SDK_3DS_UPSTREAM`            |
 | `/v<semver>/pages/*`, `/v<semver>/assets/*`            | `SDK_CARD_UPSTREAM`                    |
 | `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*`            | `SDK_STATIC_UPSTREAM` (`sdk.prod.y.uno`)  |
 | `/sdk-web/*`, `/flags/*`, bare brand images (`/Visa.png`, …) | `SDK_ICONS_UPSTREAM` (`icons.prod.y.uno`) |
@@ -93,6 +93,27 @@ BASE_PATH=/hosted-payment-methods/hosted-payment-form/orchestrator
 > resolving host-swapped CDN assets (icons/fonts aren't versioned), so both `assetUrl = …/orchestrator` and
 > `assetUrl = …/orchestrator/v1.0` route icons correctly. Needs `@yuno/sdk-web-core` ≥ 7.5.0.
 
+### White-label URL resolution
+
+A white-labeled page must render **zero** Yuno-hosted URLs — the whole surface has to resolve on the partner
+origin. Two rules enforce that for every HTML document the proxy serves (the checkout shell and the 3DS
+`challenge`/`redirect`/`session-id` pages):
+
+1. **Absolute Yuno origins are stripped.** Upstream HTML hard-codes its own origin (`PUBLIC_URL`) and can
+   reference other Yuno hosts (`sdk-web`, `sdk.prod`, `icons.prod`). Every `*.y.uno` origin — with or without a
+   port — is rewritten to a root-relative path so the follow-up request comes back to this proxy.
+2. **Root-relative URLs are re-anchored under `BASE_PATH`.** A 3DS page references `/assets/challenge-<hash>.js`;
+   under a sub-path mount that would resolve against the partner origin *root* and 404. `src`/`href`/`action`
+   values get the `BASE_PATH` prefix. No-op at a root mount.
+
+Any Yuno URL that survives the rewrite is logged as `white-label leak: <path> still references <url>`, so a
+regression is visible in the proxy output instead of only in a browser network tab.
+
+> **All of `/assets/*` is 3DS.** The main SDK bundle lives under `/v<semver>/*` and the card micro-app under
+> `/v<semver>/assets/*`, so a root-level `/assets/*` request can only be the 3DS micro-app. Matching only the
+> named entry chunks (`challenge`, `redirect`, …) sent the build's *shared* chunks (`index-<hash>.js`,
+> `vendor-<hash>.js`, CSS) to the SDK upstream, where they 404.
+
 Additional behaviour worth knowing:
 
 - The injected `main.js` path is resolved at boot from `<SDK_UPSTREAM>/versions.json` (`latest.version`).
@@ -107,7 +128,12 @@ Additional behaviour worth knowing:
 cp .env.example .env       # then edit upstream URLs if needed
 npm install
 npm start                  # listens on :9090
+npm test                   # routing + white-label URL regression suite
 ```
+
+`npm test` uses the Node built-in test runner (`node --test`, no extra dependency). It boots the real
+`server.js` against local stub upstreams and asserts that a white-labeled request renders no Yuno-hosted URL,
+and that root-mount (non-white-label) routing is unchanged. No network access or Yuno credentials required.
 
 For the default backend (`BACKEND_URL=http://localhost:8080`), also run the root server so `/v1/*` and `/v2/*`
 calls succeed:
