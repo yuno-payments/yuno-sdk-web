@@ -2156,6 +2156,29 @@ Then go to [http://localhost:8080](http://localhost:8080)
 To change the country you can add a query parameter named `country` with one of `CO, BR, CL, PE, EC, UR, MX`  
 [http://localhost:8080?country=CO](http://localhost:8080?country=CO)
 
+## Build and Test
+
+This repository ships no bundler at the root: the demo server and the white-label proxy are plain Node, and
+`vanilla/` is served to the browser as ES modules. The root gates are therefore verification, not compilation.
+
+```sh
+> npm run build       # parses every first-party source file and loads the proxy modules
+> npm test            # SDK pin check + the white-label proxy regression suite
+> npm run check:pins  # exact-version SDK pins only (also run by npm test)
+```
+
+`npm test` installs `white-label-proxy-server` from its committed lockfile on first run, then runs its suite
+(`node --test`, no extra dependency). It needs no network egress or Yuno credentials — the suite boots the real
+proxy against local stub upstreams.
+
+The framework demos each carry their own toolchain and lockfile and are built from their own directory. The
+root build deliberately does not invoke them, since `ng`/`vite` are not installed at the root:
+
+```sh
+> cd yuno-react && npm ci && npm run build     # same for yuno-vue, yuno-angular,
+>                                              # and yuno-vtex-webview/HeadlessVTEXWeb
+```
+
 ## CSS Styles
 
 All elements have classes prefixed with `yuno-*` so you can overwrite their styles using those classes.  

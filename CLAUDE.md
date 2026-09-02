@@ -27,11 +27,19 @@ Each sub-directory with a `package.json` is an independent npm project with its 
 # Root server
 npm run start:dev
 
+# Root gates
+npm run build   # parses every first-party source file, loads the proxy modules
+npm test        # SDK pin check + white-label proxy regression suite
+
 # Sub-projects (run from their directory)
 cd yuno-angular && npm start
 cd yuno-react && npm run dev
 cd yuno-vue && npm run dev
 cd yuno-vtex-webview/HeadlessVTEXWeb && npm run dev
+
+# Sub-project builds (each has its own toolchain and lockfile; the root build
+# does not invoke them, `ng`/`vite` are not installed at the root)
+cd yuno-react && npm ci && npm run build
 ```
 
 ## Branch & PR Conventions
