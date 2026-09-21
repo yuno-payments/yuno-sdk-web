@@ -31,7 +31,7 @@ traffic upstream, which is what exercises the white-label code paths end-to-end.
 | `/v1/*`, `/v2/*` (HTTP + WS)                           | `BACKEND_URL` / `BACKEND_WS_URL`       |
 | `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/(challenge\|redirect\|session-id\|validate-url)*` | `SDK_3DS_UPSTREAM` |
 | `/v<semver>/pages/*`, `/v<semver>/assets/*`            | `SDK_CARD_UPSTREAM`                    |
-| `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*`            | `SDK_STATIC_UPSTREAM` (`sdk.prod.y.uno`)  |
+| `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*`, `/wallets/*`, `/fonts/*` | `SDK_STATIC_UPSTREAM` (`sdk.prod.y.uno`)  |
 | `/sdk-web/*`, `/flags/*`, bare brand images (`/Visa.png`, …) | `SDK_ICONS_UPSTREAM` (`icons.prod.y.uno`) |
 | `/sdk-static-bundles-ms/*` (font stylesheet + font files, SDK 1.10+) | `SDK_STATIC_BUNDLES_UPSTREAM` (`prod.y.uno`) |
 | Everything else (GET/HEAD)                             | `SDK_UPSTREAM`                         |
@@ -65,8 +65,9 @@ carry it.
 | `/v1/*`, `/v2/*` | `api[-<env>].y.uno` | always |
 | `/checkout-websocket-notification-ms/ws/*` (WebSocket) | `[<env>.]y.uno` | always |
 | `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*` | `sdk.prod.y.uno` | always |
+| `/wallets/*` (Samsung Pay PT button), `/fonts/*` (Checkout Builder custom fonts) | `sdk.prod.y.uno` | SDK builds with CORECM-20136 |
 | `/sdk-web/*`, `/flags/*`, bare brand images (`/Visa.png`, …) | `icons.prod.y.uno` | always |
-| `/sdk-static-bundles-ms/*` | `prod.y.uno` | **SDK 1.10+** |
+| `/sdk-static-bundles-ms/*` | `prod.y.uno` | **SDK 1.10+** (fonts); Forter / Riskified SRI scripts on builds with CORECM-20136 |
 | `/payment`, `/payment/status`, `/enroll`, `/static/*`, `/checkout-bff/*` | `checkout[.<env>].y.uno` / `<env>.y.uno` | Payment Link white-label |
 
 ### Payment Link checkout white-label (CORECM-18149)
@@ -167,7 +168,7 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 | `SDK_UPSTREAM`       | Main SDK bundle                               | `https://sdk-web.y.uno`          | `https://sdk-web.staging.y.uno`          | `https://sdk-web.dev.y.uno`          |
 | `SDK_CARD_UPSTREAM`  | Card-form / secure-fields micro-app           | `https://sdk-web-card.y.uno`     | `https://sdk-web-card.staging.y.uno`     | `https://sdk-web-card.dev.y.uno`     |
 | `SDK_3DS_UPSTREAM`   | 3DS challenge / redirect / session-id pages   | `https://sdk-3ds.y.uno`          | `https://sdk-3ds.staging.y.uno`          | `https://sdk-3ds.dev.y.uno`          |
-| `SDK_STATIC_UPSTREAM`| Static assets (`/icons`, `/css`, `/brands`, `/c2p`) | `https://sdk.prod.y.uno`   | `https://sdk.prod.y.uno`                 | `https://sdk.prod.y.uno`             |
+| `SDK_STATIC_UPSTREAM`| Static assets (`/icons`, `/css`, `/brands`, `/c2p`, `/wallets`, `/fonts`) | `https://sdk.prod.y.uno`   | `https://sdk.prod.y.uno`                 | `https://sdk.prod.y.uno`             |
 | `SDK_ICONS_UPSTREAM` | Icon assets (`/sdk-web`, `/flags`, `/*.png`)  | `https://icons.prod.y.uno`       | `https://icons.prod.y.uno`               | `https://icons.prod.y.uno`           |
 | `SDK_STATIC_BUNDLES_UPSTREAM` | Fonts (`/sdk-static-bundles-ms/*`, SDK 1.10+) | `https://prod.y.uno`    | `https://prod.y.uno`                     | `https://prod.y.uno`                 |
 | `BACKEND_URL`        | SDK API (`/v1/*`, `/v2/*`)                    | `https://api.y.uno`              | `https://api-staging.y.uno`              | `https://api-dev.y.uno`              |

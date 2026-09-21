@@ -21,7 +21,8 @@ const SDK_3DS_UPSTREAM = (process.env.SDK_3DS_UPSTREAM || SDK_UPSTREAM).replace(
 // through the configured white-label host (host-swap, path preserved), so they
 // now arrive here and must be forwarded to the real asset hosts. These are
 // always `*.prod.y.uno` in the SDK regardless of environment.
-//   sdk.prod.y.uno   → /icons, /css, /brands, /c2p
+//   sdk.prod.y.uno   → /icons, /css, /brands, /c2p, /wallets (Samsung Pay PT
+//                      button), /fonts (Checkout Builder custom fonts)
 //   icons.prod.y.uno → /sdk-web, /flags, bare brand images (/Visa.png, …)
 const SDK_STATIC_UPSTREAM = (process.env.SDK_STATIC_UPSTREAM || 'https://sdk.prod.y.uno').replace(/\/$/, '')
 const SDK_ICONS_UPSTREAM = (process.env.SDK_ICONS_UPSTREAM || 'https://icons.prod.y.uno').replace(/\/$/, '')
@@ -70,7 +71,7 @@ const SDK_3DS_PATHS = new Set(['/challenge.html', '/redirect.html', '/session-id
 // prefixes (e.g. /assets/challenge-DeAdBeEf.js, /assets/validate-url.js).
 const SDK_3DS_ASSET_RE = /^\/assets\/(?:challenge|redirect|session-id|validate-url)/
 // Host-swapped static-asset paths (CORECM-17664).
-const SDK_STATIC_RE = /^\/(?:icons|css|brands|c2p)\//
+const SDK_STATIC_RE = /^\/(?:icons|css|brands|c2p|wallets|fonts)\//
 const SDK_ICONS_RE = /^\/(?:sdk-web|flags)\//
 // sdk-static-bundles-ms paths (font stylesheet + font files, SDK 1.10+).
 const SDK_STATIC_BUNDLES_RE = /^\/sdk-static-bundles-ms\//
@@ -427,7 +428,7 @@ detectSdkMainJs().finally(() => {
     console.log(` SDK upstream    : ${SDK_UPSTREAM}`)
     console.log(` SDK card upstream: ${SDK_CARD_UPSTREAM}${SDK_CARD_UPSTREAM === SDK_UPSTREAM ? ' (same as SDK upstream)' : ''}`)
     console.log(` SDK 3DS upstream: ${SDK_3DS_UPSTREAM}${SDK_3DS_UPSTREAM === SDK_UPSTREAM ? ' (same as SDK upstream)' : ''}`)
-    console.log(` SDK static asset: ${SDK_STATIC_UPSTREAM}  (/icons, /css, /brands, /c2p)`)
+    console.log(` SDK static asset: ${SDK_STATIC_UPSTREAM}  (/icons, /css, /brands, /c2p, /wallets, /fonts)`)
     console.log(` SDK icons asset : ${SDK_ICONS_UPSTREAM}  (/sdk-web, /flags, /*.png)`)
     console.log(` SDK fonts       : ${SDK_STATIC_BUNDLES_UPSTREAM}  (/sdk-static-bundles-ms)`)
     console.log(` SDK main.js     : ${sdkMainJsPath}`)
