@@ -25,6 +25,12 @@ const SDK_3DS_UPSTREAM = (process.env.SDK_3DS_UPSTREAM || SDK_UPSTREAM).replace(
 //   icons.prod.y.uno → /sdk-web, /flags, bare brand images (/Visa.png, …)
 const SDK_STATIC_UPSTREAM = (process.env.SDK_STATIC_UPSTREAM || 'https://sdk.prod.y.uno').replace(/\/$/, '')
 const SDK_ICONS_UPSTREAM = (process.env.SDK_ICONS_UPSTREAM || 'https://icons.prod.y.uno').replace(/\/$/, '')
+// Static bundles service (sdk-static-bundles-ms). Since SDK 1.10 the SDK loads
+// its font stylesheet from prod.y.uno/sdk-static-bundles-ms/v1/static/css/…,
+// host-swapped onto the white-label host like the icons, and that stylesheet
+// pulls its Inter woff2 files through relative ../fonts/ URLs under the same
+// prefix. Always prod.y.uno in the SDK regardless of environment.
+const SDK_STATIC_BUNDLES_UPSTREAM = (process.env.SDK_STATIC_BUNDLES_UPSTREAM || 'https://prod.y.uno').replace(/\/$/, '')
 // sdk-checkout app shell (the React checkout hosted at checkout.<env>.y.uno).
 // Serves the SPA routes (/payment, /payment/status, /enroll) plus its CRA
 // bundle (/static/*) and root public files (favicon, manifest, robots). This
@@ -66,6 +72,8 @@ const SDK_3DS_ASSET_RE = /^\/assets\/(?:challenge|redirect|session-id|validate-u
 // Host-swapped static-asset paths (CORECM-17664).
 const SDK_STATIC_RE = /^\/(?:icons|css|brands|c2p)\//
 const SDK_ICONS_RE = /^\/(?:sdk-web|flags)\//
+// sdk-static-bundles-ms paths (font stylesheet + font files, SDK 1.10+).
+const SDK_STATIC_BUNDLES_RE = /^\/sdk-static-bundles-ms\//
 // Bare brand images at the root (e.g. /Visa.png, /boleto_logosimbolo.png) live
 // on icons.prod.y.uno. `?react` and other queries are tolerated.
 const ROOT_IMAGE_RE = /^\/[^/]+\.(?:png|svg|jpe?g|gif|webp)(?:\?.*)?$/i
@@ -88,6 +96,7 @@ function pickSdkUpstream(reqPath) {
   if (isCheckoutAsset(reqPath)) return CHECKOUT_UPSTREAM
   if (SDK_3DS_PATHS.has(reqPath) || SDK_3DS_ASSET_RE.test(reqPath)) return SDK_3DS_UPSTREAM
   if (CARD_ASSET_RE.test(reqPath)) return SDK_CARD_UPSTREAM
+  if (SDK_STATIC_BUNDLES_RE.test(reqPath)) return SDK_STATIC_BUNDLES_UPSTREAM
   if (SDK_STATIC_RE.test(reqPath)) return SDK_STATIC_UPSTREAM
   if (SDK_ICONS_RE.test(reqPath) || ROOT_IMAGE_RE.test(reqPath)) return SDK_ICONS_UPSTREAM
   return SDK_UPSTREAM
@@ -185,6 +194,7 @@ app.get('/whitelabel-info', (_req, res) => {
     sdk3dsUpstream: SDK_3DS_UPSTREAM,
     sdkStaticUpstream: SDK_STATIC_UPSTREAM,
     sdkIconsUpstream: SDK_ICONS_UPSTREAM,
+    sdkStaticBundlesUpstream: SDK_STATIC_BUNDLES_UPSTREAM,
     sdkMainJsPath,
   })
 })
@@ -331,6 +341,7 @@ function labelForUpstream(upstreamBase) {
   if (upstreamBase === SDK_CARD_UPSTREAM && SDK_CARD_UPSTREAM !== SDK_UPSTREAM) return 'card'
   if (upstreamBase === SDK_STATIC_UPSTREAM && SDK_STATIC_UPSTREAM !== SDK_UPSTREAM) return 'static'
   if (upstreamBase === SDK_ICONS_UPSTREAM && SDK_ICONS_UPSTREAM !== SDK_UPSTREAM) return 'icons'
+  if (upstreamBase === SDK_STATIC_BUNDLES_UPSTREAM && SDK_STATIC_BUNDLES_UPSTREAM !== SDK_UPSTREAM) return 'static-bundles'
   return 'sdk'
 }
 
@@ -418,6 +429,7 @@ detectSdkMainJs().finally(() => {
     console.log(` SDK 3DS upstream: ${SDK_3DS_UPSTREAM}${SDK_3DS_UPSTREAM === SDK_UPSTREAM ? ' (same as SDK upstream)' : ''}`)
     console.log(` SDK static asset: ${SDK_STATIC_UPSTREAM}  (/icons, /css, /brands, /c2p)`)
     console.log(` SDK icons asset : ${SDK_ICONS_UPSTREAM}  (/sdk-web, /flags, /*.png)`)
+    console.log(` SDK fonts       : ${SDK_STATIC_BUNDLES_UPSTREAM}  (/sdk-static-bundles-ms)`)
     console.log(` SDK main.js     : ${sdkMainJsPath}`)
     console.log(` Checkout app    : ${CHECKOUT_UPSTREAM}  (/payment, /enroll, /static)`)
     console.log(` Checkout BFF    : ${CHECKOUT_BFF_UPSTREAM}  (/checkout-bff/*)`)

@@ -33,6 +33,7 @@ traffic upstream, which is what exercises the white-label code paths end-to-end.
 | `/v<semver>/pages/*`, `/v<semver>/assets/*`            | `SDK_CARD_UPSTREAM`                    |
 | `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*`            | `SDK_STATIC_UPSTREAM` (`sdk.prod.y.uno`)  |
 | `/sdk-web/*`, `/flags/*`, bare brand images (`/Visa.png`, …) | `SDK_ICONS_UPSTREAM` (`icons.prod.y.uno`) |
+| `/sdk-static-bundles-ms/*` (font stylesheet + font files, SDK 1.10+) | `SDK_STATIC_BUNDLES_UPSTREAM` (`prod.y.uno`) |
 | Everything else (GET/HEAD)                             | `SDK_UPSTREAM`                         |
 
 > **Checkout CRA bundle vs. SDK bare images:** the checkout app's `/static/(js|css|media)/*` and root public
@@ -43,6 +44,30 @@ traffic upstream, which is what exercises the white-label code paths end-to-end.
 > `sdk.prod.y.uno`, bypassing the white-label host. It now host-swaps them to this proxy (path preserved), so the
 > proxy forwards them by path prefix to the two asset CDNs. Requires an SDK build that includes the fix
 > (sdk-web + `@yuno/sdk-web-core` ≥ 7.5.0) and a partner page that inits with `{ apiUrl: '<this proxy origin>' }`.
+
+> **Fonts (SDK 1.10+, CORECM-20102):** from 1.10 the SDK loads its font stylesheet from
+> `prod.y.uno/sdk-static-bundles-ms/v1/static/css/sdk_payments_inter_font_v2.css`, host-swapped onto the
+> white-label host like the icons. The stylesheet loads its Inter `woff2` files with relative `../fonts/` URLs,
+> so they arrive under the same prefix. Without the `/sdk-static-bundles-ms/*` route those requests fell through
+> to `SDK_UPSTREAM` and returned 404, and the SDK fell back to the system font.
+
+### Routes a partner proxy must forward
+
+A partner's own gateway needs the same split. Give this list to white-label merchants (for example Zuora)
+before they upgrade. Every path arrives under the partner's base path, prefixed exactly as `apiUrl` / `assetUrl`
+carry it.
+
+| Path | Forward to | Needed from |
+| ---- | ---------- | ----------- |
+| `/v<major.minor>/*` (SDK bundle and chunks) | `sdk-web[.<env>].y.uno` | always |
+| `/v<card-semver>/pages/*`, `/v<card-semver>/assets/*` | `sdk-web-card[.<env>].y.uno` | always |
+| `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/(challenge\|redirect\|session-id\|validate-url)*` | `sdk-3ds[.<env>].y.uno` | 3DS |
+| `/v1/*`, `/v2/*` | `api[-<env>].y.uno` | always |
+| `/checkout-websocket-notification-ms/ws/*` (WebSocket) | `[<env>.]y.uno` | always |
+| `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*` | `sdk.prod.y.uno` | always |
+| `/sdk-web/*`, `/flags/*`, bare brand images (`/Visa.png`, …) | `icons.prod.y.uno` | always |
+| `/sdk-static-bundles-ms/*` | `prod.y.uno` | **SDK 1.10+** |
+| `/payment`, `/payment/status`, `/enroll`, `/static/*`, `/checkout-bff/*` | `checkout[.<env>].y.uno` / `<env>.y.uno` | Payment Link white-label |
 
 ### Payment Link checkout white-label (CORECM-18149)
 
@@ -144,6 +169,7 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 | `SDK_3DS_UPSTREAM`   | 3DS challenge / redirect / session-id pages   | `https://sdk-3ds.y.uno`          | `https://sdk-3ds.staging.y.uno`          | `https://sdk-3ds.dev.y.uno`          |
 | `SDK_STATIC_UPSTREAM`| Static assets (`/icons`, `/css`, `/brands`, `/c2p`) | `https://sdk.prod.y.uno`   | `https://sdk.prod.y.uno`                 | `https://sdk.prod.y.uno`             |
 | `SDK_ICONS_UPSTREAM` | Icon assets (`/sdk-web`, `/flags`, `/*.png`)  | `https://icons.prod.y.uno`       | `https://icons.prod.y.uno`               | `https://icons.prod.y.uno`           |
+| `SDK_STATIC_BUNDLES_UPSTREAM` | Fonts (`/sdk-static-bundles-ms/*`, SDK 1.10+) | `https://prod.y.uno`    | `https://prod.y.uno`                     | `https://prod.y.uno`                 |
 | `BACKEND_URL`        | SDK API (`/v1/*`, `/v2/*`)                    | `https://api.y.uno`              | `https://api-staging.y.uno`              | `https://api-dev.y.uno`              |
 | `BACKEND_WS_URL`     | WebSocket upgrades                            | `https://y.uno`                  | `https://staging.y.uno`                  | `https://dev.y.uno`                  |
 | `SDK_MAIN_JS`        | Override the injected main.js path (leave unset) | `/v1.10/main.js`              | `/v1.10/main.js`                         | `/v1.10/main.js`                     |
@@ -151,6 +177,9 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 Defaults:
 
 - `SDK_CARD_UPSTREAM`, `SDK_3DS_UPSTREAM`, `BACKEND_WS_URL` fall back to `SDK_UPSTREAM` / `BACKEND_URL` when unset.
+- `SDK_STATIC_UPSTREAM`, `SDK_ICONS_UPSTREAM` and `SDK_STATIC_BUNDLES_UPSTREAM` default to the fixed
+  `sdk.prod.y.uno` / `icons.prod.y.uno` / `prod.y.uno` hosts: the SDK host-swaps those from `*.prod.y.uno`
+  regardless of environment.
 - `CHECKOUT_UPSTREAM` and `CHECKOUT_BFF_UPSTREAM` default to sandbox (`https://checkout.sandbox.y.uno`,
   `https://sandbox.y.uno`) — set both to the environment matching your checkout session.
 - `SDK_MAIN_JS` is auto-resolved from `<SDK_UPSTREAM>/versions.json` (`latest.version`), falling back to `/v1.10/main.js`.

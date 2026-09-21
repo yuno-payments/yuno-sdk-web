@@ -43,6 +43,8 @@ Single file: `server.js`. Routes are registered in this order (order matters):
      `/assets/(challenge|redirect|session-id|validate-url)*`.
    - `SDK_CARD_UPSTREAM` for `/v<semver>/pages/*` and `/v<semver>/assets/*`.
    - `SDK_STATIC_UPSTREAM` for `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*`.
+   - `SDK_STATIC_BUNDLES_UPSTREAM` (`prod.y.uno`) for `/sdk-static-bundles-ms/*`: the font stylesheet the SDK
+     loads since 1.10 and the woff2 files it references with relative `../fonts/` URLs.
    - `SDK_ICONS_UPSTREAM` for `/sdk-web/*`, `/flags/*`, and bare root brand images (`/Visa.png`, …).
    - `SDK_UPSTREAM` otherwise.
    For the main SDK upstream, the version segment is normalized to whatever `versions.json` says is `latest`,
