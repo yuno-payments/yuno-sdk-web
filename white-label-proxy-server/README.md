@@ -33,7 +33,7 @@ traffic upstream, which is what exercises the white-label code paths end-to-end.
 | `/v<semver>/pages/*`, `/v<semver>/assets/*`            | `SDK_CARD_UPSTREAM`                    |
 | `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*`, `/wallets/*`, `/fonts/*` | `SDK_STATIC_UPSTREAM` (`sdk.prod.y.uno`)  |
 | `/sdk-web/*`, `/flags/*`, bare brand images (`/Visa.png`, …) | `SDK_ICONS_UPSTREAM` (`icons.prod.y.uno`) |
-| `/sdk-static-bundles-ms/*` (font stylesheet + font files, SDK 1.10+) | `SDK_STATIC_BUNDLES_UPSTREAM` (`prod.y.uno`) |
+| `/sdk-static-bundles-ms/*` (SDK font stylesheet and files, Forter / Riskified SRI scripts) | `SDK_STATIC_BUNDLES_UPSTREAM` (`prod.y.uno`) |
 | Everything else (GET/HEAD)                             | `SDK_UPSTREAM`                         |
 
 > **Checkout CRA bundle vs. SDK bare images:** the checkout app's `/static/(js|css|media)/*` and root public
@@ -45,7 +45,7 @@ traffic upstream, which is what exercises the white-label code paths end-to-end.
 > proxy forwards them by path prefix to the two asset CDNs. Requires an SDK build that includes the fix
 > (sdk-web + `@yuno/sdk-web-core` ≥ 7.5.0) and a partner page that inits with `{ apiUrl: '<this proxy origin>' }`.
 
-> **Fonts (SDK 1.10+, CORECM-20102):** from 1.10 the SDK loads its font stylesheet from
+> **Fonts (SDK 1.10.9+, CORECM-20102):** from 1.10.9 the SDK loads its font stylesheet from
 > `prod.y.uno/sdk-static-bundles-ms/v1/static/css/sdk_payments_inter_font_v2.css`, host-swapped onto the
 > white-label host like the icons. The stylesheet loads its Inter `woff2` files with relative `../fonts/` URLs,
 > so they arrive under the same prefix. Without the `/sdk-static-bundles-ms/*` route those requests fell through
@@ -57,18 +57,30 @@ A partner's own gateway needs the same split. Give this list to white-label merc
 before they upgrade. Every path arrives under the partner's base path, prefixed exactly as `apiUrl` / `assetUrl`
 carry it.
 
-| Path | Forward to | Needed from |
-| ---- | ---------- | ----------- |
-| `/v<major.minor>/*` (SDK bundle and chunks) | `sdk-web[.<env>].y.uno` | always |
-| `/v<card-semver>/pages/*`, `/v<card-semver>/assets/*` | `sdk-web-card[.<env>].y.uno` | always |
-| `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/(challenge\|redirect\|session-id\|validate-url)*` | `sdk-3ds[.<env>].y.uno` | 3DS |
-| `/v1/*`, `/v2/*` | `api[-<env>].y.uno` | always |
-| `/checkout-websocket-notification-ms/ws/*` (WebSocket) | `[<env>.]y.uno` | always |
-| `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*` | `sdk.prod.y.uno` | always |
-| `/wallets/*` (Samsung Pay PT button), `/fonts/*` (Checkout Builder custom fonts) | `sdk.prod.y.uno` | SDK builds with CORECM-20136 |
-| `/sdk-web/*`, `/flags/*`, bare brand images (`/Visa.png`, …) | `icons.prod.y.uno` | always |
-| `/sdk-static-bundles-ms/*` | `prod.y.uno` | **SDK 1.10+** (fonts); Forter / Riskified SRI scripts on builds with CORECM-20136 |
-| `/payment`, `/payment/status`, `/enroll`, `/static/*`, `/checkout-bff/*` | `checkout[.<env>].y.uno` / `<env>.y.uno` | Payment Link white-label |
+**Match the rules in this order, first match wins.** Several shapes overlap (`/v1/*` vs `/v<major.minor>/*` vs
+`/v<card-semver>/pages/*`), so an unordered prefix or regex set sends card pages or API calls to the wrong host.
+
+| # | Path | Forward to | Needed from |
+| - | ---- | ---------- | ----------- |
+| 1 | `/v1/*`, `/v2/*` (HTTP + WebSocket) | `api[-<env>].y.uno` | always |
+| 2 | `/checkout-websocket-notification-ms/ws/*` (WebSocket) | `[<env>.]y.uno` | always |
+| 3 | `/payment`, `/payment/status`, `/enroll`, `/static/*`, `/checkout-bff/*` | `checkout[.<env>].y.uno` / `<env>.y.uno` | Payment Link white-label |
+| 4 | `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/(challenge\|redirect\|session-id\|validate-url)*` | `sdk-3ds[.<env>].y.uno` | 3DS |
+| 5 | `/v<card-semver>/pages/*`, `/v<card-semver>/assets/*` | `sdk-web-card[.<env>].y.uno` | always |
+| 6 | `/sdk-static-bundles-ms/*` (keep the query string) | `prod.y.uno` (`staging.y.uno` for sandbox/staging Riskified SRI) | **SDK 1.10.9+** (fonts); Forter / Riskified SRI on builds with CORECM-20136 |
+| 7 | `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*` | `sdk.prod.y.uno` | always |
+| 8 | `/wallets/*` (Samsung Pay PT button), `/fonts/*` (Checkout Builder custom fonts) | `sdk.prod.y.uno` | SDK builds with CORECM-20136 |
+| 9 | `/sdk-web/*`, `/flags/*`, bare brand images (`/Visa.png`, …) | `icons.prod.y.uno` | always |
+| 10 | `/v<major.minor>/*` (SDK bundle and chunks) and anything else | `sdk-web[.<env>].y.uno` | always |
+
+- **CORS:** fonts (`/sdk-static-bundles-ms/*`, `/fonts/*`) and the SRI scripts are fetched in CORS mode from the
+  merchant page. The gateway must return `Access-Control-Allow-Origin` for the merchant origin:
+  `sdk.prod.y.uno/fonts/*` sends none, so forwarding it untouched is not enough. This proxy adds CORS itself.
+- **Reject `.` / `..` path segments** before forwarding (this proxy returns 400). Otherwise
+  `/sdk-static-bundles-ms/../…` resolves to any path on the upstream, including the production API gateway.
+- **Fallback:** SDK builds with CORECM-20136 load the fraud scripts, the Samsung Pay PT button and Builder fonts
+  from Yuno again if the gateway can't serve them, so a missing rule degrades instead of breaking. The white-label
+  promise (no `*.y.uno` requests) still needs every rule above.
 
 ### Payment Link checkout white-label (CORECM-18149)
 
@@ -170,7 +182,7 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 | `SDK_3DS_UPSTREAM`   | 3DS challenge / redirect / session-id pages   | `https://sdk-3ds.y.uno`          | `https://sdk-3ds.staging.y.uno`          | `https://sdk-3ds.dev.y.uno`          |
 | `SDK_STATIC_UPSTREAM`| Static assets (`/icons`, `/css`, `/brands`, `/c2p`, `/wallets`, `/fonts`) | `https://sdk.prod.y.uno`   | `https://sdk.prod.y.uno`                 | `https://sdk.prod.y.uno`             |
 | `SDK_ICONS_UPSTREAM` | Icon assets (`/sdk-web`, `/flags`, `/*.png`)  | `https://icons.prod.y.uno`       | `https://icons.prod.y.uno`               | `https://icons.prod.y.uno`           |
-| `SDK_STATIC_BUNDLES_UPSTREAM` | Fonts (`/sdk-static-bundles-ms/*`, SDK 1.10+) | `https://prod.y.uno`    | `https://prod.y.uno`                     | `https://prod.y.uno`                 |
+| `SDK_STATIC_BUNDLES_UPSTREAM` | Fonts, Forter, Riskified SRI (`/sdk-static-bundles-ms/*`) | `https://prod.y.uno`    | `https://staging.y.uno`                  | `https://staging.y.uno`              |
 | `BACKEND_URL`        | SDK API (`/v1/*`, `/v2/*`)                    | `https://api.y.uno`              | `https://api-staging.y.uno`              | `https://api-dev.y.uno`              |
 | `BACKEND_WS_URL`     | WebSocket upgrades                            | `https://y.uno`                  | `https://staging.y.uno`                  | `https://dev.y.uno`                  |
 | `SDK_MAIN_JS`        | Override the injected main.js path (leave unset) | `/v1.10/main.js`              | `/v1.10/main.js`                         | `/v1.10/main.js`                     |
@@ -178,9 +190,10 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 Defaults:
 
 - `SDK_CARD_UPSTREAM`, `SDK_3DS_UPSTREAM`, `BACKEND_WS_URL` fall back to `SDK_UPSTREAM` / `BACKEND_URL` when unset.
-- `SDK_STATIC_UPSTREAM`, `SDK_ICONS_UPSTREAM` and `SDK_STATIC_BUNDLES_UPSTREAM` default to the fixed
-  `sdk.prod.y.uno` / `icons.prod.y.uno` / `prod.y.uno` hosts: the SDK host-swaps those from `*.prod.y.uno`
-  regardless of environment.
+- `SDK_STATIC_UPSTREAM` and `SDK_ICONS_UPSTREAM` default to the fixed `sdk.prod.y.uno` / `icons.prod.y.uno`
+  hosts: the SDK host-swaps those from `*.prod.y.uno` regardless of environment. `SDK_STATIC_BUNDLES_UPSTREAM`
+  defaults to `prod.y.uno`; only the Riskified SRI beacon differs per environment (`staging.y.uno` outside
+  production).
 - `CHECKOUT_UPSTREAM` and `CHECKOUT_BFF_UPSTREAM` default to sandbox (`https://checkout.sandbox.y.uno`,
   `https://sandbox.y.uno`) — set both to the environment matching your checkout session.
 - `SDK_MAIN_JS` is auto-resolved from `<SDK_UPSTREAM>/versions.json` (`latest.version`), falling back to `/v1.10/main.js`.

@@ -18,7 +18,8 @@ dependencies. Do not try to share modules with the parent.
 
 Single file: `server.js`. Routes are registered in this order (order matters):
 
-0. **`BASE_PATH` strip** (only when set): a top middleware that strips the configured sub-path from
+0. **`BASE_PATH` strip** (only when set), then a guard that rejects `.` / `..` path segments with 400 (they
+   would escape a prefix rule once the upstream URL is resolved): a top middleware that strips the configured sub-path from
    `req.url`/`req.originalUrl` so every downstream match and forward sees root-relative paths. Emulates a partner
    gateway mounted under a sub-path (e.g. `…/orchestrator`); the SDK preserves that prefix on all asset/API/WS
    requests since CORECM-17664. Empty = root mount. Applied to WS upgrades too. The injected `__SDK_MAIN_JS__` is
@@ -42,15 +43,17 @@ Single file: `server.js`. Routes are registered in this order (order matters):
    - `SDK_3DS_UPSTREAM` for `/challenge.html`, `/redirect.html`, `/session-id.html`, and
      `/assets/(challenge|redirect|session-id|validate-url)*`.
    - `SDK_CARD_UPSTREAM` for `/v<semver>/pages/*` and `/v<semver>/assets/*`.
+   - `SDK_STATIC_BUNDLES_UPSTREAM` (`prod.y.uno`) for `/sdk-static-bundles-ms/*`: the font stylesheet the SDK
+     loads since 1.10.9, the woff2 files it references with relative `../fonts/` URLs, the Forter script and the
+     Riskified SRI beacon. Checked before the static rule below.
    - `SDK_STATIC_UPSTREAM` for `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*`, `/wallets/*` (Samsung Pay PT button) and
      `/fonts/*` (Checkout Builder custom fonts).
-   - `SDK_STATIC_BUNDLES_UPSTREAM` (`prod.y.uno`) for `/sdk-static-bundles-ms/*`: the font stylesheet the SDK
-     loads since 1.10 and the woff2 files it references with relative `../fonts/` URLs.
    - `SDK_ICONS_UPSTREAM` for `/sdk-web/*`, `/flags/*`, and bare root brand images (`/Visa.png`, …).
    - `SDK_UPSTREAM` otherwise.
    For the main SDK upstream, the version segment is normalized to whatever `versions.json` says is `latest`,
    so partners can request any `/v<x>/main.js` and still hit the published build.
-6. 404 fallback.
+6. 404 fallback. Upstream 404s are logged with the route label and upstream, so a path without a rule of its
+   own shows up in the console instead of failing silently.
 7. WebSocket upgrades on the underlying `http.Server` (Express middleware never sees `Upgrade`).
    Uses `http-proxy`. `/checkout-websocket-notification-ms/ws/{payment,enrollment}` → `BACKEND_WS_URL`;
    everything else follows the same SDK/card/3DS split as HTTP.
