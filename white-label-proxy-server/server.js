@@ -21,10 +21,20 @@ const SDK_3DS_UPSTREAM = (process.env.SDK_3DS_UPSTREAM || SDK_UPSTREAM).replace(
 // through the configured white-label host (host-swap, path preserved), so they
 // now arrive here and must be forwarded to the real asset hosts. These are
 // always `*.prod.y.uno` in the SDK regardless of environment.
-//   sdk.prod.y.uno   → /icons, /css, /brands, /c2p
+//   sdk.prod.y.uno   → /icons, /css, /brands, /c2p, /wallets (Samsung Pay PT
+//                      button), /fonts (Checkout Builder custom fonts)
 //   icons.prod.y.uno → /sdk-web, /flags, bare brand images (/Visa.png, …)
 const SDK_STATIC_UPSTREAM = (process.env.SDK_STATIC_UPSTREAM || 'https://sdk.prod.y.uno').replace(/\/$/, '')
 const SDK_ICONS_UPSTREAM = (process.env.SDK_ICONS_UPSTREAM || 'https://icons.prod.y.uno').replace(/\/$/, '')
+// Static bundles service (sdk-static-bundles-ms), host-swapped onto the
+// white-label host like the icons:
+//   - the font stylesheet (SDK 1.10.9+, always prod.y.uno) and the Inter woff2
+//     files it pulls through relative ../fonts/ URLs;
+//   - the Forter script (prod.y.uno) and the Riskified SRI beacon (prod.y.uno in
+//     production, staging.y.uno elsewhere; dynamic, needs its query string).
+// Defaults to prod.y.uno; point it at staging.y.uno to test sandbox/staging
+// sessions that use the Riskified SRI beacon.
+const SDK_STATIC_BUNDLES_UPSTREAM = (process.env.SDK_STATIC_BUNDLES_UPSTREAM || 'https://prod.y.uno').replace(/\/$/, '')
 // sdk-checkout app shell (the React checkout hosted at checkout.<env>.y.uno).
 // Serves the SPA routes (/payment, /payment/status, /enroll) plus its CRA
 // bundle (/static/*) and root public files (favicon, manifest, robots). This
@@ -64,8 +74,10 @@ const SDK_3DS_PATHS = new Set(['/challenge.html', '/redirect.html', '/session-id
 // prefixes (e.g. /assets/challenge-DeAdBeEf.js, /assets/validate-url.js).
 const SDK_3DS_ASSET_RE = /^\/assets\/(?:challenge|redirect|session-id|validate-url)/
 // Host-swapped static-asset paths (CORECM-17664).
-const SDK_STATIC_RE = /^\/(?:icons|css|brands|c2p)\//
+const SDK_STATIC_RE = /^\/(?:icons|css|brands|c2p|wallets|fonts)\//
 const SDK_ICONS_RE = /^\/(?:sdk-web|flags)\//
+// sdk-static-bundles-ms paths (font stylesheet + font files, SDK 1.10+).
+const SDK_STATIC_BUNDLES_RE = /^\/sdk-static-bundles-ms\//
 // Bare brand images at the root (e.g. /Visa.png, /boleto_logosimbolo.png) live
 // on icons.prod.y.uno. `?react` and other queries are tolerated.
 const ROOT_IMAGE_RE = /^\/[^/]+\.(?:png|svg|jpe?g|gif|webp)(?:\?.*)?$/i
@@ -84,13 +96,30 @@ function isCheckoutAsset(reqPath) {
   return CHECKOUT_ASSET_RE.test(reqPath) || CHECKOUT_ROOT_FILES.has(reqPath)
 }
 
+// Picks the upstream for a path, first match wins. The label names the route
+// (x-white-label-proxy header, logs) and decides whether the SDK version
+// normalization applies (`sdk` only).
 function pickSdkUpstream(reqPath) {
-  if (isCheckoutAsset(reqPath)) return CHECKOUT_UPSTREAM
-  if (SDK_3DS_PATHS.has(reqPath) || SDK_3DS_ASSET_RE.test(reqPath)) return SDK_3DS_UPSTREAM
-  if (CARD_ASSET_RE.test(reqPath)) return SDK_CARD_UPSTREAM
-  if (SDK_STATIC_RE.test(reqPath)) return SDK_STATIC_UPSTREAM
-  if (SDK_ICONS_RE.test(reqPath) || ROOT_IMAGE_RE.test(reqPath)) return SDK_ICONS_UPSTREAM
-  return SDK_UPSTREAM
+  if (isCheckoutAsset(reqPath)) return { base: CHECKOUT_UPSTREAM, label: 'checkout' }
+  if (SDK_3DS_PATHS.has(reqPath) || SDK_3DS_ASSET_RE.test(reqPath)) return { base: SDK_3DS_UPSTREAM, label: '3ds' }
+  if (CARD_ASSET_RE.test(reqPath)) return { base: SDK_CARD_UPSTREAM, label: 'card' }
+  if (SDK_STATIC_BUNDLES_RE.test(reqPath)) return { base: SDK_STATIC_BUNDLES_UPSTREAM, label: 'static-bundles' }
+  if (SDK_STATIC_RE.test(reqPath)) return { base: SDK_STATIC_UPSTREAM, label: 'static' }
+  if (SDK_ICONS_RE.test(reqPath) || ROOT_IMAGE_RE.test(reqPath)) return { base: SDK_ICONS_UPSTREAM, label: 'icons' }
+  return { base: SDK_UPSTREAM, label: 'sdk' }
+}
+
+// True when the path has a `.` / `..` segment (raw or percent-encoded). Those are
+// resolved when the upstream URL is built, so `/sdk-static-bundles-ms/../x` would
+// escape the prefix and reach any path on that upstream.
+function hasDotSegment(pathname) {
+  let decoded = pathname
+  try {
+    decoded = decodeURIComponent(pathname)
+  } catch {
+    return true
+  }
+  return decoded.split(/[/\\]/).some((segment) => segment === '.' || segment === '..')
 }
 
 function getResolvedSdkVersion() {
@@ -131,6 +160,11 @@ if (BASE_PATH) {
     next()
   })
 }
+
+app.use((req, res, next) => {
+  if (hasDotSegment(req.path)) return res.status(400).send('Bad path')
+  next()
+})
 
 app.use(express.json({ limit: '5mb' }))
 
@@ -185,6 +219,7 @@ app.get('/whitelabel-info', (_req, res) => {
     sdk3dsUpstream: SDK_3DS_UPSTREAM,
     sdkStaticUpstream: SDK_STATIC_UPSTREAM,
     sdkIconsUpstream: SDK_ICONS_UPSTREAM,
+    sdkStaticBundlesUpstream: SDK_STATIC_BUNDLES_UPSTREAM,
     sdkMainJsPath,
   })
 })
@@ -325,18 +360,8 @@ app.use((req, res, next) => {
   proxyToUpstream(req, res, next)
 })
 
-function labelForUpstream(upstreamBase) {
-  if (upstreamBase === CHECKOUT_UPSTREAM) return 'checkout'
-  if (upstreamBase === SDK_3DS_UPSTREAM && SDK_3DS_UPSTREAM !== SDK_UPSTREAM) return '3ds'
-  if (upstreamBase === SDK_CARD_UPSTREAM && SDK_CARD_UPSTREAM !== SDK_UPSTREAM) return 'card'
-  if (upstreamBase === SDK_STATIC_UPSTREAM && SDK_STATIC_UPSTREAM !== SDK_UPSTREAM) return 'static'
-  if (upstreamBase === SDK_ICONS_UPSTREAM && SDK_ICONS_UPSTREAM !== SDK_UPSTREAM) return 'icons'
-  return 'sdk'
-}
-
 async function proxyToUpstream(req, res, next) {
-  const upstreamBase = pickSdkUpstream(req.path)
-  const upstreamLabel = labelForUpstream(upstreamBase)
+  const { base: upstreamBase, label: upstreamLabel } = pickSdkUpstream(req.path)
   const targetPath = upstreamLabel === 'sdk' ? normalizeSdkPath(req.originalUrl) : req.originalUrl
   const targetUrl = `${upstreamBase}${targetPath}`
   if (targetPath !== req.originalUrl) {
@@ -351,7 +376,12 @@ async function proxyToUpstream(req, res, next) {
         'user-agent': req.headers['user-agent'] || 'white-label-proxy',
       },
     })
-    if (upstream.status === 404) return next()
+    if (upstream.status === 404) {
+      // A 404 here usually means a path the SDK requests has no route of its own
+      // and fell through to the wrong upstream: log it so the gap is visible.
+      console.warn(`[${upstreamLabel}-proxy] 404 ${req.originalUrl} (from ${upstreamBase})`)
+      return next()
+    }
     res.status(upstream.status)
     const passthroughHeaders = ['content-type', 'cache-control', 'etag', 'last-modified']
     for (const h of passthroughHeaders) {
@@ -389,7 +419,7 @@ const BACKEND_WS_PATHS = [
 function pickWsTarget(reqUrl) {
   const pathname = reqUrl.split('?')[0]
   if (BACKEND_WS_PATHS.includes(pathname)) return BACKEND_WS_URL
-  return pickSdkUpstream(reqUrl)
+  return pickSdkUpstream(pathname).base
 }
 
 // ---- boot -----------------------------------------------------------------
@@ -416,8 +446,9 @@ detectSdkMainJs().finally(() => {
     console.log(` SDK upstream    : ${SDK_UPSTREAM}`)
     console.log(` SDK card upstream: ${SDK_CARD_UPSTREAM}${SDK_CARD_UPSTREAM === SDK_UPSTREAM ? ' (same as SDK upstream)' : ''}`)
     console.log(` SDK 3DS upstream: ${SDK_3DS_UPSTREAM}${SDK_3DS_UPSTREAM === SDK_UPSTREAM ? ' (same as SDK upstream)' : ''}`)
-    console.log(` SDK static asset: ${SDK_STATIC_UPSTREAM}  (/icons, /css, /brands, /c2p)`)
+    console.log(` SDK static asset: ${SDK_STATIC_UPSTREAM}  (/icons, /css, /brands, /c2p, /wallets, /fonts)`)
     console.log(` SDK icons asset : ${SDK_ICONS_UPSTREAM}  (/sdk-web, /flags, /*.png)`)
+    console.log(` SDK fonts       : ${SDK_STATIC_BUNDLES_UPSTREAM}  (/sdk-static-bundles-ms)`)
     console.log(` SDK main.js     : ${sdkMainJsPath}`)
     console.log(` Checkout app    : ${CHECKOUT_UPSTREAM}  (/payment, /enroll, /static)`)
     console.log(` Checkout BFF    : ${CHECKOUT_BFF_UPSTREAM}  (/checkout-bff/*)`)
@@ -432,6 +463,10 @@ detectSdkMainJs().finally(() => {
   server.on('upgrade', (req, socket, head) => {
     if (BASE_PATH && underBasePath(req.url)) {
       req.url = stripBasePath(req.url)
+    }
+    if (hasDotSegment(req.url.split('?')[0])) {
+      socket.destroy()
+      return
     }
     const target = pickWsTarget(req.url)
     wsProxy.ws(req, socket, head, { target })
