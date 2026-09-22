@@ -63,7 +63,7 @@ carry it.
 | # | Path | Forward to | Needed from |
 | - | ---- | ---------- | ----------- |
 | 1 | `/v1/*`, `/v2/*` (HTTP + WebSocket) | `api[-<env>].y.uno` | always |
-| 2 | `/checkout-websocket-notification-ms/ws/*` (WebSocket) | `[<env>.]y.uno` | always |
+| 2 | `/checkout-websocket-notification-ms/ws/*` (WebSocket) | `<env>.y.uno` (`prod.y.uno` in production) | always |
 | 3 | `/payment`, `/payment/status`, `/enroll`, `/static/*`, `/checkout-bff/*` | `checkout[.<env>].y.uno` / `<env>.y.uno` | Payment Link white-label |
 | 4 | `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/(challenge\|redirect\|session-id\|validate-url)*` | `sdk-3ds[.<env>].y.uno` | 3DS |
 | 5 | `/v<card-semver>/pages/*`, `/v<card-semver>/assets/*` | `sdk-web-card[.<env>].y.uno` | always |
@@ -76,6 +76,13 @@ carry it.
 - **CORS:** fonts (`/sdk-static-bundles-ms/*`, `/fonts/*`) and the SRI scripts are fetched in CORS mode from the
   merchant page. The gateway must return `Access-Control-Allow-Origin` for the merchant origin:
   `sdk.prod.y.uno/fonts/*` sends none, so forwarding it untouched is not enough. This proxy adds CORS itself.
+- **Regions:** with an `apiUrl` override the SDK no longer adds the key's region to hosts, so a gateway serving
+  EU / MENA keys must route them to the regional hosts itself (`api.eu.y.uno`, `prod.eu.y.uno`, …).
+- **Versioned `assetUrl`** (`…/orchestrator/v1.10`): chunks are requested under that version segment, so the
+  gateway must map it to a published `sdk-web` path (this proxy normalizes it to `versions.json` latest).
+- **Payment Link:** also forward the checkout root files (`/favicon.ico`, `/manifest.json`, `/robots.txt`,
+  `/asset-manifest.json`), and rewrite the absolute `checkout.<env>.y.uno` origin in `index.html` to the base
+  path, as this proxy does, or the bundle loads from Yuno.
 - **Reject `.` / `..` path segments** before forwarding (this proxy returns 400). Otherwise
   `/sdk-static-bundles-ms/../…` resolves to any path on the upstream, including the production API gateway.
 - **Fallback:** SDK builds with CORECM-20136 load the fraud scripts, the Samsung Pay PT button and Builder fonts
@@ -169,7 +176,7 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 
 - **SDK services** use `<service>[.<env>].y.uno` — e.g. `sdk-web.y.uno`, `sdk-web.staging.y.uno`, `sdk-web.dev.y.uno`.
 - **API surface** uses an `api[-<env>].y.uno` prefix — e.g. `api.y.uno`, `api-staging.y.uno`, `api-dev.y.uno`.
-- **WebSocket service** has NO `api-` prefix — it's `<env>.y.uno` directly (`y.uno`, `staging.y.uno`, `dev.y.uno`).
+- **WebSocket service** has NO `api-` prefix — it's `<env>.y.uno` directly (`prod.y.uno`, `staging.y.uno`, `dev.y.uno`).
 
 | Var                  | Purpose                                       | Production                       | Staging                                  | Dev                                  |
 | -------------------- | --------------------------------------------- | -------------------------------- | ---------------------------------------- | ------------------------------------ |
@@ -184,7 +191,7 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 | `SDK_ICONS_UPSTREAM` | Icon assets (`/sdk-web`, `/flags`, `/*.png`)  | `https://icons.prod.y.uno`       | `https://icons.prod.y.uno`               | `https://icons.prod.y.uno`           |
 | `SDK_STATIC_BUNDLES_UPSTREAM` | Fonts, Forter, Riskified SRI (`/sdk-static-bundles-ms/*`) | `https://prod.y.uno`    | `https://staging.y.uno`                  | `https://staging.y.uno`              |
 | `BACKEND_URL`        | SDK API (`/v1/*`, `/v2/*`)                    | `https://api.y.uno`              | `https://api-staging.y.uno`              | `https://api-dev.y.uno`              |
-| `BACKEND_WS_URL`     | WebSocket upgrades                            | `https://y.uno`                  | `https://staging.y.uno`                  | `https://dev.y.uno`                  |
+| `BACKEND_WS_URL`     | WebSocket upgrades                            | `https://prod.y.uno`             | `https://staging.y.uno`                  | `https://dev.y.uno`                  |
 | `SDK_MAIN_JS`        | Override the injected main.js path (leave unset) | `/v1.10/main.js`              | `/v1.10/main.js`                         | `/v1.10/main.js`                     |
 
 Defaults:
