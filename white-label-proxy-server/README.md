@@ -67,9 +67,9 @@ carry it.
 | 3 | `/payment`, `/payment/status`, `/enroll`, `/static/*`, `/checkout-bff/*` | `checkout[.<env>].y.uno` / `<env>.y.uno` | Payment Link white-label |
 | 4 | `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/(challenge\|redirect\|session-id\|validate-url)*` | `sdk-3ds[.<env>].y.uno` | 3DS |
 | 5 | `/v<card-semver>/pages/*`, `/v<card-semver>/assets/*` | `sdk-web-card[.<env>].y.uno` | always |
-| 6 | `/sdk-static-bundles-ms/*` (keep the query string) | `prod.y.uno` (`staging.y.uno` for sandbox/staging Riskified SRI) | **SDK 1.10.9+** (fonts); Forter / Riskified SRI on builds with CORECM-20136 |
+| 6 | `/sdk-static-bundles-ms/*` (keep the query string) | `prod.y.uno` (`staging.y.uno` for sandbox/staging Riskified SRI) | **SDK 1.10.9+** (fonts); **SDK 1.11.16+** (Forter script, Riskified SRI beacon) |
 | 7 | `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*` | `sdk.prod.y.uno` | always |
-| 8 | `/wallets/*` (Samsung Pay PT button), `/fonts/*` (Checkout Builder custom fonts) | `sdk.prod.y.uno` | SDK builds with CORECM-20136 |
+| 8 | `/wallets/*` (Samsung Pay PT button), `/fonts/*` (Checkout Builder custom fonts) | `sdk.prod.y.uno` | **SDK 1.11.16+** |
 | 9 | `/sdk-web/*`, `/flags/*`, bare brand images (`/Visa.png`, …) | `icons.prod.y.uno` | always |
 | 10 | `/v<major.minor>/*` (SDK bundle and chunks) and anything else | `sdk-web[.<env>].y.uno` | always |
 
@@ -85,7 +85,7 @@ carry it.
   path, as this proxy does, or the bundle loads from Yuno.
 - **Reject `.` / `..` path segments** before forwarding (this proxy returns 400). Otherwise
   `/sdk-static-bundles-ms/../…` resolves to any path on the upstream, including the production API gateway.
-- **Fallback:** SDK builds with CORECM-20136 load the fraud scripts, the Samsung Pay PT button and Builder fonts
+- **Fallback:** SDK 1.11.16+ loads the fraud scripts, the Samsung Pay PT button and Builder fonts
   from Yuno again if the gateway can't serve them, so a missing rule degrades instead of breaking. The white-label
   promise (no `*.y.uno` requests) still needs every rule above.
 
