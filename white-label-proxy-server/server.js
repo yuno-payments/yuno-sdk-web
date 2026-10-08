@@ -181,6 +181,21 @@ app.use((req, res, next) => {
   next()
 })
 
+// Headers that must not be copied across a hop (RFC 7230 §6.1) plus a few we
+// recompute or that node-fetch sets itself.
+const HOP_BY_HOP = new Set([
+  'host',
+  'connection',
+  'keep-alive',
+  'proxy-authenticate',
+  'proxy-authorization',
+  'te',
+  'trailer',
+  'transfer-encoding',
+  'upgrade',
+  'content-length',
+])
+
 // ---- provider webhooks (to WEBHOOKS_UPSTREAM) -----------------------------
 //
 // Browser-posted provider results (KCP's KakaoPay enrollment form POST, …).
@@ -194,13 +209,32 @@ app.use((req, res, next) => {
 
 const webhooksProxy = httpProxy.createProxyServer({ changeOrigin: true, xfwd: true, followRedirects: false })
 
-webhooksProxy.on('proxyRes', (proxyRes) => {
+webhooksProxy.on('proxyRes', (proxyRes, req, res) => {
   for (const h of Object.keys(proxyRes.headers)) {
     // content-length stays: the body is streamed unchanged.
     if (h !== 'content-length' && HOP_BY_HOP.has(h)) delete proxyRes.headers[h]
   }
+  // Upstream cookies must not land on the merchant's domain.
+  delete proxyRes.headers['set-cookie']
   proxyRes.headers['x-white-label-proxy'] = 'webhooks'
+  // The upstream dropped the connection mid-body: headers are already sent, so
+  // http-proxy's error callback never runs and the piped response never ends.
+  // Close the browser connection instead of leaving it hanging.
+  proxyRes.on('close', () => {
+    if (proxyRes.complete) return
+    console.error(`[webhooks-proxy] ${req.method} ${req.originalUrl} → ${WEBHOOKS_UPSTREAM}: upstream closed the connection mid-response`)
+    res.destroy()
+  })
 })
+
+// Client-sent forwarding headers are never trusted: http-proxy's `xfwd` appends
+// to x-forwarded-for and keeps an incoming x-forwarded-host, so drop them and
+// let it set fresh values from this connection.
+function stripForwardedHeaders(headers) {
+  for (const h of Object.keys(headers)) {
+    if (h === 'forwarded' || h.startsWith('x-forwarded-')) delete headers[h]
+  }
+}
 
 app.use((req, res, next) => {
   if (!WEBHOOK_RE.test(req.path)) return next()
@@ -210,14 +244,16 @@ app.use((req, res, next) => {
   }
   // Same reason as forwardHttp: this origin's cookies never belong upstream.
   delete req.headers.cookie
-  const targetUrl = `${WEBHOOKS_UPSTREAM}${req.originalUrl}`
+  stripForwardedHeaders(req.headers)
   webhooksProxy.web(req, res, { target: WEBHOOKS_UPSTREAM }, (err) => {
-    console.error(`[webhooks-proxy] ${req.method} ${targetUrl} →`, err.message)
+    console.error(`[webhooks-proxy] ${req.method} ${req.originalUrl} → ${WEBHOOKS_UPSTREAM}:`, err.message)
     if (res.headersSent) {
       res.destroy()
       return
     }
-    res.status(502).json({ error: 'upstream_unreachable', target: targetUrl, detail: err.message })
+    // No upstream URL or error detail in the body: it would reveal the Yuno host
+    // on the merchant's domain. Both are in the log line above.
+    res.status(502).json({ error: 'upstream_unreachable' })
   })
 })
 
@@ -298,21 +334,6 @@ app.all('/v2/*', forwardToBackend)
 //   GET  /checkout-bff/v1/checkout-info/{session}
 //   POST /checkout-bff/v1/checkout/payment
 app.all('/checkout-bff/*', forwardToCheckoutBff)
-
-// Headers that must not be copied across a hop (RFC 7230 §6.1) plus a few we
-// recompute or that node-fetch sets itself.
-const HOP_BY_HOP = new Set([
-  'host',
-  'connection',
-  'keep-alive',
-  'proxy-authenticate',
-  'proxy-authorization',
-  'te',
-  'trailer',
-  'transfer-encoding',
-  'upgrade',
-  'content-length',
-])
 
 function pickRequestHeaders(req) {
   const out = {}
@@ -492,11 +513,21 @@ async function detectSdkMainJs() {
   }
 }
 
+// Reads a TLS file or exits with a message naming the variable (no raw stack).
+function readTlsFile(name, file) {
+  try {
+    return fs.readFileSync(file)
+  } catch (err) {
+    console.error(`[tls] cannot read ${name}: ${err.message}`)
+    process.exit(1)
+  }
+}
+
 // HTTPS when both TLS_CERT and TLS_KEY are set, HTTP otherwise. WS upgrades
 // are wired below to whichever server this returns.
 function createServer() {
   if (TLS_CERT && TLS_KEY) {
-    return https.createServer({ cert: fs.readFileSync(TLS_CERT), key: fs.readFileSync(TLS_KEY) }, app)
+    return https.createServer({ cert: readTlsFile('TLS_CERT', TLS_CERT), key: readTlsFile('TLS_KEY', TLS_KEY) }, app)
   }
   if (TLS_CERT || TLS_KEY) console.warn('[tls] set both TLS_CERT and TLS_KEY to serve HTTPS; falling back to HTTP')
   return http.createServer(app)
