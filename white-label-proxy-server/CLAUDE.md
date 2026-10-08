@@ -28,9 +28,10 @@ Single file: `server.js`. Routes are registered in this order (order matters):
    instance (`webhooksProxy`). **Generic on purpose:** `WEBHOOK_RE` makes this host a relay to every Yuno
    `*-webhook` service of the environment (`/kcp-webhook/*`, `/paypal-webhook/*`, `/stripe-webhook/*`, …), so a
    new browser-posted provider flow needs no proxy change. Merchant gateways only need the exact paths the README
-   lists per provider (KCP: `POST /kcp-webhook/v1/enrollments/{confirmations,failures}`). Registered BEFORE
-   `express.json()` and the CORS middleware on purpose: the body is streamed raw (KCP posts
-   `x-www-form-urlencoded`, maybe `euc-kr`), every method incl. `OPTIONS` reaches upstream, and redirects are NOT
+   lists per provider (KCP: `POST /kcp-webhook/v1/enrollments/{confirmations,failures}` and
+   `POST /kcp-webhook/v1/{confirmations,failures}`, plus `GET /redirect.html` for the payment popup close, served by
+   the 3DS route). Registered BEFORE `express.json()` and the CORS middleware on purpose: the body is streamed raw
+   (KCP posts `x-www-form-urlencoded`, maybe `euc-kr`), every method incl. `OPTIONS` reaches upstream, and redirects are NOT
    followed (the 302 + `Location` to the merchant success/error URL must reach the browser). Strips `cookie` and
    client-sent `x-forwarded-*` / `forwarded` (`stripForwardedHeaders`) so `xfwd` sets fresh ones from the
    connection, drops hop-by-hop and `set-cookie` response headers, sets `x-white-label-proxy: webhooks`. Upstream
