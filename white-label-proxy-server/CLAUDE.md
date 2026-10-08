@@ -24,7 +24,13 @@ Single file: `server.js`. Routes are registered in this order (order matters):
    gateway mounted under a sub-path (e.g. `…/orchestrator`); the SDK preserves that prefix on all asset/API/WS
    requests since CORECM-17664. Empty = root mount. Applied to WS upgrades too. The injected `__SDK_MAIN_JS__` is
    prefixed with `BASE_PATH`.
-1. JSON body parser + permissive CORS middleware (echoes caller origin, strips upstream CORS).
+1. **Provider webhooks** (`/<name>-webhook/*`, any method) → `WEBHOOKS_UPSTREAM` via a dedicated `http-proxy`
+   instance (`webhooksProxy`). Registered BEFORE `express.json()` and the CORS middleware on purpose: the body
+   is streamed raw (KCP posts `x-www-form-urlencoded`, maybe `euc-kr`), every method incl. `OPTIONS` reaches
+   upstream, and redirects are NOT followed (the 302 + `Location` to the merchant success/error URL must reach
+   the browser). Strips `cookie`, adds `x-forwarded-*` (`xfwd`), drops hop-by-hop response headers, sets
+   `x-white-label-proxy: webhooks`. `WEBHOOKS_UPSTREAM` unset → 404 JSON.
+1b. JSON body parser + permissive CORS middleware (echoes caller origin, strips upstream CORS).
 2. Local routes: `/` (landing), `/static/*`, `/whitelabel-info`.
 3. **Backend pass-through**: `app.all('/v1/*' | '/v2/*', forwardToBackend)` → `BACKEND_URL`, and
    `app.all('/checkout-bff/*', forwardToCheckoutBff)` → `CHECKOUT_BFF_UPSTREAM`. Both share `forwardHttp`
@@ -54,7 +60,9 @@ Single file: `server.js`. Routes are registered in this order (order matters):
    so partners can request any `/v<x>/main.js` and still hit the published build.
 6. 404 fallback. Upstream 404s are logged with the route label and upstream, so a path without a rule of its
    own shows up in the console instead of failing silently.
-7. WebSocket upgrades on the underlying `http.Server` (Express middleware never sees `Upgrade`).
+7. WebSocket upgrades on the underlying server (Express middleware never sees `Upgrade`). The server is
+   `https.Server` when both `TLS_CERT` and `TLS_KEY` are set, `http.Server` otherwise (`createServer()`); the
+   upgrade handler is attached to whichever one is used.
    Uses `http-proxy`. `/checkout-websocket-notification-ms/ws/{payment,enrollment}` → `BACKEND_WS_URL`;
    everything else follows the same SDK/card/3DS split as HTTP.
 
@@ -81,11 +89,15 @@ npm start    # → http://localhost:9090
 
 ## Things to watch when editing
 
+- **Never move the webhooks route after `express.json()`.** It would consume JSON bodies and the raw form
+  forwarding relies on the untouched request stream.
 - **Route order matters.** The SDK upstream catch-all is `app.use((req, res, next) => ...)` registered last;
   anything you add after it will be unreachable unless you guard the catch-all.
 - **CORS headers must come from this server, not upstream.** The middleware in `server.js:69` is what makes
   credentialed cross-origin requests work from the merchant page. The upstream proxy strips
   `access-control-*` from upstream responses (`server.js:166-170`) for the same reason — don't pass them through.
+  Exception: the webhooks route is a transparent forwarder for top-level navigations and passes upstream
+  headers as-is.
 - **`HOP_BY_HOP` headers** (`server.js:130-141`) are filtered both ways. Don't add `content-length` to a manual
   copy without re-stripping it — node-fetch sets it itself.
 - **The version normalizer** only touches `SDK_UPSTREAM` paths. Card and 3DS upstreams handle their own

@@ -1,6 +1,8 @@
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
+const http = require('http')
+const https = require('https')
 const fetch = require('node-fetch')
 const httpProxy = require('http-proxy')
 
@@ -52,6 +54,17 @@ const CHECKOUT_BFF_UPSTREAM = (process.env.CHECKOUT_BFF_UPSTREAM || 'https://san
 // (apiUrl/assetUrl carry it), so we strip it here before routing. Empty = root
 // mount (default, current behavior unchanged).
 const BASE_PATH = (process.env.BASE_PATH || '').replace(/\/+$/, '')
+// Host of Yuno's provider webhook services (`<provider>-webhook`), shared by
+// all of them per environment: https://staging.y.uno, https://sandbox.y.uno,
+// https://prod.y.uno. The shopper's browser reaches some of them directly
+// (e.g. KCP posts the KakaoPay enrollment result to
+// /kcp-webhook/v1/enrollments/confirmations), so in white-label mode they go
+// through this proxy. Unset = the webhooks route answers 404.
+const WEBHOOKS_UPSTREAM = (process.env.WEBHOOKS_UPSTREAM || '').replace(/\/$/, '')
+// Optional TLS (file paths). With both set the proxy listens on HTTPS: the SDK
+// only accepts https result/callback URLs.
+const TLS_CERT = process.env.TLS_CERT || ''
+const TLS_KEY = process.env.TLS_KEY || ''
 
 // True when `url` (path, with optional query) sits under BASE_PATH.
 function underBasePath(url) {
@@ -88,6 +101,8 @@ const CHECKOUT_ROUTE_RE = /^\/(?:payment|enroll)(?:\/[^?]*)?$/
 // matched separately so they don't collide with the SDK's bare-image rule.
 const CHECKOUT_ASSET_RE = /^\/static\/(?:js|css|media)\//
 const CHECKOUT_ROOT_FILES = new Set(['/favicon.ico', '/manifest.json', '/robots.txt', '/asset-manifest.json'])
+// Provider webhook services: /kcp-webhook/…, /paypal-webhook/…
+const WEBHOOK_RE = /^\/[a-z0-9-]+-webhook\//
 
 // True for the checkout app's own assets (bundle + root public files) — routed
 // to CHECKOUT_UPSTREAM. Checked before the SDK split so /favicon.ico etc. don't
@@ -166,6 +181,46 @@ app.use((req, res, next) => {
   next()
 })
 
+// ---- provider webhooks (to WEBHOOKS_UPSTREAM) -----------------------------
+//
+// Browser-posted provider results (KCP's KakaoPay enrollment form POST, …).
+// Registered BEFORE express.json() so the body stream is untouched: it is piped
+// byte-for-byte (form-urlencoded, possibly charset=euc-kr) with its original
+// content-type. Also before the CORS middleware: these are top-level form
+// navigations (no preflight), and every method, OPTIONS included, must reach
+// the webhook service as sent. Redirects are NOT followed — the service answers
+// 302/303 to the merchant success/error URL and the browser must get that
+// status + Location as-is.
+
+const webhooksProxy = httpProxy.createProxyServer({ changeOrigin: true, xfwd: true, followRedirects: false })
+
+webhooksProxy.on('proxyRes', (proxyRes) => {
+  for (const h of Object.keys(proxyRes.headers)) {
+    // content-length stays: the body is streamed unchanged.
+    if (h !== 'content-length' && HOP_BY_HOP.has(h)) delete proxyRes.headers[h]
+  }
+  proxyRes.headers['x-white-label-proxy'] = 'webhooks'
+})
+
+app.use((req, res, next) => {
+  if (!WEBHOOK_RE.test(req.path)) return next()
+  if (!WEBHOOKS_UPSTREAM) {
+    res.status(404).json({ error: 'webhooks_upstream_not_configured', detail: 'Set WEBHOOKS_UPSTREAM to forward /*-webhook/* paths' })
+    return
+  }
+  // Same reason as forwardHttp: this origin's cookies never belong upstream.
+  delete req.headers.cookie
+  const targetUrl = `${WEBHOOKS_UPSTREAM}${req.originalUrl}`
+  webhooksProxy.web(req, res, { target: WEBHOOKS_UPSTREAM }, (err) => {
+    console.error(`[webhooks-proxy] ${req.method} ${targetUrl} →`, err.message)
+    if (res.headersSent) {
+      res.destroy()
+      return
+    }
+    res.status(502).json({ error: 'upstream_unreachable', target: targetUrl, detail: err.message })
+  })
+})
+
 app.use(express.json({ limit: '5mb' }))
 
 // Permissive CORS: echo the caller's origin (so credentialed requests work)
@@ -214,6 +269,7 @@ app.get('/whitelabel-info', (_req, res) => {
     backend: BACKEND_URL,
     checkoutUpstream: CHECKOUT_UPSTREAM,
     checkoutBffUpstream: CHECKOUT_BFF_UPSTREAM,
+    webhooksUpstream: WEBHOOKS_UPSTREAM || null,
     sdkUpstream: SDK_UPSTREAM,
     sdkCardUpstream: SDK_CARD_UPSTREAM,
     sdk3dsUpstream: SDK_3DS_UPSTREAM,
@@ -436,12 +492,24 @@ async function detectSdkMainJs() {
   }
 }
 
+// HTTPS when both TLS_CERT and TLS_KEY are set, HTTP otherwise. WS upgrades
+// are wired below to whichever server this returns.
+function createServer() {
+  if (TLS_CERT && TLS_KEY) {
+    return https.createServer({ cert: fs.readFileSync(TLS_CERT), key: fs.readFileSync(TLS_KEY) }, app)
+  }
+  if (TLS_CERT || TLS_KEY) console.warn('[tls] set both TLS_CERT and TLS_KEY to serve HTTPS; falling back to HTTP')
+  return http.createServer(app)
+}
+
 detectSdkMainJs().finally(() => {
-  const server = app.listen(PORT, () => {
+  const server = createServer()
+  const scheme = server instanceof https.Server ? 'https' : 'http'
+  server.listen(PORT, () => {
     console.log('================================================================')
     console.log(' white-label-proxy-server')
     console.log('----------------------------------------------------------------')
-    console.log(` Listening on    : http://localhost:${PORT}`)
+    console.log(` Listening on    : ${scheme}://localhost:${PORT}`)
     console.log(` Base path       : ${BASE_PATH || '(root)'}`)
     console.log(` SDK upstream    : ${SDK_UPSTREAM}`)
     console.log(` SDK card upstream: ${SDK_CARD_UPSTREAM}${SDK_CARD_UPSTREAM === SDK_UPSTREAM ? ' (same as SDK upstream)' : ''}`)
@@ -452,6 +520,7 @@ detectSdkMainJs().finally(() => {
     console.log(` SDK main.js     : ${sdkMainJsPath}`)
     console.log(` Checkout app    : ${CHECKOUT_UPSTREAM}  (/payment, /enroll, /static)`)
     console.log(` Checkout BFF    : ${CHECKOUT_BFF_UPSTREAM}  (/checkout-bff/*)`)
+    console.log(` Webhooks        : ${WEBHOOKS_UPSTREAM ? `${WEBHOOKS_UPSTREAM}  (/*-webhook/*, raw body, redirects not followed)` : '(disabled: WEBHOOKS_UPSTREAM unset, /*-webhook/* → 404)'}`)
     console.log(` Backend (API)   : ${BACKEND_URL}`)
     console.log(` Backend (WS)    : ${BACKEND_WS_URL}${BACKEND_WS_URL === BACKEND_URL ? ' (same as backend)' : ''}`)
     console.log('----------------------------------------------------------------')

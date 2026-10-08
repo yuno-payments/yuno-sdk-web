@@ -29,6 +29,7 @@ traffic upstream, which is what exercises the white-label code paths end-to-end.
 | `/checkout-bff/*` (HTTP)                               | `CHECKOUT_BFF_UPSTREAM`                |
 | `/checkout-websocket-notification-ms/ws/{payment,enrollment}` (WS) | `BACKEND_WS_URL`          |
 | `/v1/*`, `/v2/*` (HTTP + WS)                           | `BACKEND_URL` / `BACKEND_WS_URL`       |
+| `/<name>-webhook/*` (any method, raw body, e.g. `/kcp-webhook/*`) | `WEBHOOKS_UPSTREAM` (404 when unset) |
 | `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/(challenge\|redirect\|session-id\|validate-url)*` | `SDK_3DS_UPSTREAM` |
 | `/v<semver>/pages/*`, `/v<semver>/assets/*`            | `SDK_CARD_UPSTREAM`                    |
 | `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*`, `/wallets/*`, `/fonts/*` | `SDK_STATIC_UPSTREAM` (`sdk.prod.y.uno`)  |
@@ -64,6 +65,7 @@ carry it.
 | - | ---- | ---------- | ----------- |
 | 1 | `/v1/*`, `/v2/*` (HTTP + WebSocket) | `api[-<env>].y.uno` | always |
 | 2 | `/checkout-websocket-notification-ms/ws/*` (WebSocket) | `<env>.y.uno` (`prod.y.uno` in production) | always |
+| 2b | `/<name>-webhook/*` (any method; raw body, redirects returned not followed) | `<env>.y.uno` (`prod.y.uno` in production) | browser-posted provider results (KakaoPay via KCP enrollment) |
 | 3 | `/payment`, `/payment/status`, `/enroll`, `/static/*`, `/checkout-bff/*` | `checkout[.<env>].y.uno` / `<env>.y.uno` | Payment Link white-label |
 | 4 | `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/(challenge\|redirect\|session-id\|validate-url)*` | `sdk-3ds[.<env>].y.uno` | 3DS |
 | 5 | `/v<card-semver>/pages/*`, `/v<card-semver>/assets/*` | `sdk-web-card[.<env>].y.uno` | always |
@@ -112,6 +114,34 @@ for the app-side wiring.
 
 To try it: point a browser at `http://localhost:9090<BASE_PATH>/payment?session=<checkout-session>` with a
 matching `CHECKOUT_UPSTREAM`/`CHECKOUT_BFF_UPSTREAM` env for the session's environment.
+
+### Provider webhooks reached by the browser (`WEBHOOKS_UPSTREAM`)
+
+Some providers hand their result back through the **shopper's browser** instead of server-to-server, so in
+white-label mode those requests must go through the merchant host as well. First case: KakaoPay via KCP
+enrollment. The browser POSTs KCP's result to `<webhooks-host>/kcp-webhook/v1/enrollments/confirmations` (on PC
+the SDK submits a form navigation; on mobile KCP's own page posts its `Ret_URL`), and `kcp-webhook` answers with a
+302 to the merchant success/error URL.
+
+All Yuno `*-webhook` services share one host per environment (`https://staging.y.uno`, `https://sandbox.y.uno`,
+`https://prod.y.uno`). Set `WEBHOOKS_UPSTREAM` to it and the proxy forwards **every** `/<name>-webhook/*` path
+(any method; after the `BASE_PATH` strip and the `.`/`..` guard) to `${WEBHOOKS_UPSTREAM}${path+query}`. Unlike
+the `/v1/*` JSON forwarder:
+
+- **Raw body.** The route runs before `express.json()`, so the request body is streamed byte-for-byte with its
+  original `content-type` (KCP sends `application/x-www-form-urlencoded`, possibly `charset=euc-kr`).
+- **Redirects are not followed.** The upstream status (302/303) and `Location` go back to the browser unchanged,
+  which is what lands the shopper on the merchant success/error page.
+- **Headers.** Upstream response headers pass through except hop-by-hop ones, plus
+  `x-white-label-proxy: webhooks`. The upstream request gets `x-forwarded-for` / `-host` / `-proto` and the
+  upstream `Host`; browser cookies are dropped (same reason as the API forwarder).
+- **CORS.** These are top-level navigations (no preflight), so the route sits before the CORS middleware and
+  forwards every method, `OPTIONS` included, untouched.
+- Upstream unreachable → `502` JSON (logged). `WEBHOOKS_UPSTREAM` unset → `404` JSON and a startup log line.
+
+In production the merchant must expose this route on a **public** host: on mobile the POST comes from the
+provider's page (not the merchant page), so it has to reach the gateway from the open internet. The SDK only
+accepts `https` result URLs, so for local testing run the proxy over TLS (`TLS_CERT` / `TLS_KEY`, see below).
 
 ### Sub-path mounting (`BASE_PATH`)
 
@@ -192,6 +222,8 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 | `SDK_STATIC_BUNDLES_UPSTREAM` | Fonts, Forter, Riskified SRI (`/sdk-static-bundles-ms/*`) | `https://prod.y.uno`    | `https://staging.y.uno`                  | `https://staging.y.uno`              |
 | `BACKEND_URL`        | SDK API (`/v1/*`, `/v2/*`)                    | `https://api.y.uno`              | `https://api-staging.y.uno`              | `https://api-dev.y.uno`              |
 | `BACKEND_WS_URL`     | WebSocket upgrades                            | `https://prod.y.uno`             | `https://staging.y.uno`                  | `https://dev.y.uno`                  |
+| `WEBHOOKS_UPSTREAM`  | Provider webhooks (`/<name>-webhook/*`); unset = 404 (sandbox: `https://sandbox.y.uno`) | `https://prod.y.uno` | `https://staging.y.uno`         | `https://dev.y.uno`                  |
+| `TLS_CERT` / `TLS_KEY` | PEM paths; both set = serve HTTPS (and wss) on `PORT` | _(unset)_                | _(unset)_                                | _(unset)_                            |
 | `SDK_MAIN_JS`        | Override the injected main.js path (leave unset) | `/v1.10/main.js`              | `/v1.10/main.js`                         | `/v1.10/main.js`                     |
 
 Defaults:
@@ -204,6 +236,8 @@ Defaults:
 - `CHECKOUT_UPSTREAM` and `CHECKOUT_BFF_UPSTREAM` default to sandbox (`https://checkout.sandbox.y.uno`,
   `https://sandbox.y.uno`) — set both to the environment matching your checkout session.
 - `SDK_MAIN_JS` is auto-resolved from `<SDK_UPSTREAM>/versions.json` (`latest.version`), falling back to `/v1.10/main.js`.
+- `WEBHOOKS_UPSTREAM` has no default: the webhooks route is off until it is set.
+- `TLS_CERT` / `TLS_KEY` unset (or only one set) = plain HTTP.
 - `BACKEND_URL` can also point at a local backend (`http://localhost:8080`) — run `cd .. && npm run start:dev`.
 
 ## Layout
