@@ -143,6 +143,66 @@ In production the merchant must expose this route on a **public** host: on mobil
 provider's page (not the merchant page), so it has to reach the gateway from the open internet. The SDK only
 accepts `https` result URLs, so for local testing run the proxy over TLS (`TLS_CERT` / `TLS_KEY`, see below).
 
+#### How a white-label merchant uses it
+
+1. **Expose the route publicly.** On the merchant gateway, forward `/<name>-webhook/*` (any method) to the Yuno
+   webhooks host of the environment (`https://prod.y.uno` in production) with the rules above: raw body, original
+   `content-type`, redirects returned untouched (keep `Location`). On mobile the provider's page (not the merchant
+   page) posts here, so the host must be reachable from the open internet.
+2. **Tell Yuno the gateway base URL** (the same base the SDK uses as `apiUrl`, e.g.
+   `https://pay.merchant.com/orchestrator`). Yuno maps the merchant's organization to it so provider return URLs are
+   built on the merchant host instead of `<env>.y.uno`. For KakaoPay via KCP this is the kcp-int env var
+   `KCP_WHITE_LABEL_PROXY_URLS=<organization_code>=<https gateway base>` (comma-separated for several merchants).
+   Without this mapping the provider keeps returning the shopper to `<env>.y.uno` directly.
+3. **Initialise the SDK in white-label mode** with `apiUrl` (and `assetUrl`) set to that gateway base. The SDK only
+   accepts an `https` `result_url` on `*.y.uno` or on the `apiUrl` host.
+4. **CSP.** Merchants with a strict Content-Security-Policy must also allow the provider's own hosts (for KCP:
+   `*.kcp.co.kr` in `script-src`, `frame-src` and `form-action`). Those are not Yuno hosts, so they are not proxied.
+
+#### Try it locally (KakaoPay via KCP, staging)
+
+1. TLS for `localhost` (the SDK rejects plain `http` result URLs). Any self-signed pair works, e.g.:
+
+   ```bash
+   mkcert -install && mkcert -cert-file localhost.pem -key-file localhost-key.pem localhost
+   # or: openssl req -x509 -newkey rsa:2048 -nodes -days 30 -subj "/CN=localhost" \
+   #       -keyout localhost-key.pem -out localhost.pem
+   ```
+
+2. `.env`:
+
+   ```bash
+   PORT=9090
+   BACKEND_URL=https://api-staging.y.uno
+   BACKEND_WS_URL=https://staging.y.uno
+   WEBHOOKS_UPSTREAM=https://staging.y.uno
+   SDK_UPSTREAM=https://sdk-web.staging.y.uno
+   TLS_CERT=/abs/path/localhost.pem
+   TLS_KEY=/abs/path/localhost-key.pem
+   ```
+
+3. `npm start`, then check the route (accept the self-signed certificate once in the browser):
+
+   ```bash
+   curl -sk -i https://localhost:9090/kcp-webhook/health-check | grep -i -E '^HTTP|x-white-label-proxy'
+   # HTTP/1.1 200 OK / x-white-label-proxy: webhooks
+   curl -sk -o /dev/null -w '%{http_code}\n' https://localhost:9090/kcp-webhook/v1/enrollments/confirmations
+   # 405 (the route exists; it only accepts POST)
+   ```
+
+4. Map your staging organization to the proxy in kcp-int (staging env var
+   `KCP_WHITE_LABEL_PROXY_URLS=<your organization_code>=https://localhost:9090`) and redeploy it.
+5. Initialise the SDK with `Yuno.initialize(publicApiKey, undefined, { apiUrl: 'https://localhost:9090' })` and
+   mount a `KAKAO_PAY` enrollment (country `KR`).
+6. In DevTools → Network you should see the SDK API calls and the result
+   `POST https://localhost:9090/kcp-webhook/v1/enrollments/confirmations` on this origin, and no request to
+   `api-staging.y.uno` / `staging.y.uno`. The only Yuno-looking host left is the merchant's own success/error URL,
+   if it is configured on a Yuno domain.
+
+`localhost` is only reachable from your machine: test mobile with device emulation, or expose the proxy through a
+public tunnel to complete the approval on a real phone. Remove the kcp-int mapping when you are done; while it is
+set, every KakaoPay enrollment of that organization returns to your `localhost`.
+
 ### Sub-path mounting (`BASE_PATH`)
 
 A partner gateway is often **mounted under a sub-path** rather than at the origin root — e.g. Zuora serves the
@@ -196,6 +256,8 @@ Then open http://localhost:9090/ for the landing page (shows current proxy confi
 - **Payment Link checkout:** open `http://localhost:9090<BASE_PATH>/payment?session=<checkout-session>` with
   `CHECKOUT_UPSTREAM`/`CHECKOUT_BFF_UPSTREAM` set to the session's environment. The checkout SPA renders under the
   non-Yuno origin and calls the BFF back through the proxy.
+- **Provider webhooks (KakaoPay via KCP):** set `WEBHOOKS_UPSTREAM` and TLS, then follow
+  [Try it locally](#try-it-locally-kakaopay-via-kcp-staging).
 - **SDK:** point your own partner test pages at `http://localhost:9090` — e.g. load the SDK via
   `<script src="http://localhost:9090/v1.10/main.js">` — and the proxy fetches it from `SDK_UPSTREAM` on your
   behalf so the SDK runs against a non-Yuno origin.
