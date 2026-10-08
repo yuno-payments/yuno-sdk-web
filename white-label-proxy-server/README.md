@@ -125,19 +125,27 @@ the SDK submits a form navigation; on mobile KCP's own page posts its `Ret_URL`)
 
 All Yuno `*-webhook` services share one host per environment (`https://staging.y.uno`, `https://sandbox.y.uno`,
 `https://prod.y.uno`). Set `WEBHOOKS_UPSTREAM` to it and the proxy forwards **every** `/<name>-webhook/*` path
-(any method; after the `BASE_PATH` strip and the `.`/`..` guard) to `${WEBHOOKS_UPSTREAM}${path+query}`. Unlike
-the `/v1/*` JSON forwarder:
+(any method; after the `BASE_PATH` strip and the `.`/`..` guard) to `${WEBHOOKS_UPSTREAM}${path+query}`.
+
+**This route is a generic relay on purpose.** It makes this host a relay to *every* Yuno `*-webhook` service of
+the environment (`/kcp-webhook/*`, `/paypal-webhook/*`, `/stripe-webhook/*`, …), so a new browser-posted
+provider flow works here without a proxy change. A merchant gateway does not have to copy that breadth: it only
+needs the exact paths listed in [How a white-label merchant uses it](#how-a-white-label-merchant-uses-it).
+Unlike the `/v1/*` JSON forwarder:
 
 - **Raw body.** The route runs before `express.json()`, so the request body is streamed byte-for-byte with its
   original `content-type` (KCP sends `application/x-www-form-urlencoded`, possibly `charset=euc-kr`).
 - **Redirects are not followed.** The upstream status (302/303) and `Location` go back to the browser unchanged,
   which is what lands the shopper on the merchant success/error page.
-- **Headers.** Upstream response headers pass through except hop-by-hop ones, plus
-  `x-white-label-proxy: webhooks`. The upstream request gets `x-forwarded-for` / `-host` / `-proto` and the
-  upstream `Host`; browser cookies are dropped (same reason as the API forwarder).
+- **Headers.** Upstream response headers pass through except hop-by-hop ones and `set-cookie`, plus
+  `x-white-label-proxy: webhooks`. The upstream request gets the upstream `Host` and `x-forwarded-for` / `-host` /
+  `-proto` / `-port` set from this connection: client-sent `x-forwarded-*` and `forwarded` are dropped first, so
+  they are overwritten, never appended. Browser cookies are dropped (same reason as the API forwarder).
 - **CORS.** These are top-level navigations (no preflight), so the route sits before the CORS middleware and
   forwards every method, `OPTIONS` included, untouched.
-- Upstream unreachable → `502` JSON (logged). `WEBHOOKS_UPSTREAM` unset → `404` JSON and a startup log line.
+- Upstream unreachable → `502` JSON `{"error":"upstream_unreachable"}` (the upstream URL and error are only
+  logged). Upstream drops the connection after the headers were sent → the browser connection is closed and the
+  failure is logged. `WEBHOOKS_UPSTREAM` unset → `404` JSON and a startup log line.
 
 In production the merchant must expose this route on a **public** host: on mobile the POST comes from the
 provider's page (not the merchant page), so it has to reach the gateway from the open internet. The SDK only
@@ -145,19 +153,49 @@ accepts `https` result URLs, so for local testing run the proxy over TLS (`TLS_C
 
 #### How a white-label merchant uses it
 
-1. **Expose the route publicly.** On the merchant gateway, forward `/<name>-webhook/*` (any method) to the Yuno
-   webhooks host of the environment (`https://prod.y.uno` in production) with the rules above: raw body, original
-   `content-type`, redirects returned untouched (keep `Location`). On mobile the provider's page (not the merchant
-   page) posts here, so the host must be reachable from the open internet.
-2. **Tell Yuno the gateway base URL** (the same base the SDK uses as `apiUrl`, e.g.
-   `https://pay.merchant.com/orchestrator`). Yuno maps the merchant's organization to it so provider return URLs are
-   built on the merchant host instead of `<env>.y.uno`. For KakaoPay via KCP this is the kcp-int env var
+1. **Expose the exact provider paths publicly.** The merchant gateway forwards only the paths each provider flow
+   needs to the Yuno webhooks host of the environment (`https://prod.y.uno` in production). The list grows per
+   provider; today it is:
+
+   | Provider flow | Method | Path |
+   | --- | --- | --- |
+   | KakaoPay via KCP (enrollment) | `POST` | `/kcp-webhook/v1/enrollments/confirmations` |
+   | KakaoPay via KCP (enrollment) | `POST` | `/kcp-webhook/v1/enrollments/failures` |
+
+   (A gateway may forward `/<name>-webhook/*` generically, like this reference proxy does, but then it relays every
+   Yuno `*-webhook` service of the environment and serves their responses on the merchant origin.)
+
+   What the merchant takes on for these paths:
+
+   - **They are cross-site form posts.** On mobile KCP's own page (`*.kcp.co.kr`) posts its `Ret_URL`; on PC the
+     shopper's page submits the form. CSRF, WAF, bot and geo rules must exempt these paths (KCP and KakaoPay post
+     from Korea), and the host must be reachable from the open internet.
+   - **Body untouched.** Stream it as-is (kcp-webhook accepts up to 64 KiB): no re-encoding, no transformation,
+     and keep the original `content-type` (`application/x-www-form-urlencoded`, possibly `charset=euc-kr`).
+   - **Response untouched.** Return the upstream status (302/303) and `Location` as-is (do not follow redirects).
+     Drop upstream `set-cookie`.
+   - **Forwarding headers.** Overwrite `x-forwarded-for` / `-host` / `-proto` from the real connection; never
+     append to client-sent values.
+2. **Verify, then tell Yuno.** Check the route from outside the merchant network first:
+   `curl -s -o /dev/null -w '%{http_code}\n' https://<gateway base>/kcp-webhook/v1/enrollments/confirmations` must
+   answer `405` from `kcp-webhook` (the route exists and only accepts `POST`), not the gateway's own 404/403. Only
+   then send Yuno the gateway base URL (the same base the SDK uses as `apiUrl`, e.g.
+   `https://pay.merchant.com/orchestrator`). Yuno maps the merchant's organization to it so provider return URLs are built on the merchant host instead of
+   `<env>.y.uno`. For KakaoPay via KCP this is the kcp-int env var
    `KCP_WHITE_LABEL_PROXY_URLS=<organization_code>=<https gateway base>` (comma-separated for several merchants).
-   Without this mapping the provider keeps returning the shopper to `<env>.y.uno` directly.
+   **There is no fallback on this path:** other white-label routes retry the Yuno host when the merchant gateway
+   lacks them, but a browser POST navigation cannot. While the mapping is on and the route is missing or down,
+   every enrollment of that flow fails. Without the mapping the provider keeps returning the shopper to
+   `<env>.y.uno` directly.
 3. **Initialise the SDK in white-label mode** with `apiUrl` (and `assetUrl`) set to that gateway base. The SDK only
    accepts an `https` `result_url` on `*.y.uno` or on the `apiUrl` host.
-4. **CSP.** Merchants with a strict Content-Security-Policy must also allow the provider's own hosts (for KCP:
-   `*.kcp.co.kr` in `script-src`, `frame-src` and `form-action`). Those are not Yuno hosts, so they are not proxied.
+4. **CSP.** Merchants with a strict Content-Security-Policy must allow:
+   - the provider's own hosts (for KCP: `*.kcp.co.kr` in `script-src`, `frame-src` and `form-action`). Those are
+     not Yuno hosts, so they are not proxied;
+   - **their own gateway host (the `apiUrl` host, i.e. the `result_url` host) in `form-action`.** On PC the SDK
+     submits the KCP result with `form.submit()` to `<apiUrl>/kcp-webhook/v1/enrollments/confirmations`. A CSP
+     without that host blocks the submit silently: no request leaves the browser, the approved result is never
+     posted, and the shopper stays on a disabled spinner.
 
 #### Try it locally (KakaoPay via KCP, staging)
 
