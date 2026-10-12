@@ -65,7 +65,7 @@ carry it.
 | 1 | `/v1/*`, `/v2/*` (HTTP + WebSocket) | `api[-<env>].y.uno` | always |
 | 2 | `/checkout-websocket-notification-ms/ws/*` (WebSocket) | `<env>.y.uno` (`prod.y.uno` in production) | always |
 | 3 | `/payment`, `/payment/status`, `/enroll`, `/static/*`, `/checkout-bff/*` | `checkout[.<env>].y.uno` / `<env>.y.uno` | Payment Link white-label |
-| 4 | `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/(challenge\|redirect\|session-id\|validate-url)*` | `sdk-3ds[.<env>].y.uno` | 3DS |
+| 4 | `/challenge.html`, `/redirect.html`, `/session-id.html`, `/assets/(challenge\|redirect\|session-id\|validate-url)*` | `sdk-3ds[.<env>].y.uno` | 3DS; popup return page (**SDK 1.11.25+**) |
 | 5 | `/v<card-semver>/pages/*`, `/v<card-semver>/assets/*` | `sdk-web-card[.<env>].y.uno` | always |
 | 6 | `/sdk-static-bundles-ms/*` (keep the query string) | `prod.y.uno` (`staging.y.uno` for sandbox/staging Riskified SRI) | **SDK 1.10.9+** (fonts); Forter / Riskified SRI on builds with CORECM-20136 |
 | 7 | `/icons/*`, `/css/*`, `/brands/*`, `/c2p/*` | `sdk.prod.y.uno` | always |
@@ -83,6 +83,15 @@ carry it.
 - **Payment Link:** also forward the checkout root files (`/favicon.ico`, `/manifest.json`, `/robots.txt`,
   `/asset-manifest.json`), and rewrite the absolute `checkout.<env>.y.uno` origin in `index.html` to the base
   path, as this proxy does, or the bundle loads from Yuno.
+- **Popup return page (SDK 1.11.25+):** when a redirect payment method opens in a popup, the provider sends the
+  shopper back to the page that closes the window. The merchant must send `<base>/redirect.html?popup=true` in
+  the `sdk_payments_popup_return_url` metadata; without it the provider returns to the Yuno host
+  (`sdk-3ds[.<env>].y.uno`), which breaks the white-label promise. Rule 4 already serves it: forward the GET
+  with the query string unchanged (the page reads `popup=true`), and let the same rule serve the two files it
+  loads, `/assets/redirectUrl-*.js` and `/assets/validate-url-*.js`. Do not add a
+  `Cross-Origin-Opener-Policy` header to that response or to the merchant page, or the page cannot tell the SDK
+  the shopper is back. Only GET reaches the page: it is static (the Yuno host answers 405 to a POST, this proxy
+  404); providers that return with POST are bounced to a GET by the Yuno integration.
 - **Reject `.` / `..` path segments** before forwarding (this proxy returns 400). Otherwise
   `/sdk-static-bundles-ms/../…` resolves to any path on the upstream, including the production API gateway.
 - **Fallback:** SDK builds with CORECM-20136 load the fraud scripts, the Samsung Pay PT button and Builder fonts
@@ -177,6 +186,9 @@ Copy `.env.example` to `.env` and adjust. Yuno hostnames follow two conventions:
 - **SDK services** use `<service>[.<env>].y.uno` — e.g. `sdk-web.y.uno`, `sdk-web.staging.y.uno`, `sdk-web.dev.y.uno`.
 - **API surface** uses an `api[-<env>].y.uno` prefix — e.g. `api.y.uno`, `api-staging.y.uno`, `api-dev.y.uno`.
 - **WebSocket service** has NO `api-` prefix — it's `<env>.y.uno` directly (`prod.y.uno`, `staging.y.uno`, `dev.y.uno`).
+- **Sandbox:** every `<service>.<env>.y.uno` host also exists with `sandbox` (`sdk-web.sandbox.y.uno`,
+  `sdk-web-card.sandbox.y.uno`, `sdk-3ds.sandbox.y.uno`), for merchants testing with sandbox keys. The popup
+  return page is served from `sdk-3ds.sandbox.y.uno` there.
 
 | Var                  | Purpose                                       | Production                       | Staging                                  | Dev                                  |
 | -------------------- | --------------------------------------------- | -------------------------------- | ---------------------------------------- | ------------------------------------ |
