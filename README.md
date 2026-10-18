@@ -1,5 +1,19 @@
 # yuno-sdk-web
 
+> **This README documents the legacy Web SDK (v1).**
+>
+> For the new Yuno SDK Web v2.0.0, start at
+> [Get started](https://docs.y.uno/docs/yuno-sdk/get-started) and review
+> the [Web migration guide](https://docs.y.uno/docs/yuno-sdk/migration/web/full).
+> See [How a transaction flows](https://docs.y.uno/docs/yuno-sdk/how-a-transaction-flows)
+> for the v2 lifecycle.
+>
+> **Key v2 differences:**
+> - In v2, a `createPayment` handler means the merchant backend creates the payment.
+>   Seamless integrations must *not* define one.
+> - The checkout session workflow must match the SDK mode: use `workflow: "SDK_SEAMLESS"`
+>   for Seamless, or the payment ends in `INTERNAL_ERROR`.
+
 ## Table of Contents
 
 - [yuno-sdk-web](#yuno-sdk-web)
@@ -99,7 +113,7 @@ await yuno.startSeamlessCheckout({
    */
   onLoading: (args) => {
     console.log(args);
-  }
+  },
   /**
    * Where and how the forms will be shown
    * @default { type: 'modal' }
@@ -129,7 +143,7 @@ await yuno.startSeamlessCheckout({
       apmForm: "#form-element",
       actionForm: "#action-form-element"
     } // or use a string (deprecated): '#form-element',
-  }
+  },
   /**
    * Card API
    * @optional
@@ -204,7 +218,8 @@ await yuno.startSeamlessCheckout({
    */
   texts: {},
   /**
-   * Empty function.  Won't be called, but should be implemented
+   * v1 only: Empty function. Won't be called, but should be implemented.
+   * In v2, omit createPayment entirely for Seamless integrations.
    */
   async createPayment() {},
   /**
@@ -341,7 +356,7 @@ await yuno.startCheckout({
    */
   onLoading: (args) => {
     console.log(args);
-  }
+  },
   /**
    * Where and how the forms will be shown
    * @default { type: 'modal' }
@@ -371,7 +386,7 @@ await yuno.startCheckout({
       apmForm: "#form-element",
       actionForm: "#action-form-element"
     } // or use a string (deprecated): '#form-element',
-  }
+  },
   /**
    * Card API
    * @optional
@@ -531,7 +546,7 @@ Then create a configuration object
     // element where the SDK will be mount on
     elementSelector: '#root',
     /**
-     * country can be one of CO, BR, CL, PE, EC, UR, MX
+     * country can be one of CO, BR, CL, PE, EC, UY, MX
      */
     countryCode,
     /**
@@ -557,7 +572,7 @@ Then create a configuration object
     },
     /**
      * 
-     * @param {'READY_TO_PAY' | 'CREATED' | 'PAYED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
+     * @param {'READY_TO_PAY' | 'CREATED' | 'SUCCEEDED' | 'REJECTED' | 'CANCELLED' | 'ERROR' | 'DECLINED' | 'PENDING' | 'EXPIRED' | 'VERIFIED' | 'REFUNDED'} data
      */
     paymentResult(data) {
       console.log('paymentResult', data)
@@ -687,7 +702,7 @@ await yuno.startCheckout({
    */
   onLoading: (args) => {
     console.log(args);
-  }
+  },
   /**
    * Where and how the forms will be shown
    * @default { type: 'modal' }
@@ -953,7 +968,7 @@ await yuno.startCheckout({
    */
   onLoading: (args) => {
     console.log(args);
-  }
+  },
   /**
    * Where and how the forms will be shown
    * @default { type: 'modal' }
@@ -983,7 +998,7 @@ await yuno.startCheckout({
       apmForm: "#form-element",
       actionForm: "#action-form-element"
     } // or use a string (deprecated): '#form-element',
-  }
+  },
   /**
    * Card API
    * @optional
@@ -1723,7 +1738,7 @@ await yuno.mountEnrollmentLite({
    */
   onLoading: (args) => {
     console.log(args);
-  }
+  },
   /**
    * Where and how the forms will be shown
    * Default { type: 'modal' }
@@ -1753,7 +1768,7 @@ await yuno.mountEnrollmentLite({
       apmForm: "#form-element",
       actionForm: "#action-form-element"
     } // or use a string (deprecated): '#form-element',
-  }
+  },
   /**
    *  API card
    *  @optional
@@ -2153,7 +2168,7 @@ PRIVATE_SECRET_KEY=abc
 
 Then go to [http://localhost:8080](http://localhost:8080)  
 
-To change the country you can add a query parameter named `country` with one of `CO, BR, CL, PE, EC, UR, MX`  
+To change the country you can add a query parameter named `country` with one of `CO, BR, CL, PE, EC, UY, MX`  
 [http://localhost:8080?country=CO](http://localhost:8080?country=CO)
 
 ## CSS Styles
@@ -2212,8 +2227,8 @@ const yunoInstance: SdkPaymentsInstance = await SdkPayments.initialize('publicAp
 ## Example
 
  - Create an embedded payment methods list using Checkout Lite and 'Hide Checkout Pay Button.'
- [Payment method unfolded html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/payment-methods-unfolded.html)  
-[Payment method unfolded js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/static/payment-methods-unfolded.js)
+ [Payment method unfolded html](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/pages/payment-methods-unfolded.html)  
+[Payment method unfolded js](https://github.com/yuno-payments/yuno-sdk-web/blob/main/vanilla/static/payment-methods-unfolded.js)
 
 ## Changes in v1.1
 
@@ -2224,10 +2239,10 @@ The v1.1 version of the Yuno SDK introduces significant changes to the API, prim
 To use v1.1, update your SDK import URL:
 
 ```html
-<!-- Old v1.5 URL -->
-<script src="https://sdk-web.y.uno/v1.10/main.js"></script>
+<!-- Old v1.0 URL -->
+<script src="https://sdk-web.y.uno/v1.0/main.js"></script>
 
-<!-- New v1.5 URL -->
+<!-- New v1.1+ URL -->
 <script src="https://sdk-web.y.uno/v1.10/main.js"></script>
 ```
 
@@ -2236,8 +2251,8 @@ To use v1.1, update your SDK import URL:
 In v1.1, all methods provided by the Yuno.initialize() interface now return Promises and require the `await` keyword:
 
 ```javascript
-// Old v1 initialization
-const yuno = await Yuno.initialize(publicApiKey)
+// Old v1.0 initialization (synchronous)
+const yuno = Yuno.initialize(publicApiKey)
 
 // New v1.1 initialization with await
 const yuno = await Yuno.initialize(publicApiKey)
@@ -2297,7 +2312,7 @@ async function initCheckout() {
   const yuno = await Yuno.initialize(publicApiKey)
   
   // Start checkout - now with await
-  await await yuno.startCheckout({
+  await yuno.startCheckout({
     checkoutSession,
     elementSelector: '#root',
     countryCode: 'CO',
