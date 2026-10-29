@@ -37,4 +37,6 @@ Source of truth for the surface: sdk-web `etc/sdk-web-v2.api.md` and `docs/NEW_P
 cd v2 && npm start                 # server + vanilla on :8090
 npm run check:pins                 # from the repository root
 ```
+React: `cd clients/react && npm run build` must pass (`tsc -b`), then `npm run dev` and open the route.
+
 Open the changed scenario, complete a sandbox payment with a test card, confirm `[onStatus]` in the console and the `POST /payments` line in the server log. A scenario that only renders is not verified.

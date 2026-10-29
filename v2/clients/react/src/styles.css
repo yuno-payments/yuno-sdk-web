@@ -1,0 +1,15 @@
+:root { font-family: Inter, system-ui, sans-serif; color: #1a1a1a; }
+body { max-width: 640px; margin: 2rem auto; padding: 0 1rem; line-height: 1.45; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+p { margin: 0 0 1rem; color: #444; }
+a.back { font-size: .9rem; color: #555; }
+button { font: inherit; padding: .6rem 1.2rem; border: 0; border-radius: 6px; background: #1a1a1a; color: #fff; cursor: pointer; }
+button:disabled { background: #bbb; cursor: default; }
+.status { min-height: 1.5rem; font-family: ui-monospace, monospace; font-size: .9rem; color: #0a5; }
+.scenarios { list-style: none; padding: 0; display: grid; gap: .5rem; }
+.scenarios li { border: 1px solid #e3e3e3; border-radius: 8px; padding: .75rem 1rem; }
+.scenarios small { display: block; color: #666; }
+.wallets { display: grid; gap: .75rem; margin: 1rem 0; }
+.field { margin: .5rem 0; } .field label { display: block; font-size: .85rem; color: #555; }
+.field > div { min-height: 44px; border: 1px solid #ccc; border-radius: 6px; padding: 0 .5rem; }
+#loader-status { font-size: .85rem; color: #888; }

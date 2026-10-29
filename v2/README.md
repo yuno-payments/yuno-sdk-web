@@ -19,7 +19,7 @@ The React and Angular clients run on their own dev server and proxy `/api` to th
 | Client | Folder | Run | Status |
 |---|---|---|---|
 | Vanilla JS | `clients/vanilla/` | served by `npm start` | ready |
-| React 19 + Vite | `clients/react/` | `cd clients/react && npm install && npm run dev` | OMY3-013, pending |
+| React 19 + Vite | `clients/react/` | `cd clients/react && npm install && npm run dev` → http://localhost:5173 | ready |
 | Angular | `clients/angular/` | `cd clients/angular && npm install && npx ng serve` | OMY3-011, pending |
 
 ## How a payment flows
@@ -40,18 +40,18 @@ browser                          your server (v2/server)              Yuno
 
 ## Scenarios
 
-| Scenario | What it shows | Vanilla |
-|---|---|---|
-| Card form · managed | Smallest integration: form, payment and result screen by the SDK | [js](clients/vanilla/card-form-managed.js) |
-| Card form · manual | Same form, your server creates the payment in `createPayment` | [js](clients/vanilla/card-form-manual.js) |
-| Card form · own button | `showPayButton: false`, `onChange` enables your button, `submit()` | [js](clients/vanilla/card-form-own-button.js) |
-| Payment list · managed | `getPaymentMethodsViews({ types: ['paymentMethodList'] })`, then `start()` | [js](clients/vanilla/payment-list-managed.js) |
-| Payment list · manual | The list with `createPayment` | [js](clients/vanilla/payment-list-manual.js) |
-| Wallets | Apple Pay, Google Pay and PayPal buttons in your layout | [js](clients/vanilla/wallets.js) |
-| Headless | No SDK UI, card data passed to `start()` | [js](clients/vanilla/headless.js) |
-| Secure fields | PCI-isolated fields inside your form | [js](clients/vanilla/secure-fields.js) |
-| Enrollment | `customerSession` saves a card instead of paying | [js](clients/vanilla/enrollment.js) |
-| Own loader | `showLoading` replaces the SDK overlay | [js](clients/vanilla/show-loading.js) |
+| Scenario | What it shows | Vanilla | React |
+|---|---|---|---|
+| Card form · managed | Smallest integration: form, payment and result screen by the SDK | [js](clients/vanilla/card-form-managed.js) | [tsx](clients/react/src/scenarios/card-form-managed.tsx) |
+| Card form · manual | Same form, your server creates the payment in `createPayment` | [js](clients/vanilla/card-form-manual.js) | [tsx](clients/react/src/scenarios/card-form-manual.tsx) |
+| Card form · own button | `showPayButton: false`, `onChange` enables your button, `submit()` | [js](clients/vanilla/card-form-own-button.js) | [tsx](clients/react/src/scenarios/card-form-own-button.tsx) |
+| Payment list · managed | `getPaymentMethodsViews({ types: ['paymentMethodList'] })`, then `start()` | [js](clients/vanilla/payment-list-managed.js) | [tsx](clients/react/src/scenarios/payment-list-managed.tsx) |
+| Payment list · manual | The list with `createPayment` | [js](clients/vanilla/payment-list-manual.js) | [tsx](clients/react/src/scenarios/payment-list-manual.tsx) |
+| Wallets | Apple Pay, Google Pay and PayPal buttons in your layout | [js](clients/vanilla/wallets.js) | [tsx](clients/react/src/scenarios/wallets.tsx) |
+| Headless | No SDK UI, card data passed to `start()` | [js](clients/vanilla/headless.js) | [tsx](clients/react/src/scenarios/headless.tsx) |
+| Secure fields | PCI-isolated fields inside your form | [js](clients/vanilla/secure-fields.js) | [tsx](clients/react/src/scenarios/secure-fields.tsx) |
+| Enrollment | `customerSession` saves a card instead of paying | [js](clients/vanilla/enrollment.js) | [tsx](clients/react/src/scenarios/enrollment.tsx) |
+| Own loader | `showLoading` replaces the SDK overlay | [js](clients/vanilla/show-loading.js) | [tsx](clients/react/src/scenarios/show-loading.tsx) |
 
 Add `?country=BR&language=pt` to any page to change the session country and the SDK language.
 
@@ -72,7 +72,7 @@ The clients load `https://sdk-web.y.uno/v2.2.0/main.js`, which sets `window.SdkP
 v2/
   server/index.js        Express. Keeps the private key, creates sessions, creates payments. Serves clients/vanilla.
   clients/vanilla/       index.html + one html and one js per scenario; sdk.js (loader), api.js (server calls)
-  clients/react/         same scenarios, one route each            (pending)
+  clients/react/         Vite + React 19; src/scenarios/<name>.tsx, src/hooks/use-transaction.ts, src/lib/{sdk,api}.ts
   clients/angular/       same scenarios, one route each            (pending)
   types/sdk-payments.d.ts  interim types for window.SdkPayments
   AGENTS.md              conventions, for people and coding agents
