@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yuno Universal SDK (v2) · vanilla JavaScript examples</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <h1>Universal SDK (v2) · vanilla JavaScript</h1>
+  <p>Each page is one scenario: one HTML file, one JS file, no framework. Managed = Yuno creates the payment. Manual = your server creates it from the one-time token.</p>
+  <ul class="scenarios">
+    <li><a href="./card-form-managed.html">Card form · managed</a><small>SDK renders the card form and creates the payment.</small></li>
+    <li><a href="./card-form-manual.html">Card form · manual</a><small>SDK renders the form, your server creates the payment in createPayment.</small></li>
+    <li><a href="./card-form-own-button.html">Card form · your own pay button</a><small>showPayButton: false and transaction.submit().</small></li>
+    <li><a href="./payment-list-managed.html">Payment method list · managed</a><small>Standalone list, select, then start().</small></li>
+    <li><a href="./payment-list-manual.html">Payment method list · manual</a><small>Same list with createPayment.</small></li>
+    <li><a href="./wallets.html">Wallet buttons</a><small>Apple Pay, Google Pay and PayPal buttons in your own layout.</small></li>
+    <li><a href="./headless.html">Headless</a><small>No SDK UI: you pass the card data to start().</small></li>
+    <li><a href="./secure-fields.html">Secure fields</a><small>PCI-isolated card fields inside your own form.</small></li>
+    <li><a href="./enrollment.html">Enrollment</a><small>Save a card with a customer session instead of a checkout session.</small></li>
+    <li><a href="./show-loading.html">Your own loader</a><small>showLoading replaces the SDK overlay.</small></li>
+  </ul>
+  <p>Add <code>?country=BR&amp;language=pt</code> to any page to change the session country and the SDK language.</p>
+</body>
+</html>

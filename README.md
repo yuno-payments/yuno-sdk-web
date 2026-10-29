@@ -1,5 +1,8 @@
 # yuno-sdk-web
 
+> **Universal SDK (v2) examples live in [`v2/`](v2/README.md)**: the same scenarios in vanilla JavaScript, React and Angular against one merchant server. Everything below this line targets the **Legacy (v1) SDK**, which stays supported during the transition.
+
+
 ## Table of Contents
 
 - [yuno-sdk-web](#yuno-sdk-web)
