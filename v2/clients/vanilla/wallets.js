@@ -28,12 +28,13 @@ const views = transaction.getPaymentMethodsViews({
   onPaymentSelected: (paymentMethod) => console.log('[onPaymentSelected]', paymentMethod),
 })
 
-// A wallet the session or the device cannot offer throws on mount: skip it and keep the others.
-let mounted = 0
-function mount(label, run) {
-  try { run(); mounted++; console.log(`mounted ${label}`) } catch (error) { console.warn(`skipped ${label}: ${error.message}`) }
+// mount() is async and rejects for a wallet the session or the device cannot offer: skip it, keep the others.
+// A fulfilled mount means the SDK accepted the wallet; the button can still stay empty on a device without it.
+const mounts = {
+  'Apple Pay': views.applePay.mount({ elementSelector: '#apple-pay', buttonType: 'buy', buttonStyle: 'black' }),
+  'Google Pay': views.googlePay.mount({ elementSelector: '#google-pay', buttonColor: 'black', buttonType: 'pay' }),
+  PayPal: views.paypal.mount({ elementSelector: '#paypal', color: 'gold', shape: 'pill' }),
 }
-mount('Apple Pay', () => views.applePay?.mount({ elementSelector: '#apple-pay', buttonType: 'buy', buttonStyle: 'black' }))
-mount('Google Pay', () => views.googlePay?.mount({ elementSelector: '#google-pay', buttonColor: 'black', buttonType: 'pay' }))
-mount('PayPal', () => views.paypal?.mount({ elementSelector: '#paypal', color: 'gold', shape: 'pill' }))
-if (mounted === 0) showStatus({ status: 'NO_WALLET', message: { code: 'none of the wallets can render for this session and device' } })
+const results = await Promise.allSettled(Object.values(mounts))
+Object.keys(mounts).forEach((label, i) => { if (results[i].status === 'rejected') console.warn(`skipped ${label}:`, results[i].reason) })
+if (results.every((result) => result.status === 'rejected')) showStatus({ status: 'NO_WALLET', message: { code: 'none of the wallets can render for this session and device' } })

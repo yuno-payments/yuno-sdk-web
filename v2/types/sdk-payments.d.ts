@@ -109,19 +109,28 @@ export interface MountOptions {
 }
 
 export interface View {
-  mount(options: MountOptions): void
+  /**
+   * Resolves once the SDK accepted the wallet for this session and device; rejects when it cannot offer it.
+   * The published SDK type says `void`, but the bundle returns a Promise: await it to know whether the wallet mounted.
+   */
+  mount(options: MountOptions): Promise<void>
 }
 
 export interface PaymentMethodsViews {
-  applePay?: View
-  googlePay?: View
-  paypal?: View
-  samsungPay?: View
-  revolutPay?: View
-  paymentMethodList?: View
+  applePay: View
+  googlePay: View
+  paypal: View
+  samsungPay: View
+  revolutPay: View
+  paymentMethodList: View
 }
 
 export type PaymentMethodViewType = keyof PaymentMethodsViews
+
+/** Every requested type gets a view; a non-literal list makes them optional. Mirrors the SDK's own type. */
+export type RequestedPaymentMethodsViews<T extends readonly PaymentMethodViewType[]> = number extends T['length']
+  ? Partial<Pick<PaymentMethodsViews, T[number]>>
+  : Pick<PaymentMethodsViews, T[number]>
 
 export interface SecureField {
   mount(selector: string): void
@@ -138,10 +147,10 @@ interface TransactionBase {
 }
 
 export interface PaymentTransaction extends TransactionBase {
-  getPaymentMethodsViews(options: {
-    types: readonly PaymentMethodViewType[]
+  getPaymentMethodsViews<const T extends readonly PaymentMethodViewType[]>(options: {
+    types: T
     onPaymentSelected?: (paymentMethod: PaymentMethodSelected) => void
-  }): PaymentMethodsViews
+  }): RequestedPaymentMethodsViews<T>
   secureFields(): Promise<SecureFieldsInstance>
   /** Submits the mounted form when showPayButton is false. */
   submit(): void

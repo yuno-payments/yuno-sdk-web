@@ -59,7 +59,8 @@ Add `?country=BR&language=pt` to any page to change the session country and the 
 
 - With `showStatusScreen: true`, `onStatus` is delivered when the shopper leaves the SDK result screen ("Back to home"), not when the screen appears. Set it to `false` to receive the status as soon as it is final and draw your own screen.
 - On `localhost` the browser console shows CORS errors for `/v1/sdk/event-log/publish`. That is SDK telemetry refusing the local origin; it does not affect the payment.
-- Which wallets render depends on your account's connections and on the device (Apple Pay needs Safari). A wallet that cannot render is skipped and logged by the `wallets` scenario.
+- Which wallets render depends on your account's connections and on the device (Apple Pay needs Safari). A wallet view's `mount()` is async and rejects when the SDK cannot offer that wallet; the `wallets` scenario awaits all three, logs the skipped ones and shows `NO_WALLET` when none mounted. The SDK also reports a skipped wallet through `onStatus` as `INTERNAL_ERROR · UNEXPECTED_ERROR`; the wallets that did mount keep working.
+- `server/` is a development sample. It has no authentication, trusts the customer and session ids the browser sends, and returns the Yuno API error body to the page so you can read it. Copy its routes and the one-time-token flow; add your own session handling and error mapping before it faces real shoppers.
 
 ## The SDK bundle
 
