@@ -22,6 +22,22 @@
 - [enrollment.js](clients/vanilla/enrollment.js): customerSession saves a card
 - [show-loading.js](clients/vanilla/show-loading.js): your own loader
 
+## React (clients/react)
+- [src/hooks/use-transaction.ts](clients/react/src/hooks/use-transaction.ts): one transaction per mounted component, StrictMode-safe, unmount on cleanup
+- [src/lib/sdk.ts](clients/react/src/lib/sdk.ts): loads the bundle once; formatStatus()
+- [src/lib/api.ts](clients/react/src/lib/api.ts): the six server calls
+- [src/app.tsx](clients/react/src/app.tsx): scenario list and one route per scenario
+- [src/scenarios/card-form-managed.tsx](clients/react/src/scenarios/card-form-managed.tsx): React version of card-form-managed
+- [src/scenarios/card-form-manual.tsx](clients/react/src/scenarios/card-form-manual.tsx): React version of card-form-manual
+- [src/scenarios/card-form-own-button.tsx](clients/react/src/scenarios/card-form-own-button.tsx): React version of card-form-own-button
+- [src/scenarios/payment-list-managed.tsx](clients/react/src/scenarios/payment-list-managed.tsx): React version of payment-list-managed
+- [src/scenarios/payment-list-manual.tsx](clients/react/src/scenarios/payment-list-manual.tsx): React version of payment-list-manual
+- [src/scenarios/wallets.tsx](clients/react/src/scenarios/wallets.tsx): React version of wallets
+- [src/scenarios/headless.tsx](clients/react/src/scenarios/headless.tsx): React version of headless
+- [src/scenarios/secure-fields.tsx](clients/react/src/scenarios/secure-fields.tsx): React version of secure-fields
+- [src/scenarios/enrollment.tsx](clients/react/src/scenarios/enrollment.tsx): React version of enrollment
+- [src/scenarios/show-loading.tsx](clients/react/src/scenarios/show-loading.tsx): React version of show-loading
+
 ## Public docs
 - [Yuno SDK overview](https://docs.y.uno/docs/yuno-sdk/introduction.md)
 - [Docs index](https://docs.y.uno/llms.txt)
