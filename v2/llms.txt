@@ -1,0 +1,27 @@
+# Yuno Universal SDK (v2) · Web examples
+
+> Ten payment and enrollment scenarios on the Yuno Universal SDK (v2) for Web, in vanilla JavaScript, React and Angular, sharing one Express merchant server. Start at README.md.
+
+## Start here
+- [README.md](README.md): quick start, how a payment flows, scenario table, bundle URL, configuration
+- [AGENTS.md](AGENTS.md): conventions every change must follow
+- [server/index.js](server/index.js): the merchant server, six /api routes
+- [types/sdk-payments.d.ts](types/sdk-payments.d.ts): interim types for window.SdkPayments
+
+## Vanilla JavaScript (clients/vanilla)
+- [sdk.js](clients/vanilla/sdk.js): loads the bundle once, exposes loadSdk() and showStatus()
+- [api.js](clients/vanilla/api.js): the six server calls
+- [card-form-managed.js](clients/vanilla/card-form-managed.js): SDK form, SDK creates the payment
+- [card-form-manual.js](clients/vanilla/card-form-manual.js): SDK form, your server creates the payment
+- [card-form-own-button.js](clients/vanilla/card-form-own-button.js): hidden SDK button, submit() from yours
+- [payment-list-managed.js](clients/vanilla/payment-list-managed.js): payment method list view, then start()
+- [payment-list-manual.js](clients/vanilla/payment-list-manual.js): the list with createPayment
+- [wallets.js](clients/vanilla/wallets.js): Apple Pay, Google Pay, PayPal buttons
+- [headless.js](clients/vanilla/headless.js): card data passed to start(), no SDK UI
+- [secure-fields.js](clients/vanilla/secure-fields.js): PCI-isolated fields in your form
+- [enrollment.js](clients/vanilla/enrollment.js): customerSession saves a card
+- [show-loading.js](clients/vanilla/show-loading.js): your own loader
+
+## Public docs
+- [Yuno SDK overview](https://docs.y.uno/docs/yuno-sdk/introduction.md)
+- [Docs index](https://docs.y.uno/llms.txt)

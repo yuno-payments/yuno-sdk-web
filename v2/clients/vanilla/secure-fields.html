@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yuno v2 · Secure fields</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="back" href="./">← All scenarios</a>
+  <h1>Secure fields</h1>
+  <p>PCI-isolated card number, expiry and CVV inside your own form. Your button calls start(); the SDK tokenizes the fields.</p>
+  <div class="field"><label for="card-number">Card number</label><div id="card-number"></div></div>
+  <div class="field"><label for="expiration">Expiry</label><div id="expiration"></div></div>
+  <div class="field"><label for="cvv">CVV</label><div id="cvv"></div></div>
+  <button id="pay">Pay</button>
+  <div id="sdk-root"></div>
+  <p id="status" class="status"></p>
+  <script type="module" src="./secure-fields.js"></script>
+</body>
+</html>
