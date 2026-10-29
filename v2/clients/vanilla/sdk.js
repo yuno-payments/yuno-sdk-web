@@ -19,6 +19,12 @@ export function loadSdk() {
   return sdkPromise
 }
 
+// A failed server call or SDK load during the top-level setup would otherwise leave a blank page.
+window.addEventListener('unhandledrejection', (event) => {
+  console.error(event.reason)
+  showStatus({ status: 'ERROR', message: { code: event.reason?.message ?? String(event.reason) } })
+})
+
 // Shared onStatus handler: log it and show it on the page.
 export function showStatus(result) {
   console.log('[onStatus]', result)

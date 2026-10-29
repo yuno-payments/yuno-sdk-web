@@ -110,7 +110,7 @@ app.post('/api/payments', async (req, res, next) => {
       amount: amountFor(country),
       checkout: { session: checkoutSession },
       customer_payer: { id: customerId },
-      payment_method: { type, token: oneTimeToken, vault_on_success: true },
+      payment_method: { type, token: oneTimeToken, vault_on_success: type === 'CARD' },
     })
     res.json(payment)
   } catch (error) { next(error) }

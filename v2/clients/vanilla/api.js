@@ -3,8 +3,8 @@
 
 const query = new URLSearchParams(location.search)
 
-async function post(route, body) {
-  const response = await fetch(route, {
+async function request(route, body) {
+  const response = await fetch(route, body && {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -12,10 +12,11 @@ async function post(route, body) {
   if (!response.ok) throw new Error(`${route} → ${response.status}: ${await response.text()}`)
   return response.json()
 }
+const post = request
 
 export const api = {
   async config() {
-    const { publicApiKey, country } = await fetch('/api/config').then((r) => r.json())
+    const { publicApiKey, country } = await request('/api/config')
     return { publicApiKey, country: query.get('country') ?? country, language: query.get('language') ?? 'en' }
   },
   createCustomer: ({ country }) => post('/api/customers', { country }),

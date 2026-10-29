@@ -6,6 +6,7 @@ import { api } from './api.js'
 
 const payButton = document.getElementById('pay')
 let selected
+let started = false
 
 const { publicApiKey, country, language } = await api.config()
 const customer = await api.createCustomer({ country })
@@ -21,7 +22,7 @@ const transaction = sdk.transaction({
   elementSelector: '#sdk-root',
   showStatusScreen: true,
   onStatus: showStatus,
-  onChange: ({ form }) => { payButton.disabled = !form.isValid },
+  onChange: ({ form }) => { payButton.disabled = started || !form.isValid },
   createPayment: async (token) => {
     await api.createPayment({ oneTimeToken: token.token, checkoutSession, customerId: customer.id, country, type: token.type })
   },
@@ -35,6 +36,7 @@ paymentMethodList.mount({ elementSelector: '#payment-list' })
 
 // start() is single-shot: the button stays disabled after the first click.
 payButton.addEventListener('click', () => {
+  started = true
   payButton.disabled = true
   transaction.start({ paymentMethod: selected }).catch((error) => showStatus({ status: 'ERROR', message: { code: error.message } }))
 })
