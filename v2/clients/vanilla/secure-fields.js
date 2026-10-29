@@ -30,11 +30,12 @@ fields.create({ name: 'pan', options: { label: 'Card number' } }).mount('#card-n
 fields.create({ name: 'expiration', options: { label: 'Expiry' } }).mount('#expiration')
 fields.create({ name: 'cvv', options: { label: 'CVV' } }).mount('#cvv')
 
+// start() is single-shot: the button stays disabled after the first click. A new attempt needs a new transaction.
 payButton.addEventListener('click', async () => {
   payButton.disabled = true
   try {
-    await transaction.start({ paymentMethod: { type: 'CARD', data: { card: { holderName: 'ADA LOVELACE' } } } })
-  } finally {
-    payButton.disabled = false
+    await transaction.start({ paymentMethod: { type: 'CARD', data: { card: { holderName: 'John Doe' } } } })
+  } catch (error) {
+    showStatus({ status: 'ERROR', message: { code: error.message } })
   }
 })

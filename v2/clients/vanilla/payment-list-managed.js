@@ -31,4 +31,8 @@ const { paymentMethodList } = transaction.getPaymentMethodsViews({
 })
 paymentMethodList.mount({ elementSelector: '#payment-list' })
 
-payButton.addEventListener('click', () => transaction.start({ paymentMethod: selected }))
+// start() is single-shot: the button stays disabled after the first click.
+payButton.addEventListener('click', () => {
+  payButton.disabled = true
+  transaction.start({ paymentMethod: selected }).catch((error) => showStatus({ status: 'ERROR', message: { code: error.message } }))
+})

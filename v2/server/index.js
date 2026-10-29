@@ -127,7 +127,7 @@ app.post('/api/customer-sessions', async (req, res, next) => {
 app.post('/api/customer-sessions/:customerSession/payment-methods', async (req, res, next) => {
   try {
     const { country = COUNTRY, type = 'CARD' } = req.body
-    res.json(await yuno('POST', `/customers/sessions/${req.params.customerSession}/payment-methods`, {
+    res.json(await yuno('POST', `/customers/sessions/${encodeURIComponent(req.params.customerSession)}/payment-methods`, {
       account_id: ACCOUNT_CODE,
       country,
       payment_method_type: type,

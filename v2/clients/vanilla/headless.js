@@ -23,12 +23,15 @@ const transaction = sdk.transaction({
   },
 })
 
-document.getElementById('pay').addEventListener('click', () =>
-  transaction.start({
+// start() is single-shot: the button stays disabled after the first click.
+const payButton = document.getElementById('pay')
+payButton.addEventListener('click', () => {
+  payButton.disabled = true
+  return transaction.start({
     paymentMethod: {
       type: 'CARD',
       // Yuno test gateway card (docs.y.uno/docs/yuno-sdk/get-started#test-cards). In production this is the data your own form collected.
       data: { card: { number: '4507990000000002', expirationMonth: 11, expirationYear: 28, securityCode: '123', holderName: 'John Doe' } },
     },
-  }),
-)
+  }).catch((error) => showStatus({ status: 'ERROR', message: { code: error.message } }))
+})
