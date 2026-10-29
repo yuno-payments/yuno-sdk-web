@@ -6,11 +6,6 @@ import { ScenarioShell } from '../scenario-shell'
 import { MerchantApi } from '../core/merchant-api.service'
 import { startTransaction } from '../core/transaction'
 
-// A wallet the session or the device cannot offer throws on mount: skip it and keep the others.
-function mount(label: string, run: () => void): boolean {
-  try { run(); console.log(`mounted ${label}`); return true } catch (error) { console.warn(`skipped ${label}: ${(error as Error).message}`); return false }
-}
-
 @Component({
   selector: 'app-wallets',
   imports: [ScenarioShell],
@@ -45,12 +40,16 @@ export class Wallets {
       types: ['applePay', 'googlePay', 'paypal'],
       onPaymentSelected: (paymentMethod) => console.log('[onPaymentSelected]', paymentMethod),
     })
-    const mounted = [
-      mount('Apple Pay', () => views.applePay?.mount({ elementSelector: '#apple-pay', buttonType: 'buy', buttonStyle: 'black' })),
-      mount('Google Pay', () => views.googlePay?.mount({ elementSelector: '#google-pay', buttonColor: 'black', buttonType: 'pay' })),
-      mount('PayPal', () => views.paypal?.mount({ elementSelector: '#paypal', color: 'gold', shape: 'pill' })),
-    ].filter(Boolean).length
-    if (mounted === 0) onStatus({ status: 'NO_WALLET', substatus: null, message: { source: 'sdk', code: 'none of the wallets can render for this session and device' } })
+    // mount() is async and rejects for a wallet the session or the device cannot offer: skip it, keep the others.
+    // A fulfilled mount means the SDK accepted the wallet; the button can still stay empty on a device without it.
+    const mounts = {
+      'Apple Pay': views.applePay.mount({ elementSelector: '#apple-pay', buttonType: 'buy', buttonStyle: 'black' }),
+      'Google Pay': views.googlePay.mount({ elementSelector: '#google-pay', buttonColor: 'black', buttonType: 'pay' }),
+      PayPal: views.paypal.mount({ elementSelector: '#paypal', color: 'gold', shape: 'pill' }),
+    }
+    const results = await Promise.allSettled(Object.values(mounts))
+    Object.keys(mounts).forEach((label, i) => { if (results[i].status === 'rejected') console.warn(`skipped ${label}:`, results[i].reason) })
+    if (results.every((result) => result.status === 'rejected')) onStatus({ status: 'NO_WALLET', substatus: null, message: { source: 'sdk', code: 'none of the wallets can render for this session and device' } })
     return transaction
   }).status
 }
