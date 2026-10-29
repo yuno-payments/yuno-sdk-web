@@ -3,17 +3,19 @@
 
 const query = new URLSearchParams(location.search)
 
-async function post<T>(route: string, body: unknown): Promise<T> {
-  const response = await fetch(route, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+async function request<T>(route: string, body?: unknown): Promise<T> {
+  const response = await fetch(route, body === undefined ? undefined : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
   if (!response.ok) throw new Error(`${route} → ${response.status}: ${await response.text()}`)
   return response.json()
 }
+
+const post = request
 
 export interface Config { publicApiKey: string; country: string; language: string }
 
 export const api = {
   async config(): Promise<Config> {
-    const { publicApiKey, country } = await fetch('/api/config').then((r) => r.json())
+    const { publicApiKey, country } = await request<{ publicApiKey: string; country: string }>('/api/config')
     return { publicApiKey, country: query.get('country') ?? country, language: query.get('language') ?? 'en' }
   },
   createCustomer: (body: { country: string }) => post<{ id: string }>('/api/customers', body),
