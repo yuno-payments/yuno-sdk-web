@@ -40,7 +40,7 @@ export function startTransaction<T extends Unmountable>(setup: (ctx: SetupContex
       if (destroyed) return created.unmount().catch(() => {})
       transaction.set(created)
     } catch (error) {
-      status.set(error instanceof Error ? error.message : String(error))
+      status.set((error as { message?: string })?.message ?? String(error))
     }
   })
 
