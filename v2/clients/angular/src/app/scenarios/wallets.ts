@@ -7,8 +7,8 @@ import { MerchantApi } from '../core/merchant-api.service'
 import { startTransaction } from '../core/transaction'
 
 // A wallet the session or the device cannot offer throws on mount: skip it and keep the others.
-function mount(label: string, run: () => void) {
-  try { run(); console.log(`mounted ${label}`) } catch (error) { console.warn(`skipped ${label}: ${(error as Error).message}`) }
+function mount(label: string, run: () => void): boolean {
+  try { run(); console.log(`mounted ${label}`); return true } catch (error) { console.warn(`skipped ${label}: ${(error as Error).message}`); return false }
 }
 
 @Component({
@@ -45,9 +45,12 @@ export class Wallets {
       types: ['applePay', 'googlePay', 'paypal'],
       onPaymentSelected: (paymentMethod) => console.log('[onPaymentSelected]', paymentMethod),
     })
-    mount('Apple Pay', () => views.applePay?.mount({ elementSelector: '#apple-pay', buttonType: 'buy', buttonStyle: 'black' }))
-    mount('Google Pay', () => views.googlePay?.mount({ elementSelector: '#google-pay', buttonColor: 'black', buttonType: 'pay' }))
-    mount('PayPal', () => views.paypal?.mount({ elementSelector: '#paypal', color: 'gold', shape: 'pill' }))
+    const mounted = [
+      mount('Apple Pay', () => views.applePay?.mount({ elementSelector: '#apple-pay', buttonType: 'buy', buttonStyle: 'black' })),
+      mount('Google Pay', () => views.googlePay?.mount({ elementSelector: '#google-pay', buttonColor: 'black', buttonType: 'pay' })),
+      mount('PayPal', () => views.paypal?.mount({ elementSelector: '#paypal', color: 'gold', shape: 'pill' })),
+    ].filter(Boolean).length
+    if (mounted === 0) onStatus({ status: 'NO_WALLET', substatus: null, message: { source: 'sdk', code: 'none of the wallets can render for this session and device' } })
     return transaction
   }).status
 }
