@@ -7,7 +7,7 @@ import { api } from '../lib/api'
 import { useTransaction } from '../hooks/use-transaction'
 
 export function SecureFields() {
-  const [paying, setPaying] = useState(false)
+  const [started, setStarted] = useState(false)
 
   const { status, transaction } = useTransaction(async ({ SdkPayments, publicApiKey, country, language, onStatus }) => {
     const customer = await api.createCustomer({ country })
@@ -32,9 +32,10 @@ export function SecureFields() {
     return transaction
   })
 
-  const pay = async () => {
-    setPaying(true)
-    try { await transaction?.start({ paymentMethod: { type: 'CARD', data: { card: { holderName: 'John Doe' } } } }) } finally { setPaying(false) }
+  // start() is single-shot: the button stays disabled after the first click. A new attempt needs a new transaction.
+  const pay = () => {
+    setStarted(true)
+    transaction?.start({ paymentMethod: { type: 'CARD', data: { card: { holderName: 'John Doe' } } } }).catch(console.error)
   }
 
   return (
@@ -42,7 +43,7 @@ export function SecureFields() {
       <div className="field"><label htmlFor="card-number">Card number</label><div id="card-number" /></div>
       <div className="field"><label htmlFor="expiration">Expiry</label><div id="expiration" /></div>
       <div className="field"><label htmlFor="cvv">CVV</label><div id="cvv" /></div>
-      <button disabled={!transaction || paying} onClick={pay}>Pay</button>
+      <button disabled={!transaction || started} onClick={pay}>Pay</button>
       <div id="sdk-root" />
     </Scenario>
   )

@@ -9,6 +9,7 @@ import { useTransaction } from '../hooks/use-transaction'
 
 export function PaymentListManaged() {
   const [valid, setValid] = useState(false)
+  const [started, setStarted] = useState(false)
   const selected = useRef<PaymentMethodSelected>(undefined)
 
   const { status, transaction } = useTransaction(async ({ SdkPayments, publicApiKey, country, language, onStatus }) => {
@@ -37,7 +38,7 @@ export function PaymentListManaged() {
   return (
     <Scenario path="payment-list-managed" status={status}>
       <div id="payment-list" />
-      <button disabled={!valid} onClick={() => transaction?.start({ paymentMethod: selected.current })}>Pay</button>
+      <button disabled={!valid || started} onClick={() => { setStarted(true); transaction?.start({ paymentMethod: selected.current }).catch(console.error) }}>Pay</button>
       <div id="sdk-root" />
     </Scenario>
   )

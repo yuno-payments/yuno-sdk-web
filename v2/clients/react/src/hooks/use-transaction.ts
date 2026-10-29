@@ -23,18 +23,23 @@ export function useTransaction<T extends Unmountable>(setup: (ctx: SetupContext)
   const [transaction, setTransaction] = useState<T>()
   const started = useRef(false)
   const live = useRef<T>(undefined)
+  const unmounted = useRef(false)
 
   useEffect(() => {
+    unmounted.current = false
     if (!started.current) {
       started.current = true
       ;(async () => {
         const [{ publicApiKey, country, language }, SdkPayments] = await Promise.all([api.config(), loadSdk()])
         const created = await setup({ SdkPayments, publicApiKey, country, language, onStatus: (r) => setStatus(formatStatus(r)) })
+        // The component may be gone by the time the setup resolves: tear the transaction down instead of keeping it.
+        if (unmounted.current) return created.unmount().catch(() => {})
         live.current = created
         setTransaction(created)
       })().catch((error) => setStatus(error instanceof Error ? error.message : String(error)))
     }
     return () => {
+      unmounted.current = true
       live.current?.unmount().catch(() => {})
       live.current = undefined
     }
