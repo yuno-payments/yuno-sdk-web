@@ -29,9 +29,11 @@ const views = transaction.getPaymentMethodsViews({
 })
 
 // A wallet the session or the device cannot offer throws on mount: skip it and keep the others.
+let mounted = 0
 function mount(label, run) {
-  try { run(); console.log(`mounted ${label}`) } catch (error) { console.warn(`skipped ${label}: ${error.message}`) }
+  try { run(); mounted++; console.log(`mounted ${label}`) } catch (error) { console.warn(`skipped ${label}: ${error.message}`) }
 }
 mount('Apple Pay', () => views.applePay?.mount({ elementSelector: '#apple-pay', buttonType: 'buy', buttonStyle: 'black' }))
 mount('Google Pay', () => views.googlePay?.mount({ elementSelector: '#google-pay', buttonColor: 'black', buttonType: 'pay' }))
 mount('PayPal', () => views.paypal?.mount({ elementSelector: '#paypal', color: 'gold', shape: 'pill' }))
+if (mounted === 0) showStatus({ status: 'NO_WALLET', message: { code: 'none of the wallets can render for this session and device' } })

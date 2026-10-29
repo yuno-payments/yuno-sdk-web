@@ -8,7 +8,7 @@ Merchant-facing examples of the Yuno Universal SDK (v2) on Web. Three clients (v
 
 ## Rules
 
-1. **One scenario, one file.** Each scenario is one source file per client (`clients/vanilla/<name>.js`, `clients/react/src/scenarios/<name>.tsx`, `clients/angular/src/app/scenarios/<name>.component.ts`) under 60 lines. No shared "scenario base" abstraction: repetition between scenarios is the point.
+1. **One scenario, one file.** Each scenario is one source file per client (`clients/vanilla/<name>.js`, `clients/react/src/scenarios/<name>.tsx`, `clients/angular/src/app/scenarios/<name>.ts`) under 60 lines. No shared "scenario base" abstraction: repetition between scenarios is the point.
 2. **Same names everywhere.** Scenario names are the kebab-case list in `clients/vanilla/index.html`. Adding one means adding it to every client, to the README table and to `llms.txt`.
 3. **Same header comment.** Every scenario file opens with three comment lines: `Mode:` (managed, manual, enrollment), `Server:` (which `/api` calls it makes), `Shopper sees:`.
 4. **The server is the only place the private key exists.** Clients call `/api/*`; nothing else. No checkout session, customer id or key is hardcoded in a client.
