@@ -38,6 +38,22 @@
 - [src/scenarios/enrollment.tsx](clients/react/src/scenarios/enrollment.tsx): React version of enrollment
 - [src/scenarios/show-loading.tsx](clients/react/src/scenarios/show-loading.tsx): React version of show-loading
 
+## Angular (clients/angular)
+- [src/app/core/transaction.ts](clients/angular/src/app/core/transaction.ts): startTransaction(): one transaction per component, runs after first render, unmounts on destroy
+- [src/app/core/yuno-sdk.service.ts](clients/angular/src/app/core/yuno-sdk.service.ts): loads the bundle once
+- [src/app/core/merchant-api.service.ts](clients/angular/src/app/core/merchant-api.service.ts): the six server calls
+- [src/app/scenarios.ts](clients/angular/src/app/scenarios.ts): scenario list; app.routes.ts lazy-loads one component per scenario
+- [src/app/scenarios/card-form-managed.ts](clients/angular/src/app/scenarios/card-form-managed.ts): Angular version of card-form-managed
+- [src/app/scenarios/card-form-manual.ts](clients/angular/src/app/scenarios/card-form-manual.ts): Angular version of card-form-manual
+- [src/app/scenarios/card-form-own-button.ts](clients/angular/src/app/scenarios/card-form-own-button.ts): Angular version of card-form-own-button
+- [src/app/scenarios/payment-list-managed.ts](clients/angular/src/app/scenarios/payment-list-managed.ts): Angular version of payment-list-managed
+- [src/app/scenarios/payment-list-manual.ts](clients/angular/src/app/scenarios/payment-list-manual.ts): Angular version of payment-list-manual
+- [src/app/scenarios/wallets.ts](clients/angular/src/app/scenarios/wallets.ts): Angular version of wallets
+- [src/app/scenarios/headless.ts](clients/angular/src/app/scenarios/headless.ts): Angular version of headless
+- [src/app/scenarios/secure-fields.ts](clients/angular/src/app/scenarios/secure-fields.ts): Angular version of secure-fields
+- [src/app/scenarios/enrollment.ts](clients/angular/src/app/scenarios/enrollment.ts): Angular version of enrollment
+- [src/app/scenarios/show-loading.ts](clients/angular/src/app/scenarios/show-loading.ts): Angular version of show-loading
+
 ## Public docs
 - [Yuno SDK overview](https://docs.y.uno/docs/yuno-sdk/introduction.md)
 - [Docs index](https://docs.y.uno/llms.txt)
