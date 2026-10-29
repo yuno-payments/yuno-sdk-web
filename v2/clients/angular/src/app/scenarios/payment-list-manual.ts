@@ -14,7 +14,7 @@ import { startTransaction } from '../core/transaction'
   template: `
     <app-scenario path="payment-list-manual" [status]="run.status()">
       <div id="payment-list"></div>
-      <button [disabled]="!valid()" (click)="run.transaction()?.start({ paymentMethod: selected })">Pay</button>
+      <button [disabled]="!valid() || started()" (click)="pay()">Pay</button>
       <div id="sdk-root"></div>
     </app-scenario>
   `,
@@ -22,7 +22,14 @@ import { startTransaction } from '../core/transaction'
 export class PaymentListManual {
   private readonly api = inject(MerchantApi)
   protected readonly valid = signal(false)
+  protected readonly started = signal(false)
   protected selected?: PaymentMethodSelected
+
+  // start() is single-shot: the button stays disabled after the first click.
+  protected pay() {
+    this.started.set(true)
+    this.run.transaction()?.start({ paymentMethod: this.selected }).catch(console.error)
+  }
 
   protected readonly run = startTransaction(async ({ SdkPayments, publicApiKey, country, language, onStatus }) => {
     const customer = await this.api.createCustomer({ country })

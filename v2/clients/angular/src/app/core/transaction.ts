@@ -30,16 +30,24 @@ export function startTransaction<T extends Unmountable>(setup: (ctx: SetupContex
     status.set([result.status, result.message?.code].filter(Boolean).join(' · '))
   }
 
+  let destroyed = false
+
   afterNextRender(async () => {
     try {
       const [{ publicApiKey, country, language }, SdkPayments] = await Promise.all([api.config(), sdk.load()])
-      transaction.set(await setup({ SdkPayments, publicApiKey, country, language, onStatus }))
+      const created = await setup({ SdkPayments, publicApiKey, country, language, onStatus })
+      // The component may be gone by the time the setup resolves: tear the transaction down instead of keeping it.
+      if (destroyed) return created.unmount().catch(() => {})
+      transaction.set(created)
     } catch (error) {
       status.set(error instanceof Error ? error.message : String(error))
     }
   })
 
-  inject(DestroyRef).onDestroy(() => transaction()?.unmount().catch(() => {}))
+  inject(DestroyRef).onDestroy(() => {
+    destroyed = true
+    transaction()?.unmount().catch(() => {})
+  })
 
   return { status: status.asReadonly(), transaction: transaction.asReadonly() }
 }

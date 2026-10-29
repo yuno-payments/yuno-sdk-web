@@ -15,14 +15,14 @@ import { startTransaction } from '../core/transaction'
       <div class="field"><label for="card-number">Card number</label><div id="card-number"></div></div>
       <div class="field"><label for="expiration">Expiry</label><div id="expiration"></div></div>
       <div class="field"><label for="cvv">CVV</label><div id="cvv"></div></div>
-      <button [disabled]="!run.transaction() || paying()" (click)="pay()">Pay</button>
+      <button [disabled]="!run.transaction() || started()" (click)="pay()">Pay</button>
       <div id="sdk-root"></div>
     </app-scenario>
   `,
 })
 export class SecureFields {
   private readonly api = inject(MerchantApi)
-  protected readonly paying = signal(false)
+  protected readonly started = signal(false)
 
   protected readonly run = startTransaction(async ({ SdkPayments, publicApiKey, country, language, onStatus }) => {
     const customer = await this.api.createCustomer({ country })
@@ -47,8 +47,9 @@ export class SecureFields {
     return transaction
   })
 
-  protected async pay() {
-    this.paying.set(true)
-    try { await this.run.transaction()?.start({ paymentMethod: { type: 'CARD', data: { card: { holderName: 'John Doe' } } } }) } finally { this.paying.set(false) }
+  // start() is single-shot: the button stays disabled after the first click. A new attempt needs a new transaction.
+  protected pay() {
+    this.started.set(true)
+    this.run.transaction()?.start({ paymentMethod: { type: 'CARD', data: { card: { holderName: 'John Doe' } } } }).catch(console.error)
   }
 }
