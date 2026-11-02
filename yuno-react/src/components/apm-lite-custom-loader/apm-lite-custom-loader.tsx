@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 /* eslint-disable no-empty */
 import { useContext, useEffect, useState } from "react"
 import { AppContext } from "../../context/app-context"
@@ -24,7 +23,7 @@ export const ApmLiteCustomLoader: React.FC<{
             console.log('token ----->', token)
             try {
               await yunoInstance.continuePayment()
-            } catch (error) { }
+            } catch { }
             finally {
               onClose()
               setShowLoader(false)
