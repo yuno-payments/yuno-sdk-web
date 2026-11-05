@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react"
 import { RadioButton } from "../radio-button";
 import { Content } from "./apm-lite-list-styled";
