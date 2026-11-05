@@ -30,6 +30,11 @@ const LITERAL_VERSION = /^\d+(?:\.\d+)*$/;
 
 const GLOBAL_PIN = /^\d+\.\d+$/;
 
+// The Universal SDK (v2) is published only at full-version paths
+// (`https://sdk-web.y.uno/v2.1.2/main.js`; there is no `/v2.1/`), so an exact
+// v2 pin is the only way to load it. Those are allowed. See v2/AGENTS.md.
+const V2_FULL_VERSION_ONLY = /^2\./;
+
 // This file documents the bad pattern in prose and builds it in template
 // literals, so it would flag itself.
 const SELF = "scripts/check-cdn-pins.mjs";
@@ -54,6 +59,7 @@ for (const file of files) {
   lines.forEach((line, index) => {
     for (const match of line.matchAll(PIN)) {
       if (!LITERAL_VERSION.test(match[1])) continue;
+      if (V2_FULL_VERSION_ONLY.test(match[1])) continue;
       if (!GLOBAL_PIN.test(match[1])) {
         offenders.push({ file, line: index + 1, pin: match[1] });
       }

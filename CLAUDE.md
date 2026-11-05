@@ -8,6 +8,7 @@ Demo application showcasing Yuno's Web SDK integration across multiple frontend 
 
 ```
 yuno-sdk-web/
+├── v2/                    # Universal SDK (v2) examples: server + vanilla/React/Angular clients (read v2/AGENTS.md)
 ├── server.js              # Express server (Node.js) - shared backend
 ├── package.json           # Root package (Express server dependencies)
 ├── vanilla/               # Vanilla JS demo
@@ -24,8 +25,11 @@ Each sub-directory with a `package.json` is an independent npm project with its 
 ## Development Commands
 
 ```bash
-# Root server
+# Root server (Legacy v1 samples)
 npm run start:dev
+
+# Universal SDK (v2) examples
+cd v2 && npm start
 
 # Sub-projects (run from their directory)
 cd yuno-angular && npm start

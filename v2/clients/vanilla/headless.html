@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yuno v2 · Headless</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="back" href="./">← All scenarios</a>
+  <h1>Headless</h1>
+  <p>No SDK UI. You collect the card data (here a test card) and pass it to start(); the SDK tokenizes it and runs any 3DS step.</p>
+  <button id="pay">Pay with the test card</button>
+  <div id="sdk-root"></div>
+  <p id="status" class="status"></p>
+  <script type="module" src="./headless.js"></script>
+</body>
+</html>

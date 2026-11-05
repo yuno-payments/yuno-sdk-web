@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yuno v2 · Payment method list · manual</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="back" href="./">← All scenarios</a>
+  <h1>Payment method list · manual</h1>
+  <p>Same list, but the SDK hands you the one-time token in createPayment and your server creates the payment.</p>
+  <div id="payment-list"></div>
+  <button id="pay" disabled>Pay</button>
+  <div id="sdk-root"></div>
+  <p id="status" class="status"></p>
+  <script type="module" src="./payment-list-manual.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yuno v2 · Wallet buttons</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="back" href="./">← All scenarios</a>
+  <h1>Wallet buttons</h1>
+  <p>Apple Pay, Google Pay and PayPal buttons mounted where you want them. A wallet the device cannot offer is skipped and logged, not thrown.</p>
+  <div class="wallets">
+    <div id="apple-pay"></div>
+    <div id="google-pay"></div>
+    <div id="paypal"></div>
+  </div>
+  <div id="sdk-root"></div>
+  <p id="status" class="status"></p>
+  <script type="module" src="./wallets.js"></script>
+</body>
+</html>
