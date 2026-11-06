@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yuno v2 · Payment method list · managed</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="back" href="./">← All scenarios</a>
+  <h1>Payment method list · managed</h1>
+  <p>The SDK renders the list of payment methods in your element. When the shopper picks one, your button calls start() and the SDK takes it from there.</p>
+  <div id="payment-list"></div>
+  <button id="pay" disabled>Pay</button>
+  <div id="sdk-root"></div>
+  <p id="status" class="status"></p>
+  <script type="module" src="./payment-list-managed.js"></script>
+</body>
+</html>
