@@ -9,7 +9,9 @@ Enrollment). Nothing here is published to npm or deployed: it changes when the
 examples change.
 
 This file is the single source of truth; `CLAUDE.md` only imports it.
-`white-label-proxy-server/AGENTS.md` adds the rules of that sub-project.
+`white-label-proxy-server/AGENTS.md` adds the rules of that sub-project, and
+`v2/AGENTS.md` the rules of the Universal SDK (v2) examples: read it before
+changing anything under `v2/`.
 
 ## Build and run
 
@@ -21,6 +23,9 @@ own lockfile. Run commands from that directory.
 cp .env.example .env          # ACCOUNT_CODE, PUBLIC_API_KEY, PRIVATE_SECRET_KEY
 npm install
 npm run start:dev             # there is no `npm start` at the root
+
+# Universal SDK (v2) examples: server + vanilla client, http://localhost:8090
+cd v2 && npm start                                   # see v2/AGENTS.md
 
 # Framework demos
 cd yuno-angular && npm start                         # ng serve
@@ -45,11 +50,15 @@ keys in `.env`.
 
 - **CI** (`.github/workflows/check-pins.yml`, every pull request and push to
   `main`): `npm run check:pins` at the root, Node 20. It fails when any tracked
-  file loads the SDK from an exact version (`/v1.10.3/main.js`); only global
-  `major.minor` paths (`/v1.10/main.js`) pass. Run it before every pull request.
-- There are no unit tests. The root `npm test` is the npm placeholder and exits 1.
+  file, docs included, loads the v1 SDK from an exact version
+  (`/v<major.minor.patch>/main.js`); only global `major.minor` paths
+  (`/v1.10/main.js`) pass. `v2.*` exact pins are allowed (v2 is published at
+  full-version paths only). Run it before every pull request.
+- The root `npm test` runs `npm run check:pins`; there are no unit tests. A
+  single check is the same command: the pin check is the whole suite.
 - Per sub-project: `npm run lint` (`yuno-react` only), `npm run build` to
-  typecheck, `npm test` (`yuno-angular`, `ng test`).
+  typecheck, `npm test` (`yuno-angular`, `ng test`). `v2/clients/react`:
+  `npm run build` (`tsc -b`). There are no e2e tests.
 - Dependency fixes: `npm audit` in the affected sub-project must report 0
   vulnerabilities.
 - Behaviour is verified by hand: run the server, open the page you changed,
@@ -58,7 +67,8 @@ keys in `.env`.
 ## Architecture
 
 ```
-server.js              Express backend for the vanilla pages (port 8080), calls the Yuno API
+v2/                    Universal SDK (v2) examples: server (port 8090) + vanilla/React/Angular clients (own AGENTS.md)
+server.js              Legacy v1 Express backend for the vanilla pages (port 8080), calls the Yuno API
 utils.js               country data (currency, document, amount) per ?country=
 vanilla/pages|static   one HTML page + one script per integration flow
 yuno-angular/          Angular 21 demo (standalone)
@@ -105,13 +115,18 @@ scripts/check-cdn-pins.mjs  the CI pin check
 - **Clean code:** small functions, clear names, no dead or commented-out code,
   comments explain why. Follow the structure the sub-project already uses; do
   not add a second way of doing the same thing.
-- **SDK version paths:** always the global `major.minor` path; never an exact
-  version (immutable builds never receive fixes). Do not bump the line used by
-  the examples without the SDK team.
+- **SDK version paths:** v1 always uses the global `major.minor` path, never
+  an exact version (immutable builds never receive fixes). v2 has only
+  full-version paths, kept in one `SDK_URL` constant per client. Do not bump
+  the line used by the examples without the SDK team.
+- **Public API and bundle size:** the SDK's public API and its bundle-size
+  budget are owned by `sdk-web`; examples never rely on undocumented globals
+  and add no SDK wrapper or extra client bundle on top of it.
 - **Security:** API keys come from `.env` (gitignored; `.env.example` lists the
-  names, never values). The private secret key stays in `server.js`, never in
-  browser code. No PAN, CVV or PII in logs, console output or committed
-  fixtures; card data is captured only by the SDK's secure fields.
+  names, never values). The private secret key stays in the servers
+  (`server.js`, `v2/server/`), never in browser code. No PAN, CVV or PII in
+  logs, events, console output or committed fixtures; card data is captured
+  only by the SDK's secure fields and iframes.
 
 ## Pull requests
 
@@ -131,9 +146,9 @@ scripts/check-cdn-pins.mjs  the CI pin check
   proxy** (`http://localhost:9090/hosted-payment-methods/hosted-payment-form/orchestrator/v1.0/main.js`),
   with the production script tag commented out. The index page only works with
   the proxy running and `BASE_PATH` set to that prefix.
-- **An exact SDK version anywhere in the repo fails CI**, including a
-  host-less `SDK_MAIN_JS` value or a comment. Placeholders like `/v<semver>/`
-  are allowed.
+- **An exact v1 SDK version anywhere in the repo fails CI**, including a
+  host-less `SDK_MAIN_JS` value, a comment or this file. Placeholders like
+  `/v<semver>/` and `v2.*` pins are allowed.
 - **Lockfiles are per sub-project.** Running `npm install` at the root does not
   touch `yuno-react` or `yuno-vue`; a security fix needs its lockfile
   regenerated in the right directory.
