@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 /* eslint-disable no-empty */
 import { useContext, useEffect } from "react"
 import { AppContext } from "../../context/app-context"
@@ -21,7 +20,7 @@ export const ApmLite: React.FC<{
           console.log('token ----->', token)
           try {
             await yunoInstance.continuePayment()
-          } catch (error) {
+          } catch {
           } finally {
             onClose()
           }
